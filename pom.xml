@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.rabit</groupId>
+    <artifactId>kokotrip-admin</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>war</packaging>
+
+
+    <properties>
+        <springframework.version>5.2.3.RELEASE</springframework.version>
+        <springsecurity.version>5.2.3.RELEASE</springsecurity.version>
+        <hibernate.version>5.4.2.Final</hibernate.version>
+        <mysql.connector.version>8.0.15</mysql.connector.version>
+        <c3p0.version>0.9.5.4</c3p0.version>
+        <slf4j.version>1.7.26</slf4j.version>
+        <logback.version>1.2.3</logback.version>
+
+
+        <lombok.version>1.18.12</lombok.version>
+        <jpamodelgen.version>5.4.3.Final</jpamodelgen.version>
+
+
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+    </properties>
+
+
+    <dependencies>
+
+
+        <!-- Spring Framework -->
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>${springframework.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+            <version>${springframework.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-orm</artifactId>
+            <version>${springframework.version}</version>
+        </dependency>
+
+        <!-- Hibernate -->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>${hibernate.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>6.0.16.Final</version>
+        </dependency>
+
+
+        <!-- MySQL -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>${mysql.connector.version}</version>
+        </dependency>
+
+        <!-- C3PO -->
+        <dependency>
+            <groupId>com.mchange</groupId>
+            <artifactId>c3p0</artifactId>
+            <version>${c3p0.version}</version>
+        </dependency>
+
+        <!-- Servlet+JSP+JSTL -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>4.0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.servlet.jsp</groupId>
+            <artifactId>javax.servlet.jsp-api</artifactId>
+            <version>2.3.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jstl</artifactId>
+            <version>1.2</version>
+        </dependency>
+
+
+        <!-- Spring Security -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-web</artifactId>
+            <version>${springsecurity.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-config</artifactId>
+            <version>${springsecurity.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-taglibs</artifactId>
+            <version>${springsecurity.version}</version>
+        </dependency>
+
+        <!-- Jackson -->
+        <dependency>
+            <groupId>com.jwebmp.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>0.65.0.3</version>
+        </dependency>
+
+        <!-- to compensate for java 9 not including jaxb -->
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.3.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-core</artifactId>
+            <version>2.3.0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+            <version>2.3.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sun.activation</groupId>
+            <artifactId>javax.activation</artifactId>
+            <version>1.2.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>1.9.2</version>
+        </dependency>
+
+        <!-- Logger -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>${logback.version}</version>
+        </dependency>
+
+
+        <!-- model mapper -->
+        <dependency>
+            <groupId>org.modelmapper</groupId>
+            <artifactId>modelmapper</artifactId>
+            <version>2.3.2</version>
+        </dependency>
+
+        <!-- jpa data-->
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-jpa</artifactId>
+            <version>2.1.9.RELEASE</version>
+        </dependency>
+
+
+        <!--beansUtils-->
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <version>1.9.3</version>
+        </dependency>
+
+
+        <!--&lt;!&ndash; https://mvnrepository.com/artifact/com.google.code.gson/gson &ndash;&gt;-->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.8.5</version>
+        </dependency>
+
+
+        <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-jpamodelgen -->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-jpamodelgen</artifactId>
+            <version>5.4.3.Final</version>
+            <scope>provided</scope>
+        </dependency>
+
+
+        <!-- DataTable -->
+        <dependency>
+            <groupId>com.github.darrachequesne</groupId>
+            <artifactId>spring-data-jpa-datatables</artifactId>
+            <version>5.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20190722</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.12</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-ehcache</artifactId>
+            <version>${hibernate.version}</version>
+        </dependency>
+
+
+        <!--commons file uploader-->
+
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>1.4</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.6</version>
+        </dependency>
+
+        <!-- amazon s3 -->
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk</artifactId>
+            <version>1.11.163</version>
+        </dependency>
+
+    </dependencies>
+
+
+
+
+
+    <build>
+        <finalName>kokotripadmin</finalName>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <!-- Add Maven coordinates (GAV) for: maven-war-plugin -->
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-war-plugin</artifactId>
+                    <version>3.2.0</version>
+
+                    <!--<configuration>-->
+                    <!--&lt;!&ndash;
+                    in order to use minify filed listed bellow &ndash;&gt;-->
+                    <!--<warSourceExcludes>**/*.css, **/*.js</warSourceExcludes>-->
+                    <!--</configuration>-->
+
+
+                </plugin>
+
+
+                <!--<plugin>-->
+                    <!--<groupId>org.apache.maven.plugins</groupId>-->
+                    <!--<artifactId>maven-compiler-plugin</artifactId>-->
+                    <!--<version>3.6.0</version>-->
+                    <!--<configuration>-->
+                        <!--<source>1.8</source>-->
+                        <!--<target>1.8</target>-->
+                        <!--<annotationProcessorPaths>-->
+                            <!--<path>-->
+                                <!--<groupId>org.projectlombok</groupId>-->
+                                <!--<artifactId>lombok</artifactId>-->
+                                <!--<version>1.18.12</version>-->
+                            <!--</path>-->
+                        <!--</annotationProcessorPaths>-->
+                    <!--</configuration>-->
+                <!--</plugin>-->
+
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.8.0</version>
+                    <configuration>
+                        <source>${maven.compiler.source}</source>
+                        <target>${maven.compiler.target}</target>
+                        <compilerArgument>-proc:none</compilerArgument>
+
+                        <!--<compilerArguments>-->
+                            <!--<processor>org.hibernate.jpamodelgen.JPAMetaModelEntityProcessor,lombok.launch.AnnotationProcessorHider$AnnotationProcessor</processor>-->
+                        <!--</compilerArguments>-->
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                                <version>${lombok.version}</version>
+                            </path>
+                            <path>
+                                <groupId>org.hibernate</groupId>
+                                <artifactId>hibernate-jpamodelgen</artifactId>
+                                <version>${jpamodelgen.version}</version>
+                            </path>
+                        </annotationProcessorPaths>
+
+                    </configuration>
+                </plugin>
+
+
+<!--                <plugin>-->
+<!--                    <groupId>org.bsc.maven</groupId>-->
+<!--                    <artifactId>maven-processor-plugin</artifactId>-->
+<!--                    <version>2.0.5</version>-->
+<!--                    <executions>-->
+<!--                        <execution>-->
+<!--                            <id>process</id>-->
+<!--                            <goals>-->
+<!--                                <goal>process</goal>-->
+<!--                            </goals>-->
+<!--                            <phase>generate-sources</phase>-->
+<!--                            <configuration>-->
+<!--                                <processors>-->
+<!--                                    <processor>org.hibernate.jpamodelgen.JPAMetaModelEntityProcessor</processor>-->
+<!--                                    <processor>lombok.launch.AnnotationProcessorHider$AnnotationProcessor</processor>-->
+<!--                                </processors>-->
+<!--                            </configuration>-->
+<!--                        </execution>-->
+<!--                    </executions>-->
+<!--                </plugin>-->
+
+
+
+
+
+                <!--<plugin>-->
+                    <!--<groupId>org.projectlombok</groupId>-->
+                    <!--<artifactId>lombok-maven-plugin</artifactId>-->
+                    <!--<version>1.18.12.0</version>-->
+                    <!--<executions>-->
+                        <!--<execution>-->
+                            <!--<id>lombok</id>-->
+                            <!--<phase>generate-sources</phase>-->
+                            <!--<goals>-->
+                                <!--<goal>lombok</goal>-->
+                            <!--</goals>-->
+                            <!--<configuration>-->
+                                <!--<processors>-->
+                                    <!--<processor>lombok.launch.AnnotationProcessorHider$AnnotationProcessor</processor>-->
+                                <!--</processors>-->
+                            <!--</configuration>-->
+                        <!--</execution>-->
+                    <!--</executions>-->
+                <!--</plugin>-->
+
+
+                <!--lombok.launch.AnnotationProcessorHider$AnnotationProcessor-->
+
+                <!--org.hibernate.jpamodelgen.JPAMetaModelEntityProcessor-->
+
+            </plugins>
+        </pluginManagement>
+    </build>
+
+</project>

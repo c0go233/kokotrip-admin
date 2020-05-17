@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<configuration scan="true">
+
+
+    <property name="path_to_log" value="kokotrip/log" />
+
+    <appender name="rolling-appender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!--if you specify <file> tag here your first file would have the date conversation as %d{yyyy-MM-dd in file name -->
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${path_to_log}/kokotrip.log.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <totalSizeCap>20GB</totalSizeCap>
+            <maxHistory>60</maxHistory>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>%d{yyy-MM-dd.HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+
+    </appender>
+
+    <appender name="console-appender" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</Pattern>
+        </layout>
+    </appender>
+
+    <logger name="org.hibernate.SQL" level="DEBUG" />
+    <logger name="org.hibernate.type" level="TRACE" />
+
+    <root level="info">
+        <appender-ref ref="console-appender"/>
+    </root>
+
+    <logger name="com.kokotripadmin" level="debug" additivity="false">
+        <!--<appender-ref ref="console-appender"/>-->
+        <appender-ref ref="rolling-appender" />
+    </logger>
+
+
+</configuration>
