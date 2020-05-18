@@ -30,7 +30,7 @@ public class BucketController {
 
     private final String KOKOTRIP_BUCKET = "kokotrip";
 
-    @PostMapping(value = "/image", consumes = {"multipart/form-data"})
+    @PostMapping(value = "/image", consumes = {"multipart/form-data"}, produces = "application/json; charset=utf8")
     @ResponseBody
     public ResponseEntity<String> uploadImageToS3Bucket(@Valid @RequestParam("image") MultipartFile multipartFile,
                                                         @Valid @RequestParam("directory") String directory,
@@ -38,16 +38,14 @@ public class BucketController {
 
 
         try {
-
-
-            
-            File file = convert.multiPartToFile(multipartFile, fileName);
-            PutObjectRequest putObjectRequest = new PutObjectRequest(KOKOTRIP_BUCKET, directory + "/" + fileName, file);
-            putObjectRequest.withCannedAcl(CannedAccessControlList.PublicRead);
-            amazonS3.putObject(putObjectRequest);
-            file.delete();
-            String endPoint = convert.toAmazonS3EndPoint(KOKOTRIP_BUCKET, amazonS3.getRegionName(), directory, fileName);
-            return ResponseEntity.status(HttpStatus.OK).body(convert.resultToJson(endPoint));
+//            File file = convert.multiPartToFile(multipartFile, fileName);
+//            PutObjectRequest putObjectRequest = new PutObjectRequest(KOKOTRIP_BUCKET, directory + "/" + fileName, file);
+//            putObjectRequest.withCannedAcl(CannedAccessControlList.PublicRead);
+//            amazonS3.putObject(putObjectRequest);
+//            file.delete();
+//            String endPoint = convert.toAmazonS3EndPoint(KOKOTRIP_BUCKET, amazonS3.getRegionName(), directory, fileName);
+//            return ResponseEntity.status(HttpStatus.OK).body(convert.resultToJson(endPoint));
+            return ResponseEntity.status(HttpStatus.OK).body(convert.resultToJson("test path"));
         } catch (AmazonServiceException e) {
             // The call was transmitted successfully, but Amazon S3 couldn't process
             // it, so it returned an error response.
@@ -56,9 +54,10 @@ public class BucketController {
             // Amazon S3 couldn't be contacted for a response, or the client
             // couldn't parse the response from Amazon S3.
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(convert.exceptionToJson(e.getMessage()));
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(convert.exceptionToJson(e.getMessage()));
         }
+//        } catch (IOException e) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(convert.exceptionToJson(e.getMessage()));
+//        }
 //
 //
 //

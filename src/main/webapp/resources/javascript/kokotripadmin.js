@@ -801,8 +801,8 @@ function isNextTradingHourEarlierThanCurrent(currentRow, nextRow) {
         || (nextRowDayOfWeekId < currentRowDayOfWeekId);
 }
 
-function setListInputsBeforeSubmit(wrapper) {
-    wrapper.children('div.timetable-builder-wrapper').each(function (index) {
+function setListInputsBeforeSubmit(wrapper, inputWrapperClass) {
+    wrapper.children(inputWrapperClass).each(function (index) {
         $(this).find('input').each(function () {
 
             let name = $(this).attr(htmlAttr.name);
@@ -811,23 +811,12 @@ function setListInputsBeforeSubmit(wrapper) {
             let right = name.substr(name.indexOf(']'));
             let newName = left + index + right;
             $(this).attr(htmlAttr.name, newName);
-            // console.log($(this));
-            // console.log(name);
-            //
-            // if (name !== null) {
-            //
-            //     if (indexOfBracket >= 0) {
-            //
-            //     }
-            // }
-            //
-
         })
     });
 }
 
 function setTradingHourInputs() {
-    setListInputsBeforeSubmit(eTimetableTradingHourWrapper);
+    setListInputsBeforeSubmit(eTimetableTradingHourWrapper, 'div.timetable-builder-wrapper');
 }
 
 
@@ -926,7 +915,7 @@ function setInputIdAndName(input, id, name) {
 
 
 function setTicketPriceInputs() {
-    setListInputsBeforeSubmit(eTicketPriceWrapper);
+    setListInputsBeforeSubmit(eTicketPriceWrapper, 'div.timetable-builder-wrapper');
 }
 
 
@@ -1053,7 +1042,7 @@ function setAutoCompleteSelect() {
 
 //============================ IMAGE GALLERY ==============================================//
 
-let imageGalleryInput;
+let imageGalleryFileInput;
 let imageGalleryAddBtn;
 let imageGalleryDeleteBtn;
 let imageGalleryDropBox;
@@ -1062,7 +1051,7 @@ let dropIndex;
 
 
 function setImageGallery() {
-    imageGalleryInput = $('input#image-gallery-input');
+    imageGalleryFileInput = $('input#image-gallery-file-input');
     imageGalleryAddBtn = $('button#image-gallery-add-btn');
     imageGalleryDeleteBtn = $('button#image-gallery-delete-btn');
     imageGalleryDropBox = $('div.image-gallery__drop-box');
@@ -1074,7 +1063,7 @@ function setImageGallery() {
     });
 
     imageGalleryAddBtn.on(eventType.click, function () {
-        imageGalleryInput.click();
+        imageGalleryFileInput.click();
     });
 
     imageGalleryDropBox.on(eventType.click, 'div.image-gallery__image-wrapper', function () {
@@ -1093,6 +1082,32 @@ function setImageGallery() {
         showImageItem(imageItem, 'image-gallery__image-wrapper');
         imageItem.addClass('processing');
         sourceImage.attr('src', imageUrl);
+    });
+
+    imageGalleryFileInput.on(eventType.change, function (e) {
+        resizeImageAndLoad(e.target.files[0]);
+    });
+
+    imageGalleryDeleteBtn.on(eventType.click, function () {
+        imageGalleryImageList.find('div.image-gallery__image-wrapper.selected').each(function () {
+
+        });
+    });
+
+    $('form').on(eventType.submit, function (e) {
+
+        let count = imageGalleryImageList.find('li.processing').length;
+        if (count > 0) {
+            e.preventDefault();
+            return false;
+        }
+
+
+        console.log('submit listener');
+        console.log('count: ' + count);
+        e.preventDefault();
+        setListInputsBeforeSubmit(imageGalleryImageList, 'div.image-gallery__image-wrapper');
+        return false;
     });
 
 
@@ -1141,40 +1156,40 @@ function setImageGallery() {
 
 
             $.each(dataTransfer.files, function (i, file) {
-
-                if (file.type.match('image.*')) {
-                    let reader = new FileReader();
-
-                    imageGalleryDropBox.addClass('image-gallery__drop-box_filled');
-
-                    reader.onload = function (readerEvent) {
-                        let image = new Image();
-
-                        image.onload = function () {
-
-                            let canvas = document.createElement('canvas');
-                            let maxSize = 100;
-                            let width = image.width;
-                            let height = image.height;
-                            
-                            width = 100;
-                            height = 100;
-
-                            canvas.width = width;
-                            canvas.height = height;
-                            canvas.getContext('2d').drawImage(image, 0, 0, width, height);
-                            
-                            let dataUrl = canvas.toDataURL(file.type);
-
-                            if (dataUrl) {
-                                let imageItem = createImageItem(file.name, file.type, dataUrl);
-                                uploadImage($(imageItem), true);
-                            }
-                        };
-                        image.src = readerEvent.target.result;
-                    };
-                    reader.readAsDataURL(file);
-                }
+                resizeImageAndLoad(file);
+                // if (file.type.match('image.*')) {
+                //     let reader = new FileReader();
+                //
+                //     imageGalleryDropBox.addClass('image-gallery__drop-box_filled');
+                //
+                //     reader.onload = function (readerEvent) {
+                //         let image = new Image();
+                //
+                //         image.onload = function () {
+                //
+                //             let canvas = document.createElement('canvas');
+                //             let maxSize = 100;
+                //             let width = image.width;
+                //             let height = image.height;
+                //
+                //             width = 100;
+                //             height = 100;
+                //
+                //             canvas.width = width;
+                //             canvas.height = height;
+                //             canvas.getContext('2d').drawImage(image, 0, 0, width, height);
+                //
+                //             let dataUrl = canvas.toDataURL(file.type);
+                //
+                //             if (dataUrl) {
+                //                 let imageItem = createImageItem(file.name, file.type, dataUrl);
+                //                 uploadImage($(imageItem), true);
+                //             }
+                //         };
+                //         image.src = readerEvent.target.result;
+                //     };
+                //     reader.readAsDataURL(file);
+                //}
 
             });
         }
@@ -1186,7 +1201,42 @@ function setImageGallery() {
             dropIndex = ui.item.index();
         }
     });
+}
 
+function resizeImageAndLoad(file) {
+    if (file.type.match('image.*')) {
+        let reader = new FileReader();
+
+        imageGalleryDropBox.addClass('image-gallery__drop-box_filled');
+
+        reader.onload = function (readerEvent) {
+            let image = new Image();
+
+            image.onload = function () {
+
+                let canvas = document.createElement('canvas');
+                let maxSize = 100;
+                let width = image.width;
+                let height = image.height;
+
+                width = 100;
+                height = 100;
+
+                canvas.width = width;
+                canvas.height = height;
+                canvas.getContext('2d').drawImage(image, 0, 0, width, height);
+
+                let dataUrl = canvas.toDataURL(file.type);
+
+                if (dataUrl) {
+                    let imageItem = createImageItem(file.name, file.type, dataUrl);
+                    uploadImage($(imageItem), true);
+                }
+            };
+            image.src = readerEvent.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
 }
 
 function imageOnLoad(target) {
@@ -1203,16 +1253,22 @@ function imageOnError(target) {
 
 function uploadImage (imageItem, appendToImageList) {
 
-    let sourceImageTag = $(imageItem).find('img.source-image');
+    console.log("updloadimage");
+
+    let sourceImageTag = imageItem.find('img.source-image');
     let data = new FormData();
 
     imageItem.addClass('processing');
     showImageItem(imageItem, 'image-gallery__image-wrapper');
     if (appendToImageList) imageGalleryImageList.append(imageItem);
 
-    data.append('image', dataURLToBlob(sourceImageTag.attr('src')));
+    let image = dataURLToBlob(sourceImageTag.attr('src'));
+    let fileName = imageItem.find('div.image-gallery__caption').text();
+    let fileType = image.type;
+
+    data.append('image', image);
     data.append('directory', imageGalleryDropBox.attr('data-directory'));
-    data.append('fileName', sourceImageTag.attr('data-file-name'));
+    data.append('fileName', fileName);
 
     
     $.ajax({
@@ -1223,8 +1279,12 @@ function uploadImage (imageItem, appendToImageList) {
         processData: false,
         type: 'POST',
         success: function (response) {
-            imageItem.attr('data-image-id', response.result);
             imageItem.removeClass('processing');
+            let imageWrapper = imageItem.find('div.image-gallery__image-wrapper');
+            imageWrapper.append('<input type="hidden" name="baseImageVmList[0].name" value="' + fileName + '">');
+            imageWrapper.append('<input type="hidden" name="baseImageVmList[0].fileType" value="' + fileType + '">');
+            imageWrapper.append('<input type="hidden" name="baseImageVmList[0].repImage" value="false">');
+            imageWrapper.append('<input type="hidden" name="baseImageVmList[0].path" value="' + response.result + '">');
         },
         error: function (jqXHR) {
 
@@ -1281,11 +1341,7 @@ function createImageItem(fileName, fileType, dataUrl) {
         '                 class="image-gallery__check-icon"/>' +
         '        </div>' +
         '        <div class="image-gallery__caption">' + fileName + '</div>' +
-        '        <img src="' + dataUrl + '" class="source-image" ' +
-        '             data-file-name="' + fileName + '"/>' +
-        '        <input type="hidden" name="baseImageVmList[0].name" value="' + fileName + '">' +
-        '        <input type="hidden" name="baseImageVmList[0].fileType" value="' + fileType + '">' +
-        '        <input type="hidden" name="baseImageVmList[0].repImage" value="false">' +
+        '        <img src="' + dataUrl + '" class="source-image" >' +
         '    </div>' +
         '    <div class="image-gallery__error-wrapper image-gallery__upload-error-wrapper hide">' +
         '        <img src="' + $('meta[name=contextPath]').attr('content') + '/resources/image/image.png">' +

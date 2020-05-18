@@ -10,6 +10,7 @@
     <packaging>war</packaging>
 
 
+
     <properties>
         <springframework.version>5.2.3.RELEASE</springframework.version>
         <springsecurity.version>5.2.3.RELEASE</springsecurity.version>
