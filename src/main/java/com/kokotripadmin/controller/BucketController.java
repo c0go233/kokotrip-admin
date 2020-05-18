@@ -38,6 +38,9 @@ public class BucketController {
 
 
         try {
+
+
+            
             File file = convert.multiPartToFile(multipartFile, fileName);
             PutObjectRequest putObjectRequest = new PutObjectRequest(KOKOTRIP_BUCKET, directory + "/" + fileName, file);
             putObjectRequest.withCannedAcl(CannedAccessControlList.PublicRead);
