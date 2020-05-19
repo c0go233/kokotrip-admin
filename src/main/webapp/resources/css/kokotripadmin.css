@@ -1711,6 +1711,14 @@ a.paginate_button:focus {
     padding: 0px 30px;
 }
 
+.image-gallery__tool-bar__right-side {
+    display: flex;
+}
+
+.image-gallery__tool-bar__right-side > button > span {
+    margin-left: 5px;
+}
+
 .image-gallery__tool-bar button.k-btn:hover {
     text-decoration: none;
     color: var(--color-primary-dark);
@@ -1773,10 +1781,11 @@ div.image-gallery__image-wrapper {
     width: 100%;
     background-color: transparent;
     bottom: 15px;
-    padding: 0px 10px;
+    padding: 0px 15px;
     display: none;
     z-index: 10;
     color: white;
+    text-align: right;
 }
 
 .image-gallery__image-wrapper > img.source-image {
@@ -1839,6 +1848,30 @@ ul.image-gallery__image-list > li.processing > .image-gallery__image-wrapper > d
 .error-popup {
     display: block;
 }
+
+.image-gallery__representative-btn {
+    margin-right: 10px;
+}
+
+.image-gallery__representative-btn > div {
+    width: 17px;
+    height: 17px;
+    border: 2px dashed var(--color-primary);
+}
+
+.image-gallery__representative-btn:hover > div {
+    border-color: var(--color-primary-dark);
+}
+
+.image-gallery__image-wrapper.rep-image {
+    outline: 2px dashed var(--color-primary);
+}
+
+
+
+
+
+
 
 
 

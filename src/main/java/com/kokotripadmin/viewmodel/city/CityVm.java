@@ -1,5 +1,6 @@
 package com.kokotripadmin.viewmodel.city;
 
+import com.kokotripadmin.validator.ImageConstraint;
 import com.kokotripadmin.viewmodel.common.BaseImageVm;
 import com.kokotripadmin.viewmodel.common.BaseViewModel;
 import com.kokotripadmin.viewmodel.common.GenericInfoVm;
@@ -44,6 +45,8 @@ public class CityVm extends BaseViewModel {
     private List<CityInfoVm> cityInfoVmList;
     private List<ThemeRelVm> themeRelVmList;
     private List<RegionVm>   regionVmList;
+
+    @ImageConstraint
     private List<BaseImageVm> baseImageVmList;
 
     public CityVm() {

@@ -13,11 +13,18 @@
             <img class="icon-medium" src="${pageContext.request.contextPath}/resources/image/plus-primary-darker.png">
             <span>추가하기</span>
         </button>
-        <button id="image-gallery-delete-btn" type="button" class="link-primary k-btn tool-bar__add-link img-hover-btn">
-            <img class="icon-medium" src="${pageContext.request.contextPath}/resources/image/bin-primary.png">
-            <img class="icon-medium" src="${pageContext.request.contextPath}/resources/image/bin-primary-darker.png">
-            <span>삭제하기</span>
-        </button>
+        <div class="image-gallery__tool-bar__right-side">
+            <button id="image-gallery-representative-image-btn" type="button"  class="image-gallery__representative-btn link-primary k-btn tool-bar__add-link ">
+                <div></div>
+                <span>대표이미지</span>
+            </button>
+            <button id="image-gallery-delete-btn" type="button" class="link-primary k-btn tool-bar__add-link img-hover-btn">
+                <img class="icon-medium" src="${pageContext.request.contextPath}/resources/image/bin-primary.png">
+                <img class="icon-medium" src="${pageContext.request.contextPath}/resources/image/bin-primary-darker.png">
+                <span>삭제하기</span>
+            </button>
+        </div>
+
     </div>
     <div class="image-gallery__drop-box" data-directory="${directory}">
         <%--        <div class="image-gallery__drop-logo-wrapper">--%>
@@ -27,82 +34,89 @@
         <%--        </div>--%>
         <ul class="image-gallery__image-list">
 
-            <%--<li class="image-gallery__item processing">--%>
-                <%--<div class="image-gallery__image-wrapper">--%>
-                    <%--<div class="lds-ellipsis">--%>
-                        <%--<div></div>--%>
-                        <%--<div></div>--%>
-                        <%--<div></div>--%>
-                        <%--<div></div>--%>
-                    <%--</div>--%>
-                    <%--<div class="screen-filter"></div>--%>
-                    <%--<div class="image-gallery__check-icon-wrapper">--%>
-                        <%--<img src="${pageContext.request.contextPath}/resources/image/round-check-primary.png"--%>
-                             <%--class="image-gallery__check-icon"/>--%>
-                    <%--</div>--%>
-                    <%--<div class="image-gallery__caption">TESTIMAGE.jpg</div>--%>
-                    <%--<img src="${pageContext.request.contextPath}/resources/image/Gyeongbokgung.jpg"--%>
-                         <%--class="source-image"--%>
-                         <%--data-file-name="TESTIMAGE.jpg"--%>
-                         <%--onload="imageOnLoad(this)"--%>
-                         <%--onerror="imageOnError(this)"/>--%>
-                <%--</div>--%>
-                <%--<div class="image-gallery__error-wrapper image-gallery__upload-error-wrapper hide">--%>
-                    <%--<img src="${pageContext.request.contextPath}/resources/image/image.png">--%>
-                    <%--<p>업로드를 실패했습니다.</p>--%>
-                    <%--<button type="button" class="image-gallery__upload-btn k-btn btn-bold image-gallery__btn">--%>
-                        <%--재업로드--%>
-                    <%--</button>--%>
-                <%--</div>--%>
-                <%--<div class="image-gallery__error-wrapper image-gallery__download-error-wrapper hide">--%>
-                    <%--<img src="${pageContext.request.contextPath}/resources/image/image.png">--%>
-                    <%--<p>다운로드를 실패했습니다.</p>--%>
-                    <%--<button type="button" class="image-gallery__download-btn k-btn btn-bold image-gallery__btn">--%>
-                        <%--다운로드--%>
-                    <%--</button>--%>
-                <%--</div>--%>
-            <%--</li>--%>
+            <li class="image-gallery__item processing">
+                <div class="image-gallery__image-wrapper">
+                    <div class="lds-ellipsis">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
+                    <div class="screen-filter"></div>
+                    <div class="image-gallery__check-icon-wrapper">
+                        <img src="${pageContext.request.contextPath}/resources/image/round-check-primary.png"
+                             class="image-gallery__check-icon"/>
+                    </div>
+                    <div class="image-gallery__caption">TESTIMAGE.jpg</div>
+                    <img src="${pageContext.request.contextPath}/resources/image/Gyeongbokgung.jpg"
+                         class="source-image"
+                         data-file-name="TESTIMAGE.jpg"
+                         onload="imageOnLoad(this)"
+                         onerror="imageOnError(this)"/>
+                    <input type="hidden" name="baseImageVmList[0].name" value="">
+                    <input type="hidden" name="baseImageVmList[0].fileType" value="">
+                    <input type="hidden" name="baseImageVmList[0].repImage" value="">
+                    <input type="hidden" name="baseImageVmList[0].path" value="">
 
-            <%--<ul class="image-gallery__image-list">--%>
+                </div>
+                <div class="image-gallery__error-wrapper image-gallery__upload-error-wrapper hide">
+                    <img src="${pageContext.request.contextPath}/resources/image/image.png">
+                    <p>업로드를 실패했습니다.</p>
+                    <button type="button" class="image-gallery__upload-btn k-btn btn-bold image-gallery__btn">
+                        재업로드
+                    </button>
+                </div>
+                <div class="image-gallery__error-wrapper image-gallery__download-error-wrapper hide">
+                    <img src="${pageContext.request.contextPath}/resources/image/image.png">
+                    <p>다운로드를 실패했습니다.</p>
+                    <button type="button" class="image-gallery__download-btn k-btn btn-bold image-gallery__btn">
+                        다운로드
+                    </button>
+                </div>
+            </li>
 
-                <%--<li class="image-gallery__item processing">--%>
-                    <%--<div class="image-gallery__image-wrapper">--%>
-                        <%--<div class="lds-ellipsis">--%>
-                            <%--<div></div>--%>
-                            <%--<div></div>--%>
-                            <%--<div></div>--%>
-                            <%--<div></div>--%>
-                        <%--</div>--%>
-                        <%--<div class="screen-filter"></div>--%>
-                        <%--<div class="image-gallery__check-icon-wrapper">--%>
-                            <%--<img src="${pageContext.request.contextPath}/resources/image/round-check-primary.png"--%>
-                                 <%--class="image-gallery__check-icon"/>--%>
-                        <%--</div>--%>
-                        <%--<div class="image-gallery__caption">TESTIMAGE.jpg</div>--%>
-                        <%--<img src="${pageContext.request.contextPath}/resources/image/Gyeongbokgung.jpg"--%>
-                             <%--class="source-image"--%>
-                             <%--data-file-name="TESTIMAGE.jpg"--%>
-                             <%--onload="imageOnLoad(this)"--%>
-                             <%--onerror="imageOnError(this)"/>--%>
-                    <%--</div>--%>
-                    <%--<div class="image-gallery__error-wrapper image-gallery__upload-error-wrapper hide">--%>
-                        <%--<img src="${pageContext.request.contextPath}/resources/image/image.png">--%>
-                        <%--<p>업로드를 실패했습니다.</p>--%>
-                        <%--<button type="button" class="image-gallery__upload-btn k-btn btn-bold image-gallery__btn">--%>
-                            <%--재업로드--%>
-                        <%--</button>--%>
-                    <%--</div>--%>
-                    <%--<div class="image-gallery__error-wrapper image-gallery__download-error-wrapper hide">--%>
-                        <%--<img src="${pageContext.request.contextPath}/resources/image/image.png">--%>
-                        <%--<p>다운로드를 실패했습니다.</p>--%>
-                        <%--<button type="button" class="image-gallery__download-btn k-btn btn-bold image-gallery__btn">--%>
-                            <%--다운로드--%>
-                        <%--</button>--%>
-                    <%--</div>--%>
-                <%--</li>--%>
+            <li class="image-gallery__item processing">
+                <div class="image-gallery__image-wrapper">
+                    <div class="lds-ellipsis">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
+                    <div class="screen-filter"></div>
+                    <div class="image-gallery__check-icon-wrapper">
+                        <img src="${pageContext.request.contextPath}/resources/image/round-check-primary.png"
+                             class="image-gallery__check-icon"/>
+                    </div>
+                    <div class="image-gallery__caption">TESTIMAGE.jpg</div>
+                    <img src="${pageContext.request.contextPath}/resources/image/Gyeongbokgung.jpg"
+                         class="source-image"
+                         data-file-name="TESTIMAGE.jpg"
+                         onload="imageOnLoad(this)"
+                         onerror="imageOnError(this)"/>
+                    <input type="hidden" name="baseImageVmList[0].name" value="">
+                    <input type="hidden" name="baseImageVmList[0].fileType" value="">
+                    <input type="hidden" name="baseImageVmList[0].repImage" value="">
+                    <input type="hidden" name="baseImageVmList[0].path" value="">
+                </div>
+                <div class="image-gallery__error-wrapper image-gallery__upload-error-wrapper hide">
+                    <img src="${pageContext.request.contextPath}/resources/image/image.png">
+                    <p>업로드를 실패했습니다.</p>
+                    <button type="button" class="image-gallery__upload-btn k-btn btn-bold image-gallery__btn">
+                        재업로드
+                    </button>
+                </div>
+                <div class="image-gallery__error-wrapper image-gallery__download-error-wrapper hide">
+                    <img src="${pageContext.request.contextPath}/resources/image/image.png">
+                    <p>다운로드를 실패했습니다.</p>
+                    <button type="button" class="image-gallery__download-btn k-btn btn-bold image-gallery__btn">
+                        다운로드
+                    </button>
+                </div>
+            </li>
 
 
-                <c:forEach var="image" items="${imageList}">
+            <c:forEach var="image" items="${imageList}">
                 <li class="image-gallery__item hide processing">
                     <div class="image-gallery__image-wrapper">
                         <div class="lds-ellipsis">
@@ -121,7 +135,7 @@
                         <input type="hidden" name="baseImageVmList[0].name" value="${image.name}">
                         <input type="hidden" name="baseImageVmList[0].fileType" value="${image.fileType}">
                         <input type="hidden" name="baseImageVmList[0].repImage" value="${image.repImage}">
-                        <input type="hidden" name="baseImageVmList[0].repImage" value="${image.path}">
+                        <input type="hidden" name="baseImageVmList[0].path" value="${image.path}">
                     </div>
                     <div class="image-gallery__error-wrapper image-gallery__upload-error-wrapper hide">
                         <img src="${pageContext.request.contextPath}/resources/image/image.png">

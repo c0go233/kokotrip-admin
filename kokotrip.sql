@@ -1102,7 +1102,6 @@ create table `photo_zone_info`
 );
 
 
-
 create table `city_image`
 (
   `id`         int(11)       not null auto_increment,
