@@ -2,6 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <%@ attribute required="true" name="directory" type="java.lang.String" %>
+<%@ attribute required="true" name="deleteUrl" type="java.lang.String" %>
 <%@ attribute name="imageList" type="java.util.List" %>
 
 
@@ -18,7 +19,10 @@
                 <div></div>
                 <span>대표이미지</span>
             </button>
-            <button id="image-gallery-delete-btn" type="button" class="link-primary k-btn tool-bar__add-link img-hover-btn">
+            <button id="image-gallery-delete-btn"
+                    type="button"
+                    class="link-primary k-btn tool-bar__add-link img-hover-btn"
+                    data-delete-url="${pageContext.request.contextPath}${deleteUrl}">
                 <img class="icon-medium" src="${pageContext.request.contextPath}/resources/image/bin-primary.png">
                 <img class="icon-medium" src="${pageContext.request.contextPath}/resources/image/bin-primary-darker.png">
                 <span>삭제하기</span>
@@ -53,9 +57,10 @@
                          data-file-name="TESTIMAGE.jpg"
                          onload="imageOnLoad(this)"
                          onerror="imageOnError(this)"/>
-                    <input type="hidden" name="baseImageVmList[0].name" value="">
-                    <input type="hidden" name="baseImageVmList[0].fileType" value="">
-                    <input type="hidden" name="baseImageVmList[0].repImage" value="">
+                    <input type="hidden" name="baseImageVmList[0].id" value="12">
+                    <input type="hidden" name="baseImageVmList[0].name" value="테스트이미지.jpg">
+                    <input type="hidden" name="baseImageVmList[0].fileType" value="jpg">
+                    <input type="hidden" name="baseImageVmList[0].repImage" value="true">
                     <input type="hidden" name="baseImageVmList[0].path" value="">
 
                 </div>
@@ -94,6 +99,7 @@
                          data-file-name="TESTIMAGE.jpg"
                          onload="imageOnLoad(this)"
                          onerror="imageOnError(this)"/>
+                    <input type="hidden" name="baseImageVmList[0].id" value="">
                     <input type="hidden" name="baseImageVmList[0].name" value="">
                     <input type="hidden" name="baseImageVmList[0].fileType" value="">
                     <input type="hidden" name="baseImageVmList[0].repImage" value="">

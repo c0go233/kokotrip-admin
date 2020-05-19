@@ -56,7 +56,9 @@
                     <t:sectionException exceptionMessage="${exception}"/>
 
                     <div class="border-box">
-                        <t:imageGallery directory="city-image" imageList="${cityVm.baseImageVmList}" />
+                        <t:imageGallery directory="city-image"
+                                        imageList="${cityVm.baseImageVmList}"
+                                        deleteUrl="/city/image/delete"/>
                     </div>
                 </div>
 

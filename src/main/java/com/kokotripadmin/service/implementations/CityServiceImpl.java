@@ -114,22 +114,27 @@ public class CityServiceImpl implements CityService, CityEntityService {
         return cityList.stream().collect(Collectors.toMap(City::getId, City::getName, (oKey, nKey) -> oKey, LinkedHashMap::new));
     }
 
+//    @Override
+//    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, readOnly = true)
+//    public boolean imageExistsByIdAndImageName(Integer cityId, String imageName) {
+//        long count = cityImageDao.count(CitySpec.findImageByIdAndImageName(cityId, imageName));
+//        return count > 0;
+//    }
+//
+//
+//    @Override
+//    public Integer saveImage(Integer cityId, String path, String fileName, String fileType) throws CityNotFoundException {
+//        City city = findEntityById(cityId);
+//        CityImage cityImage = new CityImage(city, path, fileName, fileType);
+//        cityImageDao.save(cityImage);
+//        return cityImage.getId();
+//    }
+
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, readOnly = true)
-    public boolean imageExistsByIdAndImageName(Integer cityId, String imageName) {
-        long count = cityImageDao.count(CitySpec.findImageByIdAndImageName(cityId, imageName));
-        return count > 0;
+    public void deleteImage(Integer imageId) {
+        if (cityImageDao.existsById(imageId))
+            cityImageDao.deleteById(imageId);
     }
-
-
-    @Override
-    public Integer saveImage(Integer cityId, String path, String fileName, String fileType) throws CityNotFoundException {
-        City city = findEntityById(cityId);
-        CityImage cityImage = new CityImage(city, path, fileName, fileType);
-        cityImageDao.save(cityImage);
-        return cityImage.getId();
-    }
-
 
 
     @Override

@@ -341,19 +341,19 @@ function appendAddLinkToDataTableToolbar (dataTable, addUrl) {
 
 //============================ DELETE MODAL ==============================================//
 
-let eDeleteConfirmModal
-let eDeleteConfirmBtn
-let eDeleteConfirmModalStatement
-let eDeleteConfirmModalTitlePrefix
-let eDeleteConfirmModalErrorException
+let eDeleteConfirmModal;
+let eDeleteConfirmBtn;
+let eDeleteConfirmModalStatement;
+let eDeleteConfirmModalTitlePrefix;
+let eDeleteConfirmModalErrorException;
 
 function setDeleteConfirmModal () {
-    eDeleteConfirmModal = $('div#delete-confirm-modal')
-    eDeleteConfirmBtn = $('button#delete-confirm-btn')
-    eDeleteConfirmModalStatement = $('span#delete-confirm-modal-statement')
-    eDeleteConfirmModalTitlePrefix = $('span#delete-confirm-modal-title-prefix')
-    eDeleteConfirmModalErrorException = $('span#delete-confirm-modal-error-exception')
-    eDeleteConfirmBtn.on(eventType.click, onClickDeleteConfirmBtn)
+    eDeleteConfirmModal = $('div#delete-confirm-modal');
+    eDeleteConfirmBtn = $('button#delete-confirm-btn');
+    eDeleteConfirmModalStatement = $('span#delete-confirm-modal-statement');
+    eDeleteConfirmModalTitlePrefix = $('span#delete-confirm-modal-title-prefix');
+    eDeleteConfirmModalErrorException = $('span#delete-confirm-modal-error-exception');
+    eDeleteConfirmBtn.on(eventType.click, onClickDeleteConfirmBtn);
 }
 
 function onClickDeleteConfirmBtn () {
@@ -991,30 +991,30 @@ function setAutoCompleteSelect () {
             'dataType': 'json',
             'success': function (response) {
                 
-                autoCompleteOptionWrapper.empty()
+                autoCompleteOptionWrapper.empty();
                 
-                let count = 0
+                let count = 0;
                 
                 response.forEach(element => {
-                    count++
+                    count++;
                     
-                    let dataAttributes = ''
+                    let dataAttributes = '';
                     for (let [key, value] of Object.entries(element)) {
                         dataAttributes += 'data-' + key + '="' + value + '" '
                     }
                     
                     let markup = '<button type="button" class="dropdown__option" role="option" ' + dataAttributes + '>' +
-                        '<div>' + element.name + '</div></button>'
+                        '<div>' + element.name + '</div></button>';
                     autoCompleteOptionWrapper.append(markup)
-                })
+                });
                 
                 if (count <= 0) {
-                    let emptyOptionMarkup = '<div class="empty-option">조회된 내용이 없습니다</div>'
+                    let emptyOptionMarkup = '<div class="empty-option">조회된 내용이 없습니다</div>';
                     autoCompleteOptionWrapper.append(emptyOptionMarkup)
                 }
                 
                 if (!autoCompleteWrapper.hasClass(htmlAttr.open))
-                    autoCompleteWrapper.addClass(htmlAttr.open)
+                    autoCompleteWrapper.addClass(htmlAttr.open);
                 
             },
             'error': function () {
@@ -1027,64 +1027,95 @@ function setAutoCompleteSelect () {
 
 //============================ IMAGE GALLERY ==============================================//
 
-let imageGalleryFileInput
-let imageGalleryAddBtn
-let imageGalleryDeleteBtn
-let imageGalleryRepresentativeBtn
-let imageGalleryDropBox
-let imageGalleryImageList
-let dropIndex
+let imageGalleryFileInput;
+let imageGalleryAddBtn;
+let imageGalleryDeleteBtn;
+let imageGalleryRepresentativeBtn;
+let imageGalleryDropBox;
+let imageGalleryImageList;
+let dropIndex;
 
 function setImageGallery () {
-    imageGalleryFileInput = $('input#image-gallery-file-input')
-    imageGalleryAddBtn = $('button#image-gallery-add-btn')
-    imageGalleryDeleteBtn = $('button#image-gallery-delete-btn')
-    imageGalleryRepresentativeBtn = $('button#image-gallery-representative-image-btn')
-    imageGalleryDropBox = $('div.image-gallery__drop-box')
-    imageGalleryImageList = $('ul.image-gallery__image-list')
+    imageGalleryFileInput = $('input#image-gallery-file-input');
+    imageGalleryAddBtn = $('button#image-gallery-add-btn');
+    imageGalleryDeleteBtn = $('button#image-gallery-delete-btn');
+    imageGalleryRepresentativeBtn = $('button#image-gallery-representative-image-btn');
+    imageGalleryDropBox = $('div.image-gallery__drop-box');
+    imageGalleryImageList = $('ul.image-gallery__image-list');
     
     $('div.app-container').on(eventType.click, 'button[data-dismiss=modal]', function () {
-        $(this).parents('div.error-popup').remove()
+        $(this).parents('div.error-popup').remove();
         
-    })
+    });
     
     imageGalleryAddBtn.on(eventType.click, function () {
-        imageGalleryFileInput.click()
-    })
+        imageGalleryFileInput.click();
+    });
     
     imageGalleryDropBox.on(eventType.click, 'div.image-gallery__image-wrapper', function () {
         let processing = $(this).parents('li.image-gallery__item').hasClass('processing');
         
         if (!processing) {
-            let selected = $(this).hasClass('selected')
+            let selected = $(this).hasClass('selected');
             imageGalleryImageList.find('div.image-gallery__image-wrapper').each(function () {
                 $(this).removeClass('selected')
-            })
+            });
     
             if (!selected) $(this).addClass('selected')
         }
-    })
+    });
     
     imageGalleryDropBox.on(eventType.click, 'button.image-gallery__upload-btn', function () {
-        let imageItem = $(this).parents('li.image-gallery__item')
+        let imageItem = $(this).parents('li.image-gallery__item');
         uploadImage(imageItem, false)
-    })
+    });
     
     imageGalleryDropBox.on(eventType.click, 'button.image-gallery__download-btn', function () {
-        let imageItem = $(this).parents('li.image-gallery__item')
-        let sourceImage = imageItem.find('img.source-image')
-        let imageUrl = sourceImage.attr('src')
-        showImageItem(imageItem, 'image-gallery__image-wrapper')
-        imageItem.addClass('processing')
-        sourceImage.attr('src', imageUrl)
-    })
+        let imageItem = $(this).parents('li.image-gallery__item');
+        let sourceImage = imageItem.find('img.source-image');
+        let imageUrl = sourceImage.attr('src');
+        showImageItem(imageItem, 'image-gallery__image-wrapper');
+        imageItem.addClass('processing');
+        sourceImage.attr('src', imageUrl);
+    });
     
     imageGalleryFileInput.on(eventType.change, function (e) {
-        resizeImageAndLoad(e.target.files[0])
-    })
+        resizeImageAndLoad(e.target.files[0]);
+    });
     
     imageGalleryDeleteBtn.on(eventType.click, function () {
-    
+        let selectedImageWrapper = imageGalleryImageList.find('div.image-gallery__image-wrapper.selected');
+        let imageItem = selectedImageWrapper.parents('li.image-gallery__item');
+
+        if (selectedImageWrapper.length) {
+
+            if (selectedImageWrapper.find('input[name*="path"]').length) {
+
+                let imageId = selectedImageWrapper.find('input[name*="id"]').val();
+                let fileName = selectedImageWrapper.find('input[name*="name"]').val();
+
+                imageItem.addClass('processing');
+
+                $.ajax({
+                    url: $(this).attr('data-delete-url'),
+                    data: { imageId: imageId, fileName: fileName },
+                    dataType: 'json',
+                    method: ajaxMethod.post,
+                    success: function () {
+                        selectedImageWrapper.remove();
+                    },
+                    error: function (jqXHR) {
+                        imageItem.removeClass('processing');
+                        let exceptionMessage = jqXHR.responseJSON.exception;
+                        showImageItem(imageItem, 'image-gallery__upload-error-wrapper');
+                        $('div.app-container').append(createPopup(exceptionMessage, 'error'));
+                    }
+                });
+            } else {
+                selectedImageWrapper.remove();
+            }
+
+        }
     });
     
     imageGalleryRepresentativeBtn.on(eventType.click, function () {
@@ -1108,126 +1139,122 @@ function setImageGallery () {
     });
     
     $('form').on(eventType.submit, function (e) {
-        let count = imageGalleryImageList.find('li.processing').length
+        let count = imageGalleryImageList.find('li.processing').length;
         if (count > 0) {
-            e.preventDefault()
+            e.preventDefault();
             return false
         }
         setListInputsBeforeSubmit(imageGalleryImageList, 'div.image-gallery__image-wrapper')
-    })
+    });
     
     //https://stackoverflow.com/questions/48234253/jquery-drag-drop-an-image-from-desktop-and-make-it-resizable
     imageGalleryDropBox.on('dragenter', function (e) {
         if (this === e.target) {
-            imageGalleryDropBox.toggleClass('dragenter')
+            imageGalleryDropBox.toggleClass('dragenter');
         }
         
-        e.preventDefault()
-        e.stopPropagation()
-    })
+        e.preventDefault();
+        e.stopPropagation();
+    });
     
     imageGalleryDropBox.on('dragover', function (e) {
-        e.preventDefault()
-        e.stopPropagation()
-    })
+        e.preventDefault();
+        e.stopPropagation();
+    });
     
     imageGalleryDropBox.on('dragleave', function (e) {
         if (this === e.target) {
             imageGalleryDropBox.remove('dragenter')
         }
         
-        e.preventDefault()
-        e.stopPropagation()
-    })
+        e.preventDefault();
+        e.stopPropagation();
+    });
     
     imageGalleryDropBox.on('drop', function (e, ui) {
         
-        let dataTransfer = e.originalEvent.dataTransfer
-        let url = $(this).attr('data-url')
-        
+        let dataTransfer = e.originalEvent.dataTransfer;
+
         if (dataTransfer && dataTransfer.files.length) {
-            e.preventDefault()
-            e.stopPropagation()
+            e.preventDefault();
+            e.stopPropagation();
             
             $.each(dataTransfer.files, function (i, file) {
-                resizeImageAndLoad(file)
-            })
+                resizeImageAndLoad(file);
+            });
         }
-    })
+    });
     
     imageGalleryImageList.sortable({
         update: function (event, ui) {
-            dropIndex = ui.item.index()
+            dropIndex = ui.item.index();
         }
-    })
+    });
 }
 
 function resizeImageAndLoad (file) {
     if (file.type.match('image.*')) {
-        let reader = new FileReader()
+        let reader = new FileReader();
         
-        imageGalleryDropBox.addClass('image-gallery__drop-box_filled')
+        imageGalleryDropBox.addClass('image-gallery__drop-box_filled');
         
         reader.onload = function (readerEvent) {
-            let image = new Image()
+            let image = new Image();
             
             image.onload = function () {
                 
-                let canvas = document.createElement('canvas')
-                let maxSize = 100
-                let width = image.width
-                let height = image.height
+                let canvas = document.createElement('canvas');
+                let maxSize = 100;
+                let width = image.width;
+                let height = image.height;
                 
-                width = 100
-                height = 100
+                width = 100;
+                height = 100;
                 
-                canvas.width = width
-                canvas.height = height
-                canvas.getContext('2d').drawImage(image, 0, 0, width, height)
+                canvas.width = width;
+                canvas.height = height;
+                canvas.getContext('2d').drawImage(image, 0, 0, width, height);
                 
-                let dataUrl = canvas.toDataURL(file.type)
+                let dataUrl = canvas.toDataURL(file.type);
                 
                 if (dataUrl) {
-                    let imageItem = createImageItem(file.name, file.type, dataUrl)
-                    uploadImage($(imageItem), true)
+                    let imageItem = createImageItem(file.name, file.type, dataUrl);
+                    uploadImage($(imageItem), true);
                 }
-            }
-            image.src = readerEvent.target.result
-        }
-        reader.readAsDataURL(file)
+            };
+            image.src = readerEvent.target.result;
+        };
+        reader.readAsDataURL(file);
     }
 }
 
 function imageOnLoad (target) {
-    let imageItem = $(target).parents('li.image-gallery__item')
-    imageItem.removeClass('processing')
-    showImageItem(imageItem, 'image-gallery__image-wrapper')
+    let imageItem = $(target).parents('li.image-gallery__item');
+    imageItem.removeClass('processing');
+    showImageItem(imageItem, 'image-gallery__image-wrapper');
 }
 
 function imageOnError (target) {
-    let imageItem = $(target).parents('li.image-gallery__item')
-    imageItem.removeClass('processing')
-    showImageItem(imageItem, 'image-gallery__download-error-wrapper')
+    let imageItem = $(target).parents('li.image-gallery__item');
+    imageItem.removeClass('processing');
+    showImageItem(imageItem, 'image-gallery__download-error-wrapper');
 }
 
 function uploadImage (imageItem, appendToImageList) {
+
+    let sourceImageTag = imageItem.find('img.source-image');
+    let data = new FormData();
     
-    console.log('updloadimage')
+    imageItem.addClass('processing');
+    showImageItem(imageItem, 'image-gallery__image-wrapper');
+    if (appendToImageList) imageGalleryImageList.append(imageItem);
+    let image = dataURLToBlob(sourceImageTag.attr('src'));
+    let fileName = imageItem.find('div.image-gallery__caption').text();
+    let fileType = image.type;
     
-    let sourceImageTag = imageItem.find('img.source-image')
-    let data = new FormData()
-    
-    imageItem.addClass('processing')
-    showImageItem(imageItem, 'image-gallery__image-wrapper')
-    if (appendToImageList) imageGalleryImageList.append(imageItem)
-    
-    let image = dataURLToBlob(sourceImageTag.attr('src'))
-    let fileName = imageItem.find('div.image-gallery__caption').text()
-    let fileType = image.type
-    
-    data.append('image', image)
-    data.append('directory', imageGalleryDropBox.attr('data-directory'))
-    data.append('fileName', fileName)
+    data.append('image', image);
+    data.append('directory', imageGalleryDropBox.attr('data-directory'));
+    data.append('fileName', fileName);
     
     $.ajax({
         url: $('meta[name=contextPath]').attr('content') + '/upload/image',
@@ -1237,29 +1264,30 @@ function uploadImage (imageItem, appendToImageList) {
         processData: false,
         type: 'POST',
         success: function (response) {
-            imageItem.removeClass('processing')
-            let imageWrapper = imageItem.find('div.image-gallery__image-wrapper')
-            imageWrapper.append('<input type="hidden" name="baseImageVmList[0].name" value="' + fileName + '">')
-            imageWrapper.append('<input type="hidden" name="baseImageVmList[0].fileType" value="' + fileType + '">')
-            imageWrapper.append('<input type="hidden" name="baseImageVmList[0].repImage" value="false">')
-            imageWrapper.append('<input type="hidden" name="baseImageVmList[0].path" value="' + response.result + '">')
+            imageItem.removeClass('processing');
+            let imageWrapper = imageItem.find('div.image-gallery__image-wrapper');
+            imageWrapper.append('<input type="hidden" name="baseImageVmList[0].id" value="">');
+            imageWrapper.append('<input type="hidden" name="baseImageVmList[0].name" value="' + fileName + '">');
+            imageWrapper.append('<input type="hidden" name="baseImageVmList[0].fileType" value="' + fileType + '">');
+            imageWrapper.append('<input type="hidden" name="baseImageVmList[0].repImage" value="false">');
+            imageWrapper.append('<input type="hidden" name="baseImageVmList[0].path" value="' + response.result + '">');
         },
         error: function (jqXHR) {
             
-            imageItem.removeClass('processing')
-            showImageItem(imageItem, 'image-gallery__upload-error-wrapper')
+            imageItem.removeClass('processing');
+            showImageItem(imageItem, 'image-gallery__upload-error-wrapper');
             
-            let exceptionMessage = jqXHR.responseJSON.exception
-            if (exceptionMessage.startsWith('duplicate:')) imageItem.remove()
-            else $('div.app-container').append(createPopup(exceptionMessage, 'error'))
+            let exceptionMessage = jqXHR.responseJSON.exception;
+            if (exceptionMessage.startsWith('duplicate:')) imageItem.remove();
+            else $('div.app-container').append(createPopup(exceptionMessage, 'error'));
         }
     })
 }
 
 function showImageItem (imageItem, classToOpen) {
     imageItem.children().each(function () {
-        if ($(this).hasClass(classToOpen)) $(this).removeClass('hide')
-        else $(this).addClass('hide')
+        if ($(this).hasClass(classToOpen)) $(this).removeClass('hide');
+        else $(this).addClass('hide');
     })
 }
 
@@ -1281,7 +1309,7 @@ function createPopup (message, title) {
         '            </div>' +
         '        </div>' +
         '    </div>' +
-        '</div>'
+        '</div>';
 }
 
 function createImageItem (fileName, fileType, dataUrl) {
@@ -1315,34 +1343,34 @@ function createImageItem (fileName, fileType, dataUrl) {
         '            다운로드' +
         '        </button>' +
         '    </div>' +
-        '</li>'
+        '</li>';
 }
 
 let dataURLToBlob = function (dataURL) {
-    let BASE64_MARKER = ';base64,'
+    let BASE64_MARKER = ';base64,';
     if (dataURL.indexOf(BASE64_MARKER) == -1) {
-        let parts = dataURL.split(',')
-        let contentType = parts[0].split(':')[1]
-        let raw = parts[1]
+        let parts = dataURL.split(',');
+        let contentType = parts[0].split(':')[1];
+        let raw = parts[1];
         
-        return new Blob([raw], { type: contentType })
+        return new Blob([raw], { type: contentType });
     }
     
-    let parts = dataURL.split(BASE64_MARKER)
-    let contentType = parts[0].split(':')[1]
-    let raw = window.atob(parts[1])
-    let rawLength = raw.length
+    let parts = dataURL.split(BASE64_MARKER);
+    let contentType = parts[0].split(':')[1];
+    let raw = window.atob(parts[1]);
+    let rawLength = raw.length;
     
-    let uInt8Array = new Uint8Array(rawLength)
+    let uInt8Array = new Uint8Array(rawLength);
     
     for (let i = 0; i < rawLength; ++i) {
-        uInt8Array[i] = raw.charCodeAt(i)
+        uInt8Array[i] = raw.charCodeAt(i);
     }
     
-    let blob = new Blob([uInt8Array], { type: contentType })
+    let blob = new Blob([uInt8Array], { type: contentType });
     
-    console.log(blob)
-    return blob
+    console.log(blob);
+    return blob;
 }
 
 // function createImageGalleryErrorWrapper(wrapperClass, message, buttonClass, buttonLabel) {

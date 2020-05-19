@@ -9,6 +9,7 @@ import lombok.Setter;
 public class BaseImageVm {
     private Integer id;
     private String name;
+    private String fileType;
     private String path;
     private boolean repImage;
 }

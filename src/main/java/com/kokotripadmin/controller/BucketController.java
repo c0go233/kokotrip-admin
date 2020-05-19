@@ -2,10 +2,15 @@ package com.kokotripadmin.controller;
 
 
 import com.amazonaws.AmazonServiceException;
+import com.amazonaws.Response;
 import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.kokotripadmin.exception.amazon_s3_bucket.FileIsNotImageException;
+import com.kokotripadmin.exception.amazon_s3_bucket.ImageDuplicateException;
+import com.kokotripadmin.service.interfaces.BucketService;
 import com.kokotripadmin.util.Convert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,46 +23,32 @@ import java.io.File;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/upload")
 public class BucketController {
 
     @Autowired
-    private AmazonS3 amazonS3;
+    private BucketService bucketService;
 
     @Autowired
     private Convert convert;
 
-
-    private final String KOKOTRIP_BUCKET = "kokotrip";
-
-    @PostMapping(value = "/image", consumes = {"multipart/form-data"}, produces = "application/json; charset=utf8")
+    @PostMapping(value = "upload/image", consumes = {"multipart/form-data"}, produces = "application/json; charset=utf8")
     @ResponseBody
     public ResponseEntity<String> uploadImageToS3Bucket(@Valid @RequestParam("image") MultipartFile multipartFile,
                                                         @Valid @RequestParam("directory") String directory,
                                                         @Valid @RequestParam("fileName") String fileName) {
-
-
         try {
-//            File file = convert.multiPartToFile(multipartFile, fileName);
-//            PutObjectRequest putObjectRequest = new PutObjectRequest(KOKOTRIP_BUCKET, directory + "/" + fileName, file);
-//            putObjectRequest.withCannedAcl(CannedAccessControlList.PublicRead);
-//            amazonS3.putObject(putObjectRequest);
-//            file.delete();
-//            String endPoint = convert.toAmazonS3EndPoint(KOKOTRIP_BUCKET, amazonS3.getRegionName(), directory, fileName);
-//            return ResponseEntity.status(HttpStatus.OK).body(convert.resultToJson(endPoint));
-            return ResponseEntity.status(HttpStatus.OK).body(convert.resultToJson("test path"));
-        } catch (AmazonServiceException e) {
-            // The call was transmitted successfully, but Amazon S3 couldn't process
-            // it, so it returned an error response.
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(convert.exceptionToJson(e.getMessage()));
-        } catch (SdkClientException e) {
-            // Amazon S3 couldn't be contacted for a response, or the client
-            // couldn't parse the response from Amazon S3.
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(convert.exceptionToJson(e.getMessage()));
+            String endPoint = bucketService.uploadImage(directory, fileName, multipartFile);
+            return ResponseEntity.status(HttpStatus.OK).body(convert.resultToJson(endPoint));
+        } catch (SdkClientException | IOException | ImageDuplicateException | FileIsNotImageException exception) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                 .body(convert.exceptionToJson(exception.getMessage()));
         }
-//        } catch (IOException e) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(convert.exceptionToJson(e.getMessage()));
-//        }
+    }
+
+}
+
+
+
 //
 //
 //
@@ -81,6 +72,3 @@ public class BucketController {
 //
 //        System.out.println("x: " + x);
 //        return null;
-    }
-
-}

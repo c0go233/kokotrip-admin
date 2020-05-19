@@ -1,6 +1,8 @@
 package com.kokotripadmin.controller;
 
 
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.SdkClientException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kokotripadmin.constant.AppConstant;
@@ -9,6 +11,7 @@ import com.kokotripadmin.dto.city.CityInfoDto;
 import com.kokotripadmin.exception.city.*;
 import com.kokotripadmin.exception.state.StateNotFoundException;
 import com.kokotripadmin.exception.support_language.SupportLanguageNotFoundException;
+import com.kokotripadmin.service.interfaces.BucketService;
 import com.kokotripadmin.service.interfaces.CityService;
 import com.kokotripadmin.service.interfaces.StateService;
 import com.kokotripadmin.service.interfaces.SupportLanguageService;
@@ -41,6 +44,9 @@ public class CityController extends BaseController {
 
     @Autowired
     private CityService cityService;
+
+    @Autowired
+    private BucketService bucketService;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -134,31 +140,21 @@ public class CityController extends BaseController {
         }
     }
 
-    @PostMapping(value = "/image/save", consumes = {"multipart/form-data"}, produces = "application/json; charset=utf8")
+
+    @PostMapping(value = "/image/delete", produces = "application/json; charset=utf8")
     @ResponseBody
-    public ResponseEntity<String> uploadImage(@Valid @RequestParam("image") MultipartFile multipartFile,
-                                              @Valid @RequestParam("fileName") String fileName,
-                                              @Valid @RequestParam("cityId") Integer cityId) {
+    public ResponseEntity<String> deleteCityImage(@Valid @RequestParam("fileName") String fileName,
+                                                  @Valid @RequestParam("imageId") Integer imageId) {
 
-
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(convert.exceptionToJson("시티사진에러에러"));
-
-
-//        if (cityService.imageExistsByIdAndImageName(cityId, fileName)) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-//                                 .body(convert.exceptionToJson("duplicate:" + fileName));
-//        } else {
-//            try {
-//                Integer cityImageId = cityService.saveImage(cityId, CITY_IMAGE_DIRECTORY, fileName, multipartFile.getContentType());
-//                return ResponseEntity.status(HttpStatus.OK).body(convert.resultToJson(cityImageId.toString()));
-//            } catch (CityNotFoundException exception) {
-//                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(convert.exceptionToJson(exception.getMessage()));
-//            }
-//
-//            //TODO: upload to S3
-//
-//        }
+        try {
+            if (fileName != null) bucketService.deleteImage(fileName);
+            if (imageId != null) cityService.deleteImage(imageId);
+            return ResponseEntity.status(HttpStatus.OK).body(convert.resultToJson(fileName));
+        } catch (AmazonServiceException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(convert.exceptionToJson(e.getMessage()));
+        } catch (SdkClientException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(convert.exceptionToJson(e.getMessage()));
+        }
     }
 
 

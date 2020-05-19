@@ -25,8 +25,5 @@ public interface CityService {
 
     LinkedHashMap<Integer, String> findAllAsLinkedHashMap();
     DataTablesOutput<CityDto> findAllByPagination(DataTablesInput input);
-    boolean imageExistsByIdAndImageName(Integer cityId, String imageName);
-
-    Integer saveImage(Integer cityId, String path, String fileName, String fileType) throws CityNotFoundException;
-
+    void deleteImage(Integer imageId);
 }
