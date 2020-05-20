@@ -4,6 +4,7 @@ import com.kokotripadmin.exception.amazon_s3_bucket.FileIsNotImageException;
 import com.kokotripadmin.exception.amazon_s3_bucket.ImageDuplicateException;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.io.IOException;
 
 public interface BucketService {

@@ -12,4 +12,5 @@ public class BaseImageVm {
     private String fileType;
     private String path;
     private boolean repImage;
+    private Integer order;
 }

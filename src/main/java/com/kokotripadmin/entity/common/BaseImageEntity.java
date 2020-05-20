@@ -3,6 +3,7 @@ package com.kokotripadmin.entity.common;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.boot.model.naming.ImplicitTenantIdColumnNameSource;
 
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
@@ -17,6 +18,9 @@ public class BaseImageEntity extends BaseEntity {
 
     @Column(name = "enabled")
     protected boolean enabled;
+
+    @Column(name = "\"order\"")
+    protected Integer order;
 
     @Column(name = "path")
     protected String path;

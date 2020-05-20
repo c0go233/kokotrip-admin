@@ -797,15 +797,15 @@ function isNextTradingHourEarlierThanCurrent (currentRow, nextRow) {
 }
 
 function setListInputsBeforeSubmit (wrapper, inputWrapperClass) {
-    wrapper.children(inputWrapperClass).each(function (index) {
+    wrapper.find(inputWrapperClass).each(function (index) {
         $(this).find('input').each(function () {
             
-            let name = $(this).attr(htmlAttr.name)
-            let indexOfBracket = name.indexOf('[')
-            let left = name.substr(0, (indexOfBracket + 1))
-            let right = name.substr(name.indexOf(']'))
-            let newName = left + index + right
-            $(this).attr(htmlAttr.name, newName)
+            let name = $(this).attr(htmlAttr.name);
+            let indexOfBracket = name.indexOf('[');
+            let left = name.substr(0, (indexOfBracket + 1));
+            let right = name.substr(name.indexOf(']'));
+            let newName = left + index + right;
+            $(this).attr(htmlAttr.name, newName);
         })
     })
 }
@@ -816,11 +816,11 @@ function setTradingHourInputs () {
 
 // ========================================================== TICKET PRICE BUILDER ============================================== //
 
-let eTicketPriceBuilderAddBtn
-let eTicketPriceBuilderRepPriceCheckbox
-let eTicketPriceBuilderTicketPriceInput
-let eTicketPriceWrapper
-let eTicketPriceBuilderTicketTypeInput
+let eTicketPriceBuilderAddBtn;
+let eTicketPriceBuilderRepPriceCheckbox;
+let eTicketPriceBuilderTicketPriceInput;
+let eTicketPriceWrapper;
+let eTicketPriceBuilderTicketTypeInput;
 
 function setTicketPriceBuilder () {
     eTicketPriceBuilderAddBtn = $('button#ticket-price-builder-add-btn')
@@ -1042,6 +1042,10 @@ function setImageGallery () {
     imageGalleryRepresentativeBtn = $('button#image-gallery-representative-image-btn');
     imageGalleryDropBox = $('div.image-gallery__drop-box');
     imageGalleryImageList = $('ul.image-gallery__image-list');
+
+
+    let numOfImage = imageGalleryImageList.find('li.image-gallery__item').length;
+    if (numOfImage > 0) imageGalleryDropBox.addClass('filled');
     
     $('div.app-container').on(eventType.click, 'button[data-dismiss=modal]', function () {
         $(this).parents('div.error-popup').remove();
@@ -1103,11 +1107,11 @@ function setImageGallery () {
                     method: ajaxMethod.post,
                     success: function () {
                         selectedImageWrapper.remove();
+                        checkIfDropboxEmpty();
                     },
                     error: function (jqXHR) {
                         imageItem.removeClass('processing');
                         let exceptionMessage = jqXHR.responseJSON.exception;
-                        showImageItem(imageItem, 'image-gallery__upload-error-wrapper');
                         $('div.app-container').append(createPopup(exceptionMessage, 'error'));
                     }
                 });
@@ -1119,22 +1123,17 @@ function setImageGallery () {
     });
     
     imageGalleryRepresentativeBtn.on(eventType.click, function () {
-        
-        let numOfSelected = imageGalleryImageList.find('div.image-gallery__image-wrapper.selected').length;
-        
-        if (numOfSelected === 1) {
-            let previousRepImageWrapper = imageGalleryImageList.find('div.image-gallery__image-wrapper.rep-image');
-            if (previousRepImageWrapper.length) {
-                previousRepImageWrapper.removeClass('rep-image');
-                previousRepImageWrapper.find('input[name*="repImage"]').val(false);
-            }
-            
-            let currentSelectedImageWrapper = imageGalleryImageList.find('div.image-gallery__image-wrapper.selected');
-            if (currentSelectedImageWrapper.length) {
-                currentSelectedImageWrapper.addClass('rep-image');
-                currentSelectedImageWrapper.find('input[name*="repImage"]').val(true);
-                currentSelectedImageWrapper.removeClass('selected');
-            }
+        let previousRepImageWrapper = imageGalleryImageList.find('div.image-gallery__image-wrapper.rep-image');
+        if (previousRepImageWrapper.length) {
+            previousRepImageWrapper.removeClass('rep-image');
+            previousRepImageWrapper.find('input[name*="repImage"]').val(false);
+        }
+
+        let currentSelectedImageWrapper = imageGalleryImageList.find('div.image-gallery__image-wrapper.selected');
+        if (currentSelectedImageWrapper.length) {
+            currentSelectedImageWrapper.addClass('rep-image');
+            currentSelectedImageWrapper.find('input[name*="repImage"]').val(true);
+            currentSelectedImageWrapper.removeClass('selected');
         }
     });
     
@@ -1144,13 +1143,32 @@ function setImageGallery () {
             e.preventDefault();
             return false
         }
-        setListInputsBeforeSubmit(imageGalleryImageList, 'div.image-gallery__image-wrapper')
+        setListInputsBeforeSubmit(imageGalleryImageList, 'div.image-gallery__image-wrapper');
+        imageGalleryImageList.find('div.image-gallery__image-wrapper').each(function (index) {
+            $(this).find('input[name*="order"]').val(index);
+        });
     });
+
+    imageGalleryImageList.on(eventType.click, 'button.image-gallery__close-btn', function () {
+        $(this).parents('li.image-gallery__item').remove();
+        checkIfDropboxEmpty();
+    });
+
+    imageGalleryImageList.sortable({
+        update: function (event, ui) {
+            dropIndex = ui.item.index();
+        }
+    });
+
+
+
+
+
     
     //https://stackoverflow.com/questions/48234253/jquery-drag-drop-an-image-from-desktop-and-make-it-resizable
     imageGalleryDropBox.on('dragenter', function (e) {
         if (this === e.target) {
-            imageGalleryDropBox.toggleClass('dragenter');
+            imageGalleryDropBox.addClass('dragenter');
         }
         
         e.preventDefault();
@@ -1158,13 +1176,16 @@ function setImageGallery () {
     });
     
     imageGalleryDropBox.on('dragover', function (e) {
+        if (this === e.target) {
+            imageGalleryDropBox.addClass('dragenter');
+        }
         e.preventDefault();
         e.stopPropagation();
     });
     
     imageGalleryDropBox.on('dragleave', function (e) {
         if (this === e.target) {
-            imageGalleryDropBox.remove('dragenter')
+            imageGalleryDropBox.removeClass('dragenter');
         }
         
         e.preventDefault();
@@ -1184,19 +1205,19 @@ function setImageGallery () {
             });
         }
     });
-    
-    imageGalleryImageList.sortable({
-        update: function (event, ui) {
-            dropIndex = ui.item.index();
-        }
-    });
+
+}
+
+function checkIfDropboxEmpty() {
+    let numOfImage = imageGalleryImageList.find('li.image-gallery__item').length;
+    if (numOfImage <= 0) imageGalleryDropBox.removeClass('filled');
 }
 
 function resizeImageAndLoad (file) {
     if (file.type.match('image.*')) {
         let reader = new FileReader();
         
-        imageGalleryDropBox.addClass('image-gallery__drop-box_filled');
+        imageGalleryDropBox.addClass('filled');
         
         reader.onload = function (readerEvent) {
             let image = new Image();
@@ -1268,6 +1289,7 @@ function uploadImage (imageItem, appendToImageList) {
             let imageWrapper = imageItem.find('div.image-gallery__image-wrapper');
             imageWrapper.append('<input type="hidden" name="baseImageVmList[0].id" value="">');
             imageWrapper.append('<input type="hidden" name="baseImageVmList[0].name" value="' + fileName + '">');
+            imageWrapper.append('<input type="hidden" name="baseImageVmList[0].order" value="">');
             imageWrapper.append('<input type="hidden" name="baseImageVmList[0].fileType" value="' + fileType + '">');
             imageWrapper.append('<input type="hidden" name="baseImageVmList[0].repImage" value="false">');
             imageWrapper.append('<input type="hidden" name="baseImageVmList[0].path" value="' + response.result + '">');

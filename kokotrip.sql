@@ -1107,6 +1107,7 @@ create table `city_image`
   `id`         int(11)       not null auto_increment,
   `name`       varchar(255)  not null,
   `enabled`    tinyint(1)    not null,
+  `order`      int           not null,
   `file_type`  varchar(10)   not null,
   `path`       varchar(4096) not null,
   `rep_image`  tinyint(1)    not null,

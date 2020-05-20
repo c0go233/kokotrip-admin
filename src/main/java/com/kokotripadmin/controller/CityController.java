@@ -6,6 +6,7 @@ import com.amazonaws.SdkClientException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kokotripadmin.constant.AppConstant;
+import com.kokotripadmin.constant.ImageDirectoryConstant;
 import com.kokotripadmin.dto.city.CityDto;
 import com.kokotripadmin.dto.city.CityInfoDto;
 import com.kokotripadmin.exception.city.*;
@@ -147,9 +148,9 @@ public class CityController extends BaseController {
                                                   @Valid @RequestParam("imageId") Integer imageId) {
 
         try {
-            if (fileName != null) bucketService.deleteImage(fileName);
+            if (fileName != null) bucketService.deleteImage(ImageDirectoryConstant.CITY_IMAGE + "/" + fileName);
             if (imageId != null) cityService.deleteImage(imageId);
-            return ResponseEntity.status(HttpStatus.OK).body(convert.resultToJson(fileName));
+            return ResponseEntity.status(HttpStatus.OK).body(convert.resultToJson(""));
         } catch (AmazonServiceException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(convert.exceptionToJson(e.getMessage()));
         } catch (SdkClientException e) {

@@ -29,12 +29,11 @@ public class BucketServiceImpl implements BucketService {
 
     public String uploadImage(String directory, String fileName, MultipartFile multipartFile)
     throws IOException, ImageDuplicateException, FileIsNotImageException {
-        //TODO: check if multipartfile is image
 
         if (amazonS3.doesObjectExist(KOKOTRIP_BUCKET, directory + "/" + fileName))
             throw new ImageDuplicateException(fileName);
 
-        if (!multipartFile.getContentType().startsWith("image/"))
+        if (multipartFile.getContentType() == null || !multipartFile.getContentType().startsWith("image/"))
             throw new FileIsNotImageException();
 
         File file = convert.multiPartToFile(multipartFile, fileName);

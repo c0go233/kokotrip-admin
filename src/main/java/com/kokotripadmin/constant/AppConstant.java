@@ -15,4 +15,5 @@ public class AppConstant {
     public static final String DESCRIPTION_VIEW_MODEL            = "descriptionViewModel";
     public static final String INFO_VIEW_MODEL                   = "infoViewModel";
     public static final String THEME_LINKED_HASH_MAP             = "themeLinkedHashMap";
+
 }
