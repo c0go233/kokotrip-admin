@@ -25,7 +25,6 @@ public class CityDto extends BaseDto {
     private double latitude;
     private double longitude;
     private String repImagePath;
-    private String repImageFileType;
     private String stateName;
     private Integer stateId;
 

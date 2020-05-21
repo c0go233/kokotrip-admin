@@ -32,7 +32,6 @@ public class TourSpotDto extends BaseDto {
     private boolean alwaysOpen;
     private String address;
     private String repImagePath;
-    private String repImageFileType;
     private Integer cityId;
     private String cityName;
     private Integer regionId;

@@ -23,7 +23,6 @@ public class CityModelMapperConfig {
     public static void cityToDto(ModelMapper modelMapper) {
         TypeMap<City, CityDto> typeMap = modelMapper.createTypeMap(City.class, CityDto.class);
         typeMap.addMapping(src -> src.getState().getName(), CityDto::setStateName);
-        typeMap.addMapping(City::getCityImageList, CityDto::setBaseImageDtoList);
     }
 
     public static void cityInfoToDto(ModelMapper modelMapper) {
@@ -43,12 +42,12 @@ public class CityModelMapperConfig {
         typeMap.addMapping(src -> src.getTag().getName(), ThemeTagRelDto::setTagName);
     }
 
+    @SuppressWarnings("Duplicates")
     public static void cityDtoToVm(ModelMapper modelMapper) {
         TypeMap<CityDto, CityVm> typeMap = modelMapper.createTypeMap(CityDto.class, CityVm.class);
         typeMap.addMapping(CityDto::getCityInfoDtoList, CityVm::setCityInfoVmList);
         typeMap.addMapping(CityDto::getThemeRelDtoList, CityVm::setThemeRelVmList);
         typeMap.addMapping(CityDto::getRegionDtoList, CityVm::setRegionVmList);
-        typeMap.addMapping(CityDto::getBaseImageDtoList, CityVm::setBaseImageVmList);
     }
 
 }

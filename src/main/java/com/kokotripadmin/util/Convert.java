@@ -6,6 +6,7 @@ import com.kokotripadmin.constant.AppConstant;
 import com.kokotripadmin.dto.activity.*;
 import com.kokotripadmin.dto.city.CityDto;
 import com.kokotripadmin.dto.city.CityInfoDto;
+import com.kokotripadmin.dto.common.BaseImageDto;
 import com.kokotripadmin.dto.common.LocatableAutoCompleteDto;
 import com.kokotripadmin.dto.common.ThemeRelDto;
 import com.kokotripadmin.dto.photozone.PhotoZoneDto;
@@ -125,9 +126,7 @@ public class Convert {
 
 
     public Function<City, CityDto> cityToDto() {
-        return city -> {
-            return new CityDto(city.getId(), city.getName(), city.isEnabled(), city.getDescription());
-        };
+        return city -> new CityDto(city.getId(), city.getName(), city.isEnabled(), city.getDescription());
     }
 
     public CityDto cityToDto(City city) {
@@ -146,6 +145,8 @@ public class Convert {
         for (CityThemeRel cityThemeRel : cityThemeRelList)
             cityDto.getThemeRelDtoList().add(modelMapper.map(cityThemeRel, ThemeRelDto.class));
 
+        for (CityImage cityImage : city.getCityImageList())
+            cityDto.getBaseImageDtoList().add(modelMapper.map(cityImage, BaseImageDto.class));
 
         return cityDto;
     }

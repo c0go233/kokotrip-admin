@@ -26,9 +26,6 @@ public class ActivityTicketInfo extends BaseDescribableInfoEntity {
     @Column(name = "rep_image_path")
     private String repImagePath;
 
-    @Column(name = "rep_image_file_type")
-    private String repImageFileType;
-
     @Column(name = "activity_ticket_id", insertable = false, updatable = false)
     private Integer activityTicketId;
 
@@ -51,7 +48,6 @@ public class ActivityTicketInfo extends BaseDescribableInfoEntity {
         this.order = activityTicket.getOrder();
         this.repPrice = activityTicket.getRepPrice();
         this.repImagePath = activityTicket.getRepImagePath();
-        this.repImageFileType = activityTicket.getRepImageFileType();
     }
 
     public void clone(ActivityTicket activityTicket) {

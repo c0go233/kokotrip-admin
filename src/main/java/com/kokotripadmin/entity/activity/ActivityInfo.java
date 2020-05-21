@@ -43,9 +43,6 @@ public class ActivityInfo extends BaseDescribableInfoEntity {
     @Column(name = "rep_image_path")
     private String repImagePath;
 
-    @Column(name = "rep_image_file_type")
-    private String repImageFileType;
-
     @Column(name = "tag_name")
     private String tagName;
 
@@ -81,7 +78,6 @@ public class ActivityInfo extends BaseDescribableInfoEntity {
         this.numberOfWishListSaved = activity.getNumberOfWishListSaved();
         this.popularScore = activity.getPopularScore();
         this.repImagePath = activity.getRepImagePath();
-        this.repImageFileType = activity.getRepImageFileType();
     }
 
     public void denormalize(Activity activity, String tagName) {

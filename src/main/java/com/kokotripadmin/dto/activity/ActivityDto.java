@@ -27,7 +27,6 @@ public class ActivityDto extends BaseDto {
     private int numberOfWishListSaved;
     private double popularScore;
     private String repImagePath;
-    private String repImageFileType;
     private String tourSpotName;
     private Integer tourSpotId;
     private String tagName;

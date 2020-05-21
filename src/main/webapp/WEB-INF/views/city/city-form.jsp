@@ -52,17 +52,6 @@
                 <form:hidden path="id" id="cityId"/>
 
                 <div class="section__content">
-                    <t:sectionSubHeading subHeading="도시 이미지" subHeadingLabel="도시 이미지를 선택해주세요"/>
-                    <t:sectionException exceptionMessage="${exception}"/>
-
-                    <div class="border-box">
-                        <t:imageGallery directory="city-image"
-                                        imageList="${cityVm.baseImageVmList}"
-                                        deleteUrl="/city/image/delete"/>
-                    </div>
-                </div>
-
-                <div class="section__content">
                     <t:sectionSubHeading subHeading="도시 기본정보" subHeadingLabel="도시 기본정보를 입력해주세요"/>
                     <t:sectionException exceptionMessage="${exception}"/>
 
@@ -107,9 +96,6 @@
 
                     </div>
                 </div>
-
-
-
 
                 <div class="content__footer">
                         <%--<a href="${pageContext.request.contextPath}/state/list" class="btn-light btn-large btn ">취소하기</a>--%>

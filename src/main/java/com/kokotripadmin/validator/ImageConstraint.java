@@ -8,7 +8,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Constraint(validatedBy = TagValidator.class)
+@Constraint(validatedBy = ImageValidator.class)
 @Target({ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ImageConstraint {

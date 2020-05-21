@@ -50,9 +50,6 @@ public class Activity extends BaseEntity {
     @Column(name = "rep_image_path")
     private String repImagePath;
 
-    @Column(name = "rep_image_file_type")
-    private String repImageFileType;
-
     @Column(name = "tour_spot_id", insertable = false, updatable = false)
     private Integer tourSpotId;
 
@@ -99,6 +96,5 @@ public class Activity extends BaseEntity {
         this.longitude = activityDto.getLongitude();
         this.popularScore = activityDto.getPopularScore();
         this.repImagePath = activityDto.getRepImagePath();
-        this.repImageFileType = activityDto.getRepImageFileType();
     }
 }

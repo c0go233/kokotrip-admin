@@ -28,9 +28,6 @@ public class RegionInfo extends BaseDescribableInfoEntity {
     @Column(name = "rep_image_path")
     private String repImagePath;
 
-    @Column(name = "rep_image_file_type")
-    private String repImageFileType;
-
     @Column(name = "region_id", insertable = false, updatable = false)
     private Integer regionId;
 
@@ -50,7 +47,6 @@ public class RegionInfo extends BaseDescribableInfoEntity {
     public void denormalize(Region region) {
         this.enabled = region.isEnabled();
         this.repImagePath = region.getRepImagePath();
-        this.repImageFileType = region.getRepImageFileType();
     }
 
     public void setForeignEntities(CityInfo cityInfo, Region region, SupportLanguage supportLanguage) {

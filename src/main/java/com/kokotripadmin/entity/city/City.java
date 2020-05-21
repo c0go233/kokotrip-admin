@@ -37,9 +37,6 @@ public class City extends BaseEntity {
     @Column(name = "rep_image_path")
     private String repImagePath;
 
-    @Column(name = "rep_image_file_type")
-    private String repImageFileType;
-
     @Column(name = "state_id", insertable = false, updatable = false)
     private Integer stateId;
 
@@ -78,7 +75,6 @@ public class City extends BaseEntity {
         this.latitude = cityDto.getLatitude();
         this.longitude = cityDto.getLongitude();
         this.repImagePath = cityDto.getRepImagePath();
-        this.repImageFileType = cityDto.getRepImageFileType();
     }
 
     public void updateInfos() {

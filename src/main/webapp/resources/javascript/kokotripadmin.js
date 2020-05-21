@@ -1160,50 +1160,28 @@ function setImageGallery () {
         }
     });
 
-
-
-
-
-    
-    //https://stackoverflow.com/questions/48234253/jquery-drag-drop-an-image-from-desktop-and-make-it-resizable
-    imageGalleryDropBox.on('dragenter', function (e) {
-        if (this === e.target) {
-            imageGalleryDropBox.addClass('dragenter');
-        }
-        
-        e.preventDefault();
-        e.stopPropagation();
-    });
-    
-    imageGalleryDropBox.on('dragover', function (e) {
-        if (this === e.target) {
-            imageGalleryDropBox.addClass('dragenter');
-        }
-        e.preventDefault();
-        e.stopPropagation();
-    });
-    
-    imageGalleryDropBox.on('dragleave', function (e) {
-        if (this === e.target) {
-            imageGalleryDropBox.removeClass('dragenter');
-        }
-        
-        e.preventDefault();
-        e.stopPropagation();
-    });
-    
     imageGalleryDropBox.on('drop', function (e, ui) {
-        
+
         let dataTransfer = e.originalEvent.dataTransfer;
 
         if (dataTransfer && dataTransfer.files.length) {
             e.preventDefault();
             e.stopPropagation();
-            
+
             $.each(dataTransfer.files, function (i, file) {
                 resizeImageAndLoad(file);
             });
         }
+    });
+
+    imageGalleryDropBox.on('dragenter', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+    });
+
+    imageGalleryDropBox.on('dragover', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
     });
 
 }
@@ -1271,14 +1249,17 @@ function uploadImage (imageItem, appendToImageList) {
     if (appendToImageList) imageGalleryImageList.append(imageItem);
     let image = dataURLToBlob(sourceImageTag.attr('src'));
     let fileName = imageItem.find('div.image-gallery__caption').text();
-    let fileType = image.type;
+    // let fileType = image.type;
     
     data.append('image', image);
-    data.append('directory', imageGalleryDropBox.attr('data-directory'));
     data.append('fileName', fileName);
-    
+    data.append(imageGalleryDropBox.attr('data-owner-id-name'), imageGalleryDropBox.attr('data-owner-id'));
+    data.append('order', getImageOrder());
+    data.append('repImage', repImageExists());
+
+
     $.ajax({
-        url: $('meta[name=contextPath]').attr('content') + '/upload/image',
+        url: imageGalleryDropBox.attr('data-save-url'),
         data: data,
         cache: false,
         contentType: false,
@@ -1286,13 +1267,6 @@ function uploadImage (imageItem, appendToImageList) {
         type: 'POST',
         success: function (response) {
             imageItem.removeClass('processing');
-            let imageWrapper = imageItem.find('div.image-gallery__image-wrapper');
-            imageWrapper.append('<input type="hidden" name="baseImageVmList[0].id" value="">');
-            imageWrapper.append('<input type="hidden" name="baseImageVmList[0].name" value="' + fileName + '">');
-            imageWrapper.append('<input type="hidden" name="baseImageVmList[0].order" value="">');
-            imageWrapper.append('<input type="hidden" name="baseImageVmList[0].fileType" value="' + fileType + '">');
-            imageWrapper.append('<input type="hidden" name="baseImageVmList[0].repImage" value="false">');
-            imageWrapper.append('<input type="hidden" name="baseImageVmList[0].path" value="' + response.result + '">');
         },
         error: function (jqXHR) {
             
@@ -1304,6 +1278,16 @@ function uploadImage (imageItem, appendToImageList) {
             else $('div.app-container').append(createPopup(exceptionMessage, 'error'));
         }
     })
+}
+
+function getImageOrder() {
+    let numOfImage = imageGalleryImageList.find('li.image-gallery__item').length;
+    return parseInt(numOfImage) + 1;
+}
+
+function repImageExists() {
+    let repImage = imageGalleryImageList.find('div.image-gallery__image-wrapper.rep-image');
+    return repImage.length > 0;
 }
 
 function showImageItem (imageItem, classToOpen) {

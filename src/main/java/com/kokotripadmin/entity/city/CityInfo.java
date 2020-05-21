@@ -26,9 +26,6 @@ public class CityInfo extends BaseDescribableInfoEntity {
     @Column(name = "rep_image_path")
     private String repImagePath;
 
-    @Column(name = "rep_image_file_type")
-    private String repImageFileType;
-
     @Column(name = "city_id", insertable = false, updatable = false)
     private Integer cityId;
 
@@ -44,7 +41,6 @@ public class CityInfo extends BaseDescribableInfoEntity {
     public void denormalize(City city) {
         this.enabled = city.isEnabled();
         this.repImagePath = city.getRepImagePath();
-        this.repImageFileType = city.getRepImageFileType();
         this.latitude = city.getLatitude();
         this.longitude = city.getLongitude();
     }

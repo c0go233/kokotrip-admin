@@ -62,9 +62,6 @@ public class TourSpot extends BaseEntity {
     @Column(name = "rep_image_path")
     private String repImagePath;
 
-    @Column(name = "rep_image_file_type")
-    private String repImageFileType;
-
     @Column(name = "always_open")
     private boolean alwaysOpen;
 
@@ -144,7 +141,6 @@ public class TourSpot extends BaseEntity {
         this.contact = tourSpotDto.getContact();
         this.popularScore = tourSpotDto.getPopularScore();
         this.repImagePath = tourSpotDto.getRepImagePath();
-        this.repImageFileType = tourSpotDto.getRepImageFileType();
     }
 
 

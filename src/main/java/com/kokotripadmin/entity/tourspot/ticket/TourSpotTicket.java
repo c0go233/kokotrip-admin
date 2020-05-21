@@ -34,9 +34,6 @@ public class TourSpotTicket extends BaseEntity {
     @Column(name = "rep_image_path")
     private String repImagePath;
 
-    @Column(name = "rep_image_file_type")
-    private String repImageFileType;
-
     @Column(name = "tour_spot_id", insertable = false, updatable = false)
     private Integer tourSpotId;
 
@@ -62,13 +59,13 @@ public class TourSpotTicket extends BaseEntity {
                orphanRemoval = true)
     private List<TourSpotTicketDescription> tourSpotTicketDescriptionList =  new ArrayList<>();
 
+    @SuppressWarnings("Duplicates")
     public void clone(TourSpotTicketDto tourSpotTicketDto) {
         this.name = tourSpotTicketDto.getName();
         this.enabled = tourSpotTicketDto.isEnabled();
         this.order = tourSpotTicketDto.getOrder();
         this.description = tourSpotTicketDto.getDescription();
         this.repImagePath = tourSpotTicketDto.getRepImagePath();
-        this.repImageFileType = tourSpotTicketDto.getRepImageFileType();
     }
 
 }

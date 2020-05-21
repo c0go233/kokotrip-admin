@@ -43,9 +43,6 @@ public class TourSpotInfo extends BaseDescribableInfoEntity {
     @Column(name = "rep_image_path")
     private String repImagePath;
 
-    @Column(name = "rep_image_file_type")
-    private String repImageFileType;
-
     @Column(name = "always_open")
     private boolean alwaysOpen;
 
@@ -117,7 +114,6 @@ public class TourSpotInfo extends BaseDescribableInfoEntity {
         this.numberOfWishListSaved = tourSpot.getNumberOfWishListSaved();
         this.popularScore = tourSpot.getPopularScore();
         this.repImagePath = tourSpot.getRepImagePath();
-        this.repImageFileType = tourSpot.getRepImageFileType();
     }
 
     public void clone(TourSpot tourSpot) {

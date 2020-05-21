@@ -1122,10 +1122,25 @@ create table `city_image`
 );
 
 
-drop table city_image;
 
 
 # TODO: execute 11/05/2020
+alter table city drop column `rep_image_file_type`;
+alter table city_info drop column `rep_image_file_type`;
+alter table region drop column `rep_image_file_type`;
+alter table region_info drop column `rep_image_file_type`;
+alter table tour_spot drop column `rep_image_file_type`;
+alter table tour_spot_info drop column `rep_image_file_type`;
+alter table tour_spot drop column `rep_image_file_type`;
+alter table tour_spot_info drop column `rep_image_file_type`;
+alter table tour_spot_ticket drop column `rep_image_file_type`;
+alter table tour_spot_ticket_info drop column `rep_image_file_type`;
+alter table activity drop column `rep_image_file_type`;
+alter table activity_info drop column `rep_image_file_type`;
+alter table activity_ticket drop column `rep_image_file_type`;
+alter table activity_ticket_info drop column `rep_image_file_type`;
+
+
 
 
 -- ############################################DONE########################################################################################################################

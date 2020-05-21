@@ -36,7 +36,6 @@ public class CityVm extends BaseViewModel {
     private double longitude;
 
     private String  repImagePath;
-    private String  repImageFileType;
     private String  stateName;
 
     @NotNull(message = "시,도를 선택해주세요")

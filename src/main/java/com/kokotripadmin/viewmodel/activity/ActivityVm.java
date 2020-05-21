@@ -37,7 +37,6 @@ public class ActivityVm extends BaseViewModel {
     private int numberOfRate;
     private int numberOfWishListSaved;
     private String repImagePath;
-    private String repImageFileType;
     private String tourSpotName;
     private Integer tourSpotId;
     private String tagName;

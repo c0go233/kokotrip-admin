@@ -1905,33 +1905,6 @@ ul.image-gallery__image-list > li.processing > .image-gallery__image-wrapper > d
     display: none;
 }
 
-.image-gallery__drop-box.dragenter > .screen-filter {
-    display: block;
-}
-
-
-
-/*div.image-gallery__drop-logo-wrapper > img:nth-child(2) {*/
-    /*display: none;*/
-/*}*/
-
-/*div.image-gallery__drop-box.dragenter {*/
-    /*!*border: 2px dashed var(--color-primary);*!*/
-/*}*/
-
-/*div.image-gallery__drop-box.dragenter > div.image-gallery__drop-logo-wrapper > img:first-child {*/
-    /*display: none;*/
-/*}*/
-
-/*div.image-gallery__drop-box.dragenter > div.image-gallery__drop-logo-wrapper > img:nth-child(2) {*/
-    /*display: inline-block;*/
-/*}*/
-
-/*div.image-gallery__drop-box.image-gallery__drop-box_filled div.image-gallery__drop-logo-wrapper {*/
-    /*display: none;*/
-/*}*/
-
-
 
 
 

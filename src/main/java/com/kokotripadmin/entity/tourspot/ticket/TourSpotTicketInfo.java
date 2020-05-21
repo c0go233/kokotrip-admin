@@ -27,9 +27,6 @@ public class TourSpotTicketInfo extends BaseDescribableInfoEntity {
     @Column(name = "rep_image_path")
     private String repImagePath;
 
-    @Column(name = "rep_image_file_type")
-    private String repImageFileType;
-
     @Column(name = "tour_spot_ticket_id", insertable = false, updatable = false)
     private Integer tourSpotTicketId;
 
@@ -52,7 +49,6 @@ public class TourSpotTicketInfo extends BaseDescribableInfoEntity {
         this.order = tourSpotTicket.getOrder();
         this.repPrice = tourSpotTicket.getRepPrice();
         this.repImagePath = tourSpotTicket.getRepImagePath();
-        this.repImageFileType = tourSpotTicket.getRepImageFileType();
     }
 
     public void clone(TourSpotTicket tourSpotTicket) {

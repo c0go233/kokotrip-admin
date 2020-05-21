@@ -35,9 +35,6 @@ public class Region extends BaseEntity {
     @Column(name = "rep_image_path")
     private String repImagePath;
 
-    @Column(name = "rep_image_file_type")
-    private String repImageFileType;
-
     @Column(name = "city_id", insertable = false, updatable = false)
     private Integer cityId;
 
@@ -71,7 +68,6 @@ public class Region extends BaseEntity {
         this.latitude = regionDto.getLatitude();
         this.longitude = regionDto.getLongitude();
         this.repImagePath = regionDto.getRepImagePath();
-        this.repImageFileType = regionDto.getRepImageFileType();
     }
 
 }

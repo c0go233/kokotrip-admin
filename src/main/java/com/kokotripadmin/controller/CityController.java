@@ -63,7 +63,7 @@ public class CityController extends BaseController {
 
     private final String CITY_VM = "cityVm";
 
-    private final String CITY_IMAGE_DIRECTORY = BUCKET_NAME + "/city/image";
+    private final String CITY_DIRECTORY = "city";
 
 
     @GetMapping("/list")
@@ -139,6 +139,23 @@ public class CityController extends BaseController {
         } catch (CityNotFoundException exception) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(convert.exceptionToJson(exception.getMessage()));
         }
+    }
+
+    @PostMapping(value = "image/save", consumes = {"multipart/form-data"}, produces = "application/json; charset=utf8")
+    @ResponseBody
+    public ResponseEntity<String> saveCityImage(@Valid @RequestParam("image") MultipartFile multipartFile,
+                                                @Valid @RequestParam("fileName") String fileName,
+                                                @Valid @RequestParam("cityId") Integer cityId) {
+
+
+
+
+
+
+
+
+
+
     }
 
 

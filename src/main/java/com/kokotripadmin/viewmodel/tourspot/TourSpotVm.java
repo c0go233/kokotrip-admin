@@ -50,7 +50,6 @@ public class TourSpotVm extends BaseViewModel {
     private String  contact;
     private String  address;
     private String  repImagePath;
-    private String  repImageFileType;
 
     @NotNull(message = "하위분류를 선택해주세요")
     private Integer tagId;

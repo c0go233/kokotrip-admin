@@ -44,6 +44,7 @@
         <div class="section__tab-list">
             <ul class="tab-list">
                 <button type="button" class="tab_selected tab-list__tab" data-target-id="tab-basic-info">기본정보</button>
+                <button type="button" class="tab_selected tab-list__tab" data-target-id="tab-image">이미지</button>
                 <button type="button" class="tab-list__tab" data-target-id="tab-region-list">유명지역 리스트</button>
                 <button type="button" class="tab-list__tab" data-target-id="tab-info-list">번역리스트</button>
                 <button type="button" class="tab-list__tab" data-target-id="tab-tag-list">분류리스트</button>
@@ -66,6 +67,17 @@
 
                 <t:contentFooter id="${cityVm.id}" name="${cityVm.name}" urlPrefix="/city" type="도시" />
 
+            </div>
+        </div>
+
+        <div id="tab-image" class="tab-content">
+            <div class="layout__half">
+                <div class="border-box">
+                    <t:imageGallery prefixUrl="/city/image"
+                                    imageList="${cityVm.baseImageVmList}"
+                                    ownerIdName="cityId"
+                                    ownerId="${cityVm.id}"/>
+                </div>
             </div>
         </div>
 

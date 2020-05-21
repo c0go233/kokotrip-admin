@@ -30,7 +30,6 @@ public class ActivityTicketVm extends BaseViewModel {
     private Integer order;
 
     private String repImagePath;
-    private String repImageFileType;
     private Integer tourSpotId;
     private String tourSpotName;
     private Integer activityId;

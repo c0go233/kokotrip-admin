@@ -78,7 +78,6 @@ public class CityServiceImpl implements CityService, CityEntityService {
     @Override
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, readOnly = true)
     public CityDto findById(Integer cityId) throws CityNotFoundException {
-
         City city = findEntityById(cityId);
         return modelMapper.map(city, CityDto.class);
     }
@@ -86,9 +85,7 @@ public class CityServiceImpl implements CityService, CityEntityService {
     @Override
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, readOnly = true)
     public City findEntityById(Integer cityId) throws CityNotFoundException {
-
-        City city = cityDao.findById(cityId).orElseThrow(() -> new CityNotFoundException());
-        return city;
+        return cityDao.findById(cityId).orElseThrow(CityNotFoundException::new);
     }
 
     @Override
@@ -206,17 +203,15 @@ public class CityServiceImpl implements CityService, CityEntityService {
 
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, readOnly = true)
     public CityInfo findInfoEntityByInfoId(Integer infoId) throws CityInfoNotFoundException {
-        CityInfo cityInfo = cityInfoDao.findById(infoId).orElseThrow(() -> new CityInfoNotFoundException());
-        return cityInfo;
+        return cityInfoDao.findById(infoId).orElseThrow(CityInfoNotFoundException::new);
     }
 
     @Override
     @Transactional
     public CityInfo findInfoEntityByIdAndSupportLanguageId(Integer id, Integer supportLanguageId)
     throws CityInfoNotFoundException {
-        CityInfo cityInfo = cityInfoDao.findOne(CitySpec.findInfoByIdAndSupportLanguageId(id, supportLanguageId))
-                                       .orElseThrow(() -> new CityInfoNotFoundException());
-        return cityInfo;
+        return cityInfoDao.findOne(CitySpec.findInfoByIdAndSupportLanguageId(id, supportLanguageId))
+                          .orElseThrow(CityInfoNotFoundException::new);
     }
 
     @Override
