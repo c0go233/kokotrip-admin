@@ -1,6 +1,4 @@
-package com.kokotripadmin.exception.amazon_s3_bucket;
-
-import net.bytebuddy.implementation.bind.annotation.Super;
+package com.kokotripadmin.exception.image;
 
 public class ImageDuplicateException extends Exception {
 

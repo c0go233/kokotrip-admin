@@ -1,14 +1,17 @@
 package com.kokotripadmin.service.interfaces;
 
-import com.kokotripadmin.exception.amazon_s3_bucket.FileIsNotImageException;
-import com.kokotripadmin.exception.amazon_s3_bucket.ImageDuplicateException;
+import com.kokotripadmin.entity.common.BaseImageEntity;
+import com.kokotripadmin.exception.image.FileIsNotImageException;
+import com.kokotripadmin.exception.image.ImageDuplicateException;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.validation.Valid;
 import java.io.IOException;
+import java.util.List;
 
 public interface BucketService {
-    String uploadImage(String directory, String fileName, MultipartFile multipartFile)
+    String uploadImage(String bucketKey, String fileName, MultipartFile multipartFile)
     throws IOException, ImageDuplicateException, FileIsNotImageException;
-    String deleteImage(String fileName);
+    String deleteImage(String bucketKey);
+    String getEndPoint(String bucketKey);
+    void deleteImages(List<? extends BaseImageEntity> baseImageEntities);
 }

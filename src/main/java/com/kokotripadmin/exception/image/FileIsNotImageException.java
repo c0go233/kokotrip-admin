@@ -1,4 +1,4 @@
-package com.kokotripadmin.exception.amazon_s3_bucket;
+package com.kokotripadmin.exception.image;
 
 public class FileIsNotImageException extends Exception {
 

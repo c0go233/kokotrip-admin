@@ -138,7 +138,7 @@
             '/activity/ticket', '/add?activityId=${activityVm.id}', true, true);
         setListenerToTabList();
         setDeleteConfirmModal();
-        $('button#delete-btn').on(eventType.click, onClickDeleteBtn);
+        $('button#delete-btn').on(eventType.click, onClickDetailDeleteBtn);
         setInfoTable(true);
         setInfoFormModal();
         setInfoDetailModal();

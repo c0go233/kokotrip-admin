@@ -109,10 +109,5 @@
 
 </t:masterPage>
 
-
-<script>
-    setImageGallery();
-</script>
-
 </body>
 </html>

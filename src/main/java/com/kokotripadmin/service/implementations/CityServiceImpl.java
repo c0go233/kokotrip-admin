@@ -3,6 +3,7 @@ package com.kokotripadmin.service.implementations;
 import com.kokotripadmin.constant.SupportLanguageEnum;
 import com.kokotripadmin.dao.interfaces.city.*;
 import com.kokotripadmin.datatablesdao.CityDataTablesDao;
+import com.kokotripadmin.dto.city.CityImageDto;
 import com.kokotripadmin.dto.city.CityInfoDto;
 import com.kokotripadmin.dto.city.CityDto;
 import com.kokotripadmin.entity.State;
@@ -10,12 +11,16 @@ import com.kokotripadmin.entity.city.*;
 import com.kokotripadmin.entity.common.SupportLanguage;
 import com.kokotripadmin.entity.tag.Tag;
 import com.kokotripadmin.entity.tag.Theme;
+import com.kokotripadmin.exception.image.FileIsNotImageException;
+import com.kokotripadmin.exception.image.ImageDuplicateException;
 import com.kokotripadmin.exception.city.*;
+import com.kokotripadmin.exception.image.RepImageNotDeletableException;
 import com.kokotripadmin.exception.state.StateNotFoundException;
 import com.kokotripadmin.exception.support_language.SupportLanguageNotFoundException;
 import com.kokotripadmin.service.entityinterfaces.CityEntityService;
 import com.kokotripadmin.service.entityinterfaces.StateEntityService;
 import com.kokotripadmin.service.entityinterfaces.SupportLanguageEntityService;
+import com.kokotripadmin.service.interfaces.BucketService;
 import com.kokotripadmin.service.interfaces.CityService;
 import com.kokotripadmin.spec.CitySpec;
 import com.kokotripadmin.util.Convert;
@@ -27,7 +32,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -49,6 +56,9 @@ public class CityServiceImpl implements CityService, CityEntityService {
 
     private final SupportLanguageEntityService supportLanguageEntityService;
     private final StateEntityService           stateEntityService;
+    private final BucketService bucketService;
+
+    private final String CITY_IMAGE_DIRECTORY = "city/image";
 
     @Autowired
     public CityServiceImpl(Convert convert,
@@ -60,7 +70,8 @@ public class CityServiceImpl implements CityService, CityEntityService {
                            CityDataTablesDao cityDataTablesDao,
                            CityImageDao cityImageDao,
                            SupportLanguageEntityService supportLanguageEntityService,
-                           StateEntityService stateEntityService) {
+                           StateEntityService stateEntityService,
+                           BucketService bucketService) {
 
         this.convert = convert;
         this.cityDao = cityDao;
@@ -72,6 +83,7 @@ public class CityServiceImpl implements CityService, CityEntityService {
         this.cityThemeRelDao = cityThemeRelDao;
         this.cityThemeTagRelDao = cityThemeTagRelDao;
         this.stateEntityService = stateEntityService;
+        this.bucketService = bucketService;
     }
 
 
@@ -91,7 +103,6 @@ public class CityServiceImpl implements CityService, CityEntityService {
     @Override
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, readOnly = true)
     public CityDto findByIdInDetail(Integer cityId) throws CityNotFoundException {
-
         City city = findEntityById(cityId);
         List<CityThemeRel> cityThemeRelList = cityThemeRelDao.findAll(CitySpec.findThemeRelById(cityId, true));
         return convert.cityToDtoInDetail(city, cityThemeRelList);
@@ -106,31 +117,74 @@ public class CityServiceImpl implements CityService, CityEntityService {
     @Override
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, readOnly = true)
     public LinkedHashMap<Integer, String> findAllAsLinkedHashMap() {
-
         List<City> cityList = cityDao.findAll(CitySpec.findByEnabled(true));
         return cityList.stream().collect(Collectors.toMap(City::getId, City::getName, (oKey, nKey) -> oKey, LinkedHashMap::new));
     }
 
-//    @Override
-//    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, readOnly = true)
-//    public boolean imageExistsByIdAndImageName(Integer cityId, String imageName) {
-//        long count = cityImageDao.count(CitySpec.findImageByIdAndImageName(cityId, imageName));
-//        return count > 0;
-//    }
-//
-//
-//    @Override
-//    public Integer saveImage(Integer cityId, String path, String fileName, String fileType) throws CityNotFoundException {
-//        City city = findEntityById(cityId);
-//        CityImage cityImage = new CityImage(city, path, fileName, fileType);
-//        cityImageDao.save(cityImage);
-//        return cityImage.getId();
-//    }
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, readOnly = true)
+    public String findImageDirectoryById(Integer cityId) throws CityNotFoundException {
+        City city = findEntityById(cityId);
+        return "city/image/" + city.getName();
+    }
+
+
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, readOnly = true)
+    public CityImage findImageByImageId(Integer cityImageId) throws CityImageNotFoundException {
+        return cityImageDao.findById(cityImageId).orElseThrow(CityImageNotFoundException::new);
+    }
 
     @Override
-    public void deleteImage(Integer imageId) {
-        if (cityImageDao.existsById(imageId))
-            cityImageDao.deleteById(imageId);
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, readOnly = true)
+    public String findNameById(Integer cityId) throws CityNotFoundException {
+        return findEntityById(cityId).getName();
+    }
+
+    @Override
+    @Transactional
+    public Integer saveImage(CityImageDto cityImageDto)
+    throws CityNotFoundException, ImageDuplicateException, IOException, FileIsNotImageException {
+        City city = findEntityById(cityImageDto.getCityId());
+        String bucketKey = CITY_IMAGE_DIRECTORY + "/" + city.getName() + "/" + cityImageDto.getName();
+
+        if (cityImageDao.count(CitySpec.findImageByIdAndImageBucketKey(city.getId(), bucketKey)) > 0)
+            throw new ImageDuplicateException(cityImageDto.getName());
+
+        CityImage cityImage = modelMapper.map(cityImageDto, CityImage.class);
+        cityImage.setCity(city);
+        cityImage.setBucketKey(bucketKey);
+        cityImageDao.saveAndFlush(cityImage);
+
+        System.out.println("**************************" + cityImageDao.count() + "**************************");
+
+
+//        bucketService.uploadImage(bucketKey, cityImageDto.getName(), cityImageDto.getMultipartFile());
+        return cityImage.getId();
+    }
+
+    @Override
+    @Transactional
+    public void updateRepImage(Integer imageId) throws CityImageNotFoundException {
+        CityImage newRepImage = findImageByImageId(imageId);
+        List<CityImage> repImageList = cityImageDao.findAll(CitySpec.findImageByIdAndRepImage(newRepImage.getCityId(), true));
+        for (CityImage repImage : repImageList) {
+            if (newRepImage != repImage) repImage.setRepImage(false);
+        }
+        newRepImage.setRepImage(true);
+    }
+
+
+
+
+    @Override
+    @Transactional
+    public void deleteImage(Integer cityImageId)
+    throws CityImageNotFoundException, RepImageNotDeletableException {
+        CityImage cityImage = findImageByImageId(cityImageId);
+        if (cityImage.isRepImage())
+            throw new RepImageNotDeletableException();
+//        bucketService.deleteImage(cityImage.getBucketKey());
+        cityImageDao.delete(cityImage);
     }
 
 
@@ -154,6 +208,7 @@ public class CityServiceImpl implements CityService, CityEntityService {
     @Transactional
     public void delete(Integer cityId) throws CityNotFoundException {
         City city = findEntityById(cityId);
+        bucketService.deleteImages(city.getCityImageList());
         cityDao.delete(city);
     }
 

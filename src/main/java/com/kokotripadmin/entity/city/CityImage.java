@@ -20,11 +20,7 @@ public class CityImage extends BaseImageEntity {
     @JoinColumn(name = "city_id")
     private City city;
 
-    public CityImage(City city, String path, String fileName, String fileType) {
-        this.city = city;
-        this.enabled = true;
-        this.path = path;
-        this.name = fileName;
-        this.fileType = fileType;
+    public CityImage() {
     }
+
 }

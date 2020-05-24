@@ -1109,7 +1109,7 @@ create table `city_image`
   `enabled`    tinyint(1)    not null,
   `order`      int           not null,
   `file_type`  varchar(10)   not null,
-  `path`       varchar(4096) not null,
+  `bucket_key` varchar(1000) not null,
   `rep_image`  tinyint(1)    not null,
   #   `width`      int(10)       not null,
   #   `height`     int(10)       not null,
@@ -1122,7 +1122,14 @@ create table `city_image`
 );
 
 
+select *
+from city_image;
 
+delete
+from city_image
+where id > 0;
+
+drop table city_image;
 
 # TODO: execute 11/05/2020
 alter table city drop column `rep_image_file_type`;
@@ -1139,7 +1146,6 @@ alter table activity drop column `rep_image_file_type`;
 alter table activity_info drop column `rep_image_file_type`;
 alter table activity_ticket drop column `rep_image_file_type`;
 alter table activity_ticket_info drop column `rep_image_file_type`;
-
 
 
 

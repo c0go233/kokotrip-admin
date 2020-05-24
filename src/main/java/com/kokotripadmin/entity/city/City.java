@@ -64,6 +64,7 @@ public class City extends BaseEntity {
                fetch = FetchType.LAZY,
                mappedBy = "city",
                orphanRemoval = true)
+    @OrderBy("order asc")
     private List<CityImage> cityImageList = new ArrayList<>();
 
 

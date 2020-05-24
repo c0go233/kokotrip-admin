@@ -6,10 +6,13 @@ import com.amazonaws.SdkClientException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kokotripadmin.constant.AppConstant;
-import com.kokotripadmin.constant.ImageDirectoryConstant;
 import com.kokotripadmin.dto.city.CityDto;
+import com.kokotripadmin.dto.city.CityImageDto;
 import com.kokotripadmin.dto.city.CityInfoDto;
+import com.kokotripadmin.exception.image.FileIsNotImageException;
+import com.kokotripadmin.exception.image.ImageDuplicateException;
 import com.kokotripadmin.exception.city.*;
+import com.kokotripadmin.exception.image.RepImageNotDeletableException;
 import com.kokotripadmin.exception.state.StateNotFoundException;
 import com.kokotripadmin.exception.support_language.SupportLanguageNotFoundException;
 import com.kokotripadmin.service.interfaces.BucketService;
@@ -25,6 +28,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
 import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -34,6 +38,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
+import java.io.IOException;
 
 @Controller
 @RequestMapping("/city")
@@ -63,9 +68,6 @@ public class CityController extends BaseController {
 
     private final String CITY_VM = "cityVm";
 
-    private final String CITY_DIRECTORY = "city";
-
-
     @GetMapping("/list")
     public String showStateList() {
         return "city/city-list";
@@ -78,7 +80,8 @@ public class CityController extends BaseController {
     }
 
     @GetMapping("/add")
-    public String addCity(Model model, @RequestParam(value = "stateId", required = false) Integer stateId) throws StateNotFoundException {
+    public String addCity(Model model, @RequestParam(value = "stateId", required = false) Integer stateId)
+    throws StateNotFoundException {
 
         String stateName = stateService.findNameById(stateId);
         if (!model.containsAttribute(CITY_VM))
@@ -141,34 +144,49 @@ public class CityController extends BaseController {
         }
     }
 
-    @PostMapping(value = "image/save", consumes = {"multipart/form-data"}, produces = "application/json; charset=utf8")
+    @PostMapping(value = "/image/save",
+                 consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+                 produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<String> saveCityImage(@Valid @RequestParam("image") MultipartFile multipartFile,
-                                                @Valid @RequestParam("fileName") String fileName,
-                                                @Valid @RequestParam("cityId") Integer cityId) {
-
-
-
-
-
-
-
-
-
-
+    public ResponseEntity<String> saveCityImage(@RequestParam("image") MultipartFile multipartFile,
+                                                @RequestParam("fileName") String fileName,
+                                                @RequestParam("cityId") Integer cityId,
+                                                @RequestParam("order") Integer order,
+                                                @RequestParam("repImage") boolean repImage) {
+        try {
+            CityImageDto cityImageDto = new CityImageDto(fileName, multipartFile.getContentType(), order,
+                                                         repImage, cityId, multipartFile);
+            Integer cityImageId = cityService.saveImage(cityImageDto);
+            return ResponseEntity.status(HttpStatus.OK).body(convert.resultToJson(cityImageId.toString()));
+        } catch (AmazonServiceException exception) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(convert.exceptionToJson(exception.getMessage()));
+        } catch (CityNotFoundException | FileIsNotImageException | ImageDuplicateException | IOException |
+                SdkClientException exception) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(convert.exceptionToJson(exception.getMessage()));
+        }
     }
+
+    @PostMapping(value = "/image/rep-image/update", produces = "application/json; charset=utf8")
+    @ResponseBody
+    public ResponseEntity<String> updateRepImage(@RequestParam("imageId") Integer imageId) {
+        try {
+            cityService.updateRepImage(imageId);
+            return ResponseEntity.status(HttpStatus.OK).body(convert.resultToJson(""));
+        } catch (CityImageNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(convert.exceptionToJson(e.getMessage()));
+        }
+    }
+
 
 
     @PostMapping(value = "/image/delete", produces = "application/json; charset=utf8")
     @ResponseBody
-    public ResponseEntity<String> deleteCityImage(@Valid @RequestParam("fileName") String fileName,
-                                                  @Valid @RequestParam("imageId") Integer imageId) {
+    public ResponseEntity<String> deleteCityImage(@RequestParam("id") Integer imageId) {
 
         try {
-            if (fileName != null) bucketService.deleteImage(ImageDirectoryConstant.CITY_IMAGE + "/" + fileName);
-            if (imageId != null) cityService.deleteImage(imageId);
-            return ResponseEntity.status(HttpStatus.OK).body(convert.resultToJson(""));
-        } catch (AmazonServiceException e) {
+            cityService.deleteImage(imageId);
+            return ResponseEntity.status(HttpStatus.OK).body(convert.resultToJson(imageId.toString()));
+        } catch (AmazonServiceException | CityImageNotFoundException | RepImageNotDeletableException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(convert.exceptionToJson(e.getMessage()));
         } catch (SdkClientException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(convert.exceptionToJson(e.getMessage()));

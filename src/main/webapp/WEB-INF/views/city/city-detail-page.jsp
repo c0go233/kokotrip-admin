@@ -131,14 +131,18 @@
 
 <script>
     $(document).ready(function () {
+        setImageGallery();
+
         setDataTable('region-data-table', false, 5, '${pageContext.request.contextPath}', '/region', '/add?cityId=${cityVm.id}', true, false);
         setListenerToTabList();
         setDeleteConfirmModal();
-        $('button#delete-btn').on(eventType.click, onClickDeleteBtn);
+        $('button#delete-btn').on(eventType.click, onClickDetailDeleteBtn);
         setInfoTable(true);
         setInfoFormModal();
         setInfoDetailModal();
     });
+
+
 
 </script>
 

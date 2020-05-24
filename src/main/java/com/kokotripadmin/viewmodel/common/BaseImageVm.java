@@ -10,7 +10,7 @@ public class BaseImageVm {
     private Integer id;
     private String name;
     private String fileType;
-    private String path;
+    private String url;
     private boolean repImage;
     private Integer order;
 }

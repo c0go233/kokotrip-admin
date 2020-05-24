@@ -3,7 +3,6 @@ package com.kokotripadmin.spec;
 import com.kokotripadmin.entity.city.*;
 import org.springframework.data.jpa.domain.Specification;
 
-import javax.persistence.FetchType;
 import javax.persistence.criteria.Fetch;
 import javax.persistence.criteria.JoinType;
 
@@ -95,12 +94,23 @@ public class CitySpec {
         return (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get(CityImage_.cityId), cityId);
     }
 
-    public static Specification<CityImage> findImageByImageName(String imageName) {
-        return (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get(CityImage_.name), imageName);
+    public static Specification<CityImage> findImageByImageBucketKey(String cityImageBucketKey) {
+        return (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get(CityImage_.bucketKey),
+                                                                               cityImageBucketKey);
     }
 
-    public static Specification<CityImage> findImageByIdAndImageName(Integer cityId, String imageName) {
-        return Specification.where(findImageById(cityId)).and(findImageByImageName(imageName));
+    public static Specification<CityImage> findImageByIdAndImageBucketKey(Integer cityId, String cityImageBucketKey) {
+        return Specification.where(findImageById(cityId)).and(findImageByImageBucketKey(cityImageBucketKey));
     }
+
+    public static Specification<CityImage> findImageByRepImage(boolean repImage) {
+        return (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get(CityImage_.repImage), repImage);
+    }
+
+    public static Specification<CityImage> findImageByIdAndRepImage(Integer cityId, boolean repImage) {
+        return Specification.where(findImageById(cityId)).and(findImageByRepImage(repImage));
+    }
+
+
 
 }

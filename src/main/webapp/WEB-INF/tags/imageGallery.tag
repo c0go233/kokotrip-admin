@@ -21,20 +21,20 @@
                 <div></div>
                 <span>대표이미지</span>
             </button>
-            <button id="image-gallery-delete-btn"
-                    type="button"
-                    class="link-primary k-btn tool-bar__add-link img-hover-btn"
-                    data-delete-url="${pageContext.request.contextPath}${prefixUrl}/delete">
-                <img class="icon-medium" src="${pageContext.request.contextPath}/resources/image/bin-primary.png">
-                <img class="icon-medium"
-                     src="${pageContext.request.contextPath}/resources/image/bin-primary-darker.png">
-                <span>삭제하기</span>
-            </button>
+            <%--<button id="image-gallery-delete-btn"--%>
+                    <%--type="button"--%>
+                    <%--class="link-primary k-btn tool-bar__add-link img-hover-btn"--%>
+                    <%--data-delete-url="${pageContext.request.contextPath}${prefixUrl}/delete">--%>
+                <%--<img class="icon-medium" src="${pageContext.request.contextPath}/resources/image/bin-primary.png">--%>
+                <%--<img class="icon-medium"--%>
+                     <%--src="${pageContext.request.contextPath}/resources/image/bin-primary-darker.png">--%>
+                <%--<span>삭제하기</span>--%>
+            <%--</button>--%>
         </div>
 
     </div>
     <div class="image-gallery__drop-box"
-         data-save-url="${pageContext.request.contextPath}${prefixUrl}/save"
+         data-prefix-url="${prefixUrl}"
          data-owner-id-name="${ownerIdName}"
          data-owner-id="${ownerId}">
         <div class="image-gallery__drop-logo-wrapper">
@@ -44,7 +44,7 @@
         <ul class="image-gallery__image-list">
 
             <c:forEach var="image" items="${imageList}">
-                <li class="image-gallery__item hide processing">
+                <li class="image-gallery__item ${image.repImage ? 'rep-image' : ''} processing" data-image-id="${image.id}">
                     <div class="image-gallery__image-wrapper">
                         <div class="lds-ellipsis">
                             <div></div>
@@ -53,23 +53,19 @@
                             <div></div>
                         </div>
                         <div class="screen-filter"></div>
+                        <button class="btn-close image-gallery__close-btn"></button>
                         <div class="image-gallery__check-icon-wrapper">
                             <img src="${pageContext.request.contextPath}/resources/image/round-check-primary.png"
                                  class="image-gallery__check-icon"/>
                         </div>
                         <div class="image-gallery__caption">${image.name}</div>
-                        <img src="${image.path}"
+                        <img src="${image.url}"
                              class="source-image"
                              onload="imageOnLoad(this)"
                              onerror="imageOnError(this)"/>
-                        <input type="hidden" name="baseImageVmList[0].id" value="${image.id}">
-                        <input type="hidden" name="baseImageVmList[0].name" value="${image.name}">
-                        <input type="hidden" name="baseImageVmList[0].order" value="${image.id}">
-                        <input type="hidden" name="baseImageVmList[0].fileType" value="${image.fileType}">
-                        <input type="hidden" name="baseImageVmList[0].repImage" value="${image.repImage}">
-                        <input type="hidden" name="baseImageVmList[0].path" value="${image.path}">
                     </div>
                     <div class="image-gallery__error-wrapper image-gallery__upload-error-wrapper hide">
+                        <button class="btn-close image-gallery__close-btn"></button>
                         <img src="${pageContext.request.contextPath}/resources/image/image.png">
                         <p>업로드를 실패했습니다.</p>
                         <button type="button" class="image-gallery__upload-btn k-btn btn-bold image-gallery__btn">
@@ -77,9 +73,10 @@
                         </button>
                     </div>
                     <div class="image-gallery__error-wrapper image-gallery__download-error-wrapper hide">
+                        <button class="btn-close image-gallery__close-btn"></button>
                         <img src="${pageContext.request.contextPath}/resources/image/image.png">
                         <p>다운로드를 실패했습니다.</p>
-                        <button type="button" class="image-gallery__upload-btn k-btn btn-bold image-gallery__btn">
+                        <button type="button" class="image-gallery__download-btn k-btn btn-bold image-gallery__btn">
                             다운로드
                         </button>
                     </div>
@@ -89,3 +86,33 @@
     </div>
 
 </div>
+
+<script>
+
+    function imageOnLoad (target) {
+        let imageItem = target.parentNode.parentNode;
+        imageItem.classList.remove('processing');
+        showImageItemWithJavascript(imageItem, 'image-gallery__image-wrapper');
+    }
+
+    function imageOnError (target) {
+        let imageItem = target.parentNode.parentNode;
+        imageItem.classList.remove('processing');
+        showImageItemWithJavascript(imageItem, 'image-gallery__download-error-wrapper');
+    }
+
+    function showImageItemWithJavascript(imageItem, classToShow) {
+
+        let childNodes = imageItem.childNodes;
+        for (let count = 0; count < imageItem.childNodes.length; count++) {
+            let childNode = childNodes[count];
+            if (childNode.tagName === 'DIV') {
+                if (childNode.classList.contains(classToShow)) childNode.classList.remove('hide');
+                else childNode.classList.add('hide');
+            }
+        }
+    }
+
+</script>
+
+

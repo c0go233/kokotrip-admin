@@ -80,7 +80,7 @@
         setDataTable('city-data-table', false, 10, '${pageContext.request.contextPath}', '/city', '/add?stateId=${stateVm.id}', true, false);
         setListenerToTabList();
         setDeleteConfirmModal();
-        $('button#delete-btn').on(eventType.click, onClickDeleteBtn);
+        $('button#delete-btn').on(eventType.click, onClickDetailDeleteBtn);
     });
 </script>
 

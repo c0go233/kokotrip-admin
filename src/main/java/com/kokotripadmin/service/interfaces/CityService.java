@@ -1,13 +1,19 @@
 package com.kokotripadmin.service.interfaces;
 
+import com.kokotripadmin.dto.city.CityImageDto;
 import com.kokotripadmin.dto.city.CityInfoDto;
 import com.kokotripadmin.dto.city.CityDto;
+import com.kokotripadmin.exception.image.FileIsNotImageException;
+import com.kokotripadmin.exception.image.ImageDuplicateException;
 import com.kokotripadmin.exception.city.*;
+import com.kokotripadmin.exception.image.RepImageNotDeletableException;
 import com.kokotripadmin.exception.state.StateNotFoundException;
 import com.kokotripadmin.exception.support_language.SupportLanguageNotFoundException;
 import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
 import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.LinkedHashMap;
 
 public interface CityService {
@@ -25,5 +31,12 @@ public interface CityService {
 
     LinkedHashMap<Integer, String> findAllAsLinkedHashMap();
     DataTablesOutput<CityDto> findAllByPagination(DataTablesInput input);
-    void deleteImage(Integer imageId);
+    void deleteImage(Integer imageId) throws CityImageNotFoundException, RepImageNotDeletableException;
+    String findNameById(Integer cityId) throws CityNotFoundException;
+
+    Integer saveImage(CityImageDto cityImageDto)
+    throws CityNotFoundException, ImageDuplicateException, IOException, FileIsNotImageException;
+    String findImageDirectoryById(Integer cityId) throws CityNotFoundException;
+
+    void updateRepImage(Integer imageId) throws CityImageNotFoundException;
 }

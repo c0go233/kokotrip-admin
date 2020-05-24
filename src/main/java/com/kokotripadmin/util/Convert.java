@@ -27,6 +27,7 @@ import com.kokotripadmin.entity.city.City;
 import com.kokotripadmin.entity.city.CityImage;
 import com.kokotripadmin.entity.city.CityInfo;
 import com.kokotripadmin.entity.city.CityThemeRel;
+import com.kokotripadmin.entity.common.BaseImageEntity;
 import com.kokotripadmin.entity.photozone.PhotoZone;
 import com.kokotripadmin.entity.photozone.PhotoZoneInfo;
 import com.kokotripadmin.entity.region.Region;
@@ -40,6 +41,7 @@ import com.kokotripadmin.entity.ticket.TicketType;
 import com.kokotripadmin.entity.ticket.TicketTypeInfo;
 import com.kokotripadmin.entity.tourspot.*;
 import com.kokotripadmin.entity.tourspot.ticket.*;
+import com.kokotripadmin.service.interfaces.BucketService;
 import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,6 +72,10 @@ public class Convert {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private BucketService bucketService;
+
+
     public String fieldErrorsToJson(BindingResult bindingResult) throws JsonProcessingException {
         Map<String, String> errors = new HashMap<>();
         for (FieldError fieldError : bindingResult.getFieldErrors())
@@ -97,9 +103,17 @@ public class Convert {
         return file;
     }
 
-    public String toAmazonS3EndPoint(String bucketName, String region, String directory, String fileName) {
-        return "https://" + bucketName + "." + region + ".amazonaws.com/" + directory + "/" + fileName;
+    public List<BaseImageDto> toBaseImageDto(List<? extends BaseImageEntity> baseImageEntityList) {
+        List<BaseImageDto> baseImageDtoList = new ArrayList<>();
+        for (BaseImageEntity baseImageEntity : baseImageEntityList) {
+            String imageUrl = bucketService.getEndPoint(baseImageEntity.getBucketKey());
+            BaseImageDto baseImageDto = new BaseImageDto(baseImageEntity.getId(), baseImageEntity.getName(),
+                                                         imageUrl, baseImageEntity.isRepImage());
+            baseImageDtoList.add(baseImageDto);
+        }
+        return  baseImageDtoList;
     }
+
 
 //  ============================================= STATE ================================================  //
 
@@ -145,11 +159,11 @@ public class Convert {
         for (CityThemeRel cityThemeRel : cityThemeRelList)
             cityDto.getThemeRelDtoList().add(modelMapper.map(cityThemeRel, ThemeRelDto.class));
 
-        for (CityImage cityImage : city.getCityImageList())
-            cityDto.getBaseImageDtoList().add(modelMapper.map(cityImage, BaseImageDto.class));
+        cityDto.setBaseImageDtoList(toBaseImageDto(city.getCityImageList()));
 
         return cityDto;
     }
+
 
 
 

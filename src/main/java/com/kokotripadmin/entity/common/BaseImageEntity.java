@@ -22,8 +22,8 @@ public class BaseImageEntity extends BaseEntity {
     @Column(name = "\"order\"")
     protected Integer order;
 
-    @Column(name = "path")
-    protected String path;
+    @Column(name = "bucket_key")
+    protected String bucketKey;
 
     @Column(name = "file_type")
     protected String fileType;

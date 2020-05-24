@@ -367,7 +367,7 @@ function onClickDeleteConfirmBtn () {
     })
 }
 
-function onClickDeleteBtn () {
+function onClickDetailDeleteBtn () {
     openDeleteConfirmModal($(this).attr(htmlAttr.dataId),
         $(this).attr(htmlAttr.dataName),
         $(this).attr(htmlAttr.dataType),
@@ -376,34 +376,34 @@ function onClickDeleteBtn () {
 }
 
 function openDeleteConfirmModal (id, name, type, url, successCallback) {
-    eDeleteConfirmModalTitlePrefix.text(type)
-    eDeleteConfirmModalStatement.text(name)
-    eDeleteConfirmBtn.attr(htmlAttr.dataId, id)
-    eDeleteConfirmBtn.attr(htmlAttr.dataDeleteUrl, url)
-    eDeleteConfirmBtn.attr(htmlAttr.dataSuccessCallback, successCallback)
-    eDeleteConfirmModal.toggleClass(htmlAttr.show)
-    eDeleteConfirmModalErrorException.text('')
+    eDeleteConfirmModalTitlePrefix.text(type);
+    eDeleteConfirmModalStatement.text(name);
+    eDeleteConfirmBtn.attr(htmlAttr.dataId, id);
+    eDeleteConfirmBtn.attr(htmlAttr.dataDeleteUrl, url);
+    eDeleteConfirmBtn.attr(htmlAttr.dataSuccessCallback, successCallback);
+    eDeleteConfirmModal.toggleClass(htmlAttr.show);
+    eDeleteConfirmModalErrorException.text('');
     
 }
 
 function redirectToUrl (response) {
-    let result = response.result
+    let result = response.result;
     if (result.startsWith('redirect:')) {
-        let url = result.substr(9)
-        window.location.replace(url)
+        let url = result.substr(9);
+        window.location.replace(url);
     }
 }
 
 function populateDeleteConfirmModalError (jqXHR) {
-    populateFieldErrors(jqXHR, 'delete-confirm-modal-error')
+    populateFieldErrors(jqXHR, 'delete-confirm-modal-error');
 }
 
 //========================== INFO FUNCTIONS ==============================================//
 
 //info table
-let eInfoTableTbody
-let eInfoDataTable
-let defaultSupportLanguageId = 2
+let eInfoTableTbody;
+let eInfoDataTable;
+let defaultSupportLanguageId = 2;
 
 const infoCellIndex = {
     id: 0,
@@ -417,38 +417,38 @@ const infoCellIndex = {
 }
 
 //info form
-let eInfoFormModal
-let eInfoSupportLanguageSelect
-let eInfoIdInput
-let eInfoDescriptionTextarea
-let eInfoNameInput
-let eInfoErrorDescription
-let eInfoErrorException
-let eInfoErrorName
+let eInfoFormModal;
+let eInfoSupportLanguageSelect;
+let eInfoIdInput;
+let eInfoDescriptionTextarea;
+let eInfoNameInput;
+let eInfoErrorDescription;
+let eInfoErrorException;
+let eInfoErrorName;
 
 //info detail
-let eInfoDetailModal
-let eInfoDetailSupportLanguageNameSpan
-let eInfoDetailIdSpan
-let eInfoDetailNameSpan
-let eInfoDetailDescriptionSpan
-let eInfoDetailCreatedAtSpan
-let eInfoDetailUpdatedAtSpan
-let eInfoDetailTagSpan
+let eInfoDetailModal;
+let eInfoDetailSupportLanguageNameSpan;
+let eInfoDetailIdSpan;
+let eInfoDetailNameSpan;
+let eInfoDetailDescriptionSpan;
+let eInfoDetailCreatedAtSpan;
+let eInfoDetailUpdatedAtSpan;
+let eInfoDetailTagSpan;
 
 function setInfoTable (includeDescription) {
-    let datatableSetting = getBasicDataTableSetting(false, 10)
-    datatableSetting.columnDefs = getInfoDataTableColumnDefs(includeDescription)
-    eInfoDataTable = $('table#info-data-table').DataTable(datatableSetting)
-    eInfoTableTbody = $('tbody#info-table-tbody')
+    let datatableSetting = getBasicDataTableSetting(false, 10);
+    datatableSetting.columnDefs = getInfoDataTableColumnDefs(includeDescription);
+    eInfoDataTable = $('table#info-data-table').DataTable(datatableSetting);
+    eInfoTableTbody = $('tbody#info-table-tbody');
     
-    appendAddBtnToToolbar()
-    setListenersToInfoTableElements()
+    appendAddBtnToToolbar();
+    setListenersToInfoTableElements();
 }
 
 function appendAddBtnToToolbar () {
-    let addTag = '<button id="info-add-btn" class="link-primary k-btn tool-bar__add-link"><div class="cross-primary"></div><span>추가하기</span></button>'
-    $('table#info-data-table').siblings('div.toolbar').html(addTag)
+    let addTag = '<button id="info-add-btn" class="link-primary k-btn tool-bar__add-link"><div class="cross-primary"></div><span>추가하기</span></button>';
+    $('table#info-data-table').siblings('div.toolbar').html(addTag);
 }
 
 function setListenersToInfoTableElements () {
@@ -462,7 +462,7 @@ function setListenersToInfoTableElements () {
             '번역정보',
             eInfoTableTbody.attr('data-delete-url'),
             eInfoTableTbody.attr(htmlAttr.dataSuccessCallback))
-    })
+    });
     
     $('button#info-add-btn').on(eventType.click, function () {
         openInfoForm(null, '', '', defaultSupportLanguageId)
@@ -517,18 +517,18 @@ function createInfoRow (info) {
 }
 
 function updateInfoRow (row, info) {
-    let data = row.data()
-    data[infoCellIndex.name] = info.name
-    data[infoCellIndex.enabled] = info.enabled
-    data[infoCellIndex.description] = info.description
-    data[infoCellIndex.updatedAt] = info.updatedAt
-    eInfoDataTable.row('[data-info-id=' + info.id + ']').data(data).draw()
+    let data = row.data();
+    data[infoCellIndex.name] = info.name;
+    data[infoCellIndex.enabled] = info.enabled;
+    data[infoCellIndex.description] = info.description;
+    data[infoCellIndex.updatedAt] = info.updatedAt;
+    eInfoDataTable.row('[data-info-id=' + info.id + ']').data(data).draw();
 }
 
 function removeInfoRow (response) {
-    let row = eInfoTableTbody.find('tr[data-info-id=' + response.result + ']')
-    eInfoDataTable.row(row).remove().draw()
-    eDeleteConfirmModal.removeClass(htmlAttr.show)
+    let row = eInfoTableTbody.find('tr[data-info-id=' + response.result + ']');
+    eInfoDataTable.row(row).remove().draw();
+    eDeleteConfirmModal.removeClass(htmlAttr.show);
 }
 
 function onClickInfoEditBtn () {
@@ -1049,7 +1049,6 @@ function setImageGallery () {
     
     $('div.app-container').on(eventType.click, 'button[data-dismiss=modal]', function () {
         $(this).parents('div.error-popup').remove();
-        
     });
     
     imageGalleryAddBtn.on(eventType.click, function () {
@@ -1062,10 +1061,10 @@ function setImageGallery () {
         if (!processing) {
             let selected = $(this).hasClass('selected');
             imageGalleryImageList.find('div.image-gallery__image-wrapper').each(function () {
-                $(this).removeClass('selected')
+                $(this).removeClass('selected');
             });
     
-            if (!selected) $(this).addClass('selected')
+            if (!selected) $(this).addClass('selected');
         }
     });
     
@@ -1086,72 +1085,52 @@ function setImageGallery () {
     imageGalleryFileInput.on(eventType.change, function (e) {
         resizeImageAndLoad(e.target.files[0]);
     });
+
     
-    imageGalleryDeleteBtn.on(eventType.click, function () {
+    imageGalleryRepresentativeBtn.on(eventType.click, function () {
         let selectedImageWrapper = imageGalleryImageList.find('div.image-gallery__image-wrapper.selected');
-        let imageItem = selectedImageWrapper.parents('li.image-gallery__item');
-
         if (selectedImageWrapper.length) {
+            let imageItem = selectedImageWrapper.parents('li.image-gallery__item');
 
-            if (selectedImageWrapper.find('input[name*="path"]').length) {
-
-                let imageId = selectedImageWrapper.find('input[name*="id"]').val();
-                let fileName = selectedImageWrapper.find('input[name*="name"]').val();
-
-                imageItem.addClass('processing');
-
+            if (!imageItem.hasClass('processing') && !imageItem.hasClass('rep-image')) {
+                let imageId = imageItem.attr('data-image-id');
                 $.ajax({
-                    url: $(this).attr('data-delete-url'),
-                    data: { imageId: imageId, fileName: fileName },
+                    url: $('meta[name=contextPath]').attr('content') + imageGalleryDropBox.attr('data-prefix-url') + '/rep-image/update',
+                    data: {imageId: imageId},
                     dataType: 'json',
                     method: ajaxMethod.post,
                     success: function () {
-                        selectedImageWrapper.remove();
-                        checkIfDropboxEmpty();
+                        imageGalleryImageList.find('li.image-gallery__item.rep-image').each(function () {
+                           $(this).removeClass('rep-image');
+                        });
+                        imageItem.addClass('rep-image');
                     },
                     error: function (jqXHR) {
-                        imageItem.removeClass('processing');
                         let exceptionMessage = jqXHR.responseJSON.exception;
-                        $('div.app-container').append(createPopup(exceptionMessage, 'error'));
+                        $('div.app-container').append(createPopup(exceptionMessage, 'ERROR'));
+
                     }
                 });
-            } else {
-                selectedImageWrapper.remove();
             }
-
+        } else {
+            $('div.app-container').append(createPopup('이미지를 선택해주세요', 'ERROR'));
         }
-    });
-    
-    imageGalleryRepresentativeBtn.on(eventType.click, function () {
-        let previousRepImageWrapper = imageGalleryImageList.find('div.image-gallery__image-wrapper.rep-image');
-        if (previousRepImageWrapper.length) {
-            previousRepImageWrapper.removeClass('rep-image');
-            previousRepImageWrapper.find('input[name*="repImage"]').val(false);
-        }
-
-        let currentSelectedImageWrapper = imageGalleryImageList.find('div.image-gallery__image-wrapper.selected');
-        if (currentSelectedImageWrapper.length) {
-            currentSelectedImageWrapper.addClass('rep-image');
-            currentSelectedImageWrapper.find('input[name*="repImage"]').val(true);
-            currentSelectedImageWrapper.removeClass('selected');
-        }
-    });
-    
-    $('form').on(eventType.submit, function (e) {
-        let count = imageGalleryImageList.find('li.processing').length;
-        if (count > 0) {
-            e.preventDefault();
-            return false
-        }
-        setListInputsBeforeSubmit(imageGalleryImageList, 'div.image-gallery__image-wrapper');
-        imageGalleryImageList.find('div.image-gallery__image-wrapper').each(function (index) {
-            $(this).find('input[name*="order"]').val(index);
-        });
     });
 
     imageGalleryImageList.on(eventType.click, 'button.image-gallery__close-btn', function () {
-        $(this).parents('li.image-gallery__item').remove();
-        checkIfDropboxEmpty();
+        let imageItem = $(this).parents('li.image-gallery__item');
+        if (!imageItem.hasClass('processing')) {
+            let imageId = imageItem.attr('data-image-id');
+
+            if (typeof imageId !== 'undefined' && imageId.length) {
+                let deleteUrl = $('meta[name=contextPath]').attr('content') + imageGalleryDropBox.attr('data-prefix-url') + '/delete';
+                let fileName = imageItem.find('div.image-gallery__caption').text();
+                openDeleteConfirmModal(imageId, fileName, '이미지', deleteUrl, 'onSuccessDeleteImage');
+            } else {
+                imageItem.remove();
+                checkIfDropboxEmpty();
+            }
+        }
     });
 
     imageGalleryImageList.sortable({
@@ -1186,6 +1165,12 @@ function setImageGallery () {
 
 }
 
+function onSuccessDeleteImage(response) {
+
+    imageGalleryImageList.find('li[data-image-id="' + response.result +'"]').remove();
+    eDeleteConfirmModal.removeClass('show');
+}
+
 function checkIfDropboxEmpty() {
     let numOfImage = imageGalleryImageList.find('li.image-gallery__item').length;
     if (numOfImage <= 0) imageGalleryDropBox.removeClass('filled');
@@ -1194,28 +1179,28 @@ function checkIfDropboxEmpty() {
 function resizeImageAndLoad (file) {
     if (file.type.match('image.*')) {
         let reader = new FileReader();
-        
+
         imageGalleryDropBox.addClass('filled');
-        
+
         reader.onload = function (readerEvent) {
             let image = new Image();
-            
+
             image.onload = function () {
-                
+
                 let canvas = document.createElement('canvas');
                 let maxSize = 100;
                 let width = image.width;
                 let height = image.height;
-                
+
                 width = 100;
                 height = 100;
-                
+
                 canvas.width = width;
                 canvas.height = height;
                 canvas.getContext('2d').drawImage(image, 0, 0, width, height);
-                
+
                 let dataUrl = canvas.toDataURL(file.type);
-                
+
                 if (dataUrl) {
                     let imageItem = createImageItem(file.name, file.type, dataUrl);
                     uploadImage($(imageItem), true);
@@ -1227,68 +1212,57 @@ function resizeImageAndLoad (file) {
     }
 }
 
-function imageOnLoad (target) {
-    let imageItem = $(target).parents('li.image-gallery__item');
-    imageItem.removeClass('processing');
-    showImageItem(imageItem, 'image-gallery__image-wrapper');
-}
 
-function imageOnError (target) {
-    let imageItem = $(target).parents('li.image-gallery__item');
-    imageItem.removeClass('processing');
-    showImageItem(imageItem, 'image-gallery__download-error-wrapper');
-}
+
 
 function uploadImage (imageItem, appendToImageList) {
 
     let sourceImageTag = imageItem.find('img.source-image');
     let data = new FormData();
-    
+
     imageItem.addClass('processing');
     showImageItem(imageItem, 'image-gallery__image-wrapper');
     if (appendToImageList) imageGalleryImageList.append(imageItem);
     let image = dataURLToBlob(sourceImageTag.attr('src'));
     let fileName = imageItem.find('div.image-gallery__caption').text();
-    // let fileType = image.type;
-    
+    let repImage = imageItem.hasClass('rep-image');
+
     data.append('image', image);
     data.append('fileName', fileName);
     data.append(imageGalleryDropBox.attr('data-owner-id-name'), imageGalleryDropBox.attr('data-owner-id'));
     data.append('order', getImageOrder());
-    data.append('repImage', repImageExists());
-
+    data.append('repImage', repImage);
 
     $.ajax({
-        url: imageGalleryDropBox.attr('data-save-url'),
+        url: $('meta[name=contextPath]').attr('content') + imageGalleryDropBox.attr('data-prefix-url') + '/save',
         data: data,
         cache: false,
         contentType: false,
         processData: false,
         type: 'POST',
         success: function (response) {
+            imageItem.attr('data-image-id', response.result);
             imageItem.removeClass('processing');
         },
         error: function (jqXHR) {
-            
             imageItem.removeClass('processing');
             showImageItem(imageItem, 'image-gallery__upload-error-wrapper');
-            
             let exceptionMessage = jqXHR.responseJSON.exception;
-            if (exceptionMessage.startsWith('duplicate:')) imageItem.remove();
-            else $('div.app-container').append(createPopup(exceptionMessage, 'error'));
+            $('div.app-container').append(createPopup(exceptionMessage, 'ERROR'));
         }
     })
 }
 
 function getImageOrder() {
-    let numOfImage = imageGalleryImageList.find('li.image-gallery__item').length;
-    return parseInt(numOfImage) + 1;
+    return imageGalleryDropBox.find('li.image-gallery__item').length;
 }
 
+
 function repImageExists() {
-    let repImage = imageGalleryImageList.find('div.image-gallery__image-wrapper.rep-image');
-    return repImage.length > 0;
+    if (imageGalleryDropBox.find('li.image-gallery__item.rep-image').length) return true;
+    return false;
 }
+
 
 function showImageItem (imageItem, classToOpen) {
     imageItem.children().each(function () {
@@ -1319,7 +1293,8 @@ function createPopup (message, title) {
 }
 
 function createImageItem (fileName, fileType, dataUrl) {
-    return '<li class="image-gallery__item">' +
+    let repImageClass = repImageExists() ? '' : 'rep-image';
+    return '<li class="image-gallery__item ' + repImageClass + '">' +
         '    <div class="image-gallery__image-wrapper">' +
         '        <div class="lds-ellipsis">' +
         '            <div></div>' +
@@ -1328,6 +1303,7 @@ function createImageItem (fileName, fileType, dataUrl) {
         '            <div></div>' +
         '        </div>' +
         '        <div class="screen-filter"></div>' +
+        '        <button class="btn-close image-gallery__close-btn"></button>' +
         '        <div class="image-gallery__check-icon-wrapper">' +
         '            <img src="' + $('meta[name=contextPath]').attr('content') + '/resources/image/round-check-primary.png"' +
         '                 class="image-gallery__check-icon"/>' +
@@ -1336,6 +1312,7 @@ function createImageItem (fileName, fileType, dataUrl) {
         '        <img src="' + dataUrl + '" class="source-image" >' +
         '    </div>' +
         '    <div class="image-gallery__error-wrapper image-gallery__upload-error-wrapper hide">' +
+        '        <button class="btn-close image-gallery__close-btn"></button>' +
         '        <img src="' + $('meta[name=contextPath]').attr('content') + '/resources/image/image.png">' +
         '        <p>업로드를 실패했습니다.</p>' +
         '        <button type="button" class="image-gallery__upload-btn k-btn btn-bold image-gallery__btn">' +
@@ -1343,6 +1320,7 @@ function createImageItem (fileName, fileType, dataUrl) {
         '        </button>' +
         '    </div>' +
         '    <div class="image-gallery__error-wrapper image-gallery__download-error-wrapper hide">' +
+        '        <button class="btn-close image-gallery__close-btn"></button>' +
         '        <img src="' + $('meta[name=contextPath]').attr('content') + '/resources/image/image.png">' +
         '        <p>다운로드를 실패했습니다.</p>' +
         '        <button type="button" class="image-gallery__download-btn k-btn btn-bold image-gallery__btn">' +

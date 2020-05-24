@@ -48,4 +48,7 @@ public class ToDo {
 
 
 //    TODO: draft for form like cityform, tourspotform, when ask add then create draft // create draft table
+
+
+//    TODO: to add: bucketService.deleteImages(city.getCityImageList()); in delete
 }

@@ -92,7 +92,7 @@
                      '/tag', '/add?themeId=${themeVm.id}', false, false);
         setListenerToTabList();
         setDeleteConfirmModal();
-        $('button#delete-btn').on(eventType.click, onClickDeleteBtn);
+        $('button#delete-btn').on(eventType.click, onClickDetailDeleteBtn);
         setInfoTable(false);
         setInfoFormModal();
         setInfoDetailModal();
