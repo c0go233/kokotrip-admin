@@ -29,10 +29,11 @@ public class BaseImageDto extends BaseDto {
         this.repImage = repImage;
     }
 
-    public BaseImageDto(Integer id, String name, String url, boolean repImage) {
+    public BaseImageDto(Integer id, String name, String url, boolean repImage, Integer order) {
         super(id);
         this.name = name;
         this.url = url;
         this.repImage = repImage;
+        this.order = order;
     }
 }

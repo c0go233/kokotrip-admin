@@ -1122,8 +1122,6 @@ create table `city_image`
 );
 
 
-select *
-from city_image;
 
 delete
 from city_image

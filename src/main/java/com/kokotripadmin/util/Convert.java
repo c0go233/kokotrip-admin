@@ -108,7 +108,7 @@ public class Convert {
         for (BaseImageEntity baseImageEntity : baseImageEntityList) {
             String imageUrl = bucketService.getEndPoint(baseImageEntity.getBucketKey());
             BaseImageDto baseImageDto = new BaseImageDto(baseImageEntity.getId(), baseImageEntity.getName(),
-                                                         imageUrl, baseImageEntity.isRepImage());
+                                                         imageUrl, baseImageEntity.isRepImage(), baseImageEntity.getOrder());
             baseImageDtoList.add(baseImageDto);
         }
         return  baseImageDtoList;

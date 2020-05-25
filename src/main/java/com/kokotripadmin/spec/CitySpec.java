@@ -5,6 +5,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.Fetch;
 import javax.persistence.criteria.JoinType;
+import java.util.List;
 
 public class CitySpec {
 
@@ -109,6 +110,10 @@ public class CitySpec {
 
     public static Specification<CityImage> findImageByIdAndRepImage(Integer cityId, boolean repImage) {
         return Specification.where(findImageById(cityId)).and(findImageByRepImage(repImage));
+    }
+
+    public static Specification<CityImage> findImageByIds(final List<Integer> imageIdList) {
+        return (root, criteriaQuery, criteriaBuilder) -> root.get(CityImage_.id).in(imageIdList);
     }
 
 

@@ -39,6 +39,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.List;
 
 @Controller
 @RequestMapping("/city")
@@ -177,8 +178,6 @@ public class CityController extends BaseController {
         }
     }
 
-
-
     @PostMapping(value = "/image/delete", produces = "application/json; charset=utf8")
     @ResponseBody
     public ResponseEntity<String> deleteCityImage(@RequestParam("id") Integer imageId) {
@@ -191,6 +190,17 @@ public class CityController extends BaseController {
         } catch (SdkClientException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(convert.exceptionToJson(e.getMessage()));
         }
+    }
+
+
+    @PostMapping(value = "/image/order/save", produces = "application/json; charset=utf8")
+    @ResponseBody
+    public ResponseEntity<String> saveCityImageOrder(@RequestBody List<Integer> imageIdList) {
+//        imageIdList.add(3);
+
+        cityService.updateImageOrder(imageIdList);
+        System.out.println(imageIdList.size());
+        return null;
     }
 
 

@@ -72,12 +72,10 @@
 
         <div id="tab-image" class="tab-content">
             <div class="layout__half">
-                <div class="border-box">
-                    <t:imageGallery prefixUrl="/city/image"
-                                    imageList="${cityVm.baseImageVmList}"
-                                    ownerIdName="cityId"
-                                    ownerId="${cityVm.id}"/>
-                </div>
+                <t:imageGallery prefixUrl="/city/image"
+                                imageList="${cityVm.baseImageVmList}"
+                                ownerIdName="cityId"
+                                ownerId="${cityVm.id}"/>
             </div>
         </div>
 

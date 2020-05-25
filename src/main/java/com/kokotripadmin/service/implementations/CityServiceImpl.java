@@ -36,6 +36,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -155,9 +156,6 @@ public class CityServiceImpl implements CityService, CityEntityService {
         cityImage.setBucketKey(bucketKey);
         cityImageDao.saveAndFlush(cityImage);
 
-        System.out.println("**************************" + cityImageDao.count() + "**************************");
-
-
 //        bucketService.uploadImage(bucketKey, cityImageDto.getName(), cityImageDto.getMultipartFile());
         return cityImage.getId();
     }
@@ -173,7 +171,24 @@ public class CityServiceImpl implements CityService, CityEntityService {
         newRepImage.setRepImage(true);
     }
 
-
+    @Override
+    public void updateImageOrder(List<Integer> imageIdList) {
+        List<CityImage> cityImageList = cityImageDao.findAll(CitySpec.findImageByIds(imageIdList));
+        HashMap<Integer, CityImage> cityImageHashMap = cityImageList.stream()
+                                                                    .collect(Collectors.toMap(CityImage::getId,
+                                                                                              cityImage -> cityImage,
+                                                                                              (oKey, nKey) -> oKey,
+                                                                                              HashMap::new));
+        int order = 0;
+        for (Integer imageId : imageIdList) {
+            CityImage cityImage = cityImageHashMap.get(imageId);
+            if (cityImage != null) {
+                cityImage.setOrder(order);
+                order++;
+            }
+        }
+        cityImageDao.saveAll(cityImageList);
+    }
 
 
     @Override
@@ -364,7 +379,7 @@ public class CityServiceImpl implements CityService, CityEntityService {
 
     public CityThemeRel countThemeRel(Integer cityId, Integer themeId, int term) {
         CityThemeRel cityThemeRel = cityThemeRelDao.findOne(CitySpec.findThemeRelByIdAndThemeId(cityId, themeId))
-                                                   .orElseGet(() -> new CityThemeRel());
+                                                   .orElseGet(CityThemeRel::new);
         cityThemeRel.addNumOfAllTag(term);
         return cityThemeRel;
     }
@@ -372,7 +387,7 @@ public class CityServiceImpl implements CityService, CityEntityService {
     public CityThemeTagRel countThemeTagRel(Integer themeRelId, Integer tagId, int term) {
         CityThemeTagRel cityThemeTagRel
                 = cityThemeTagRelDao.findOne(CitySpec.findThemeTagRelByThemeRelIdAndTagId(themeRelId, tagId))
-                                    .orElseGet(() -> new CityThemeTagRel());
+                                    .orElseGet(CityThemeTagRel::new);
         cityThemeTagRel.addNumOfTag(term);
         return cityThemeTagRel;
     }

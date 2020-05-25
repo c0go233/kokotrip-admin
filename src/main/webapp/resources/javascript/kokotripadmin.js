@@ -1033,6 +1033,7 @@ let imageGalleryDeleteBtn;
 let imageGalleryRepresentativeBtn;
 let imageGalleryDropBox;
 let imageGalleryImageList;
+let imageGallerySaveBtn;
 let dropIndex;
 
 function setImageGallery () {
@@ -1042,6 +1043,7 @@ function setImageGallery () {
     imageGalleryRepresentativeBtn = $('button#image-gallery-representative-image-btn');
     imageGalleryDropBox = $('div.image-gallery__drop-box');
     imageGalleryImageList = $('ul.image-gallery__image-list');
+    imageGallerySaveBtn = $('button#image-gallery__save-btn');
 
 
     let numOfImage = imageGalleryImageList.find('li.image-gallery__item').length;
@@ -1057,7 +1059,7 @@ function setImageGallery () {
     
     imageGalleryDropBox.on(eventType.click, 'div.image-gallery__image-wrapper', function () {
         let processing = $(this).parents('li.image-gallery__item').hasClass('processing');
-        
+
         if (!processing) {
             let selected = $(this).hasClass('selected');
             imageGalleryImageList.find('div.image-gallery__image-wrapper').each(function () {
@@ -1163,12 +1165,57 @@ function setImageGallery () {
         e.stopPropagation();
     });
 
+    imageGallerySaveBtn.on(eventType.click, function () {
+
+        let imageIdList = [];
+
+        let processingExists = false;
+
+        imageGalleryImageList.find('li.image-gallery__item').each(function () {
+
+            let processing = $(this).hasClass('processing');
+            if (processing) {
+                processingExists = true;
+                return false;
+            }
+
+            let imageId = $(this).attr('data-image-id');
+            if (typeof imageId !== 'undefined' && imageId.length)
+                imageIdList.push(parseInt(imageId));
+                // imageIdList.push(imageId);
+
+        });
+
+        console.log(imageIdList);
+
+        if (!processingExists) {
+
+            $.ajax({
+                url: $('meta[name=contextPath]').attr('content') + imageGalleryDropBox.attr('data-prefix-url') + '/order/save',
+                data: JSON.stringify(imageIdList),
+                contentType: 'application/json',
+                dataType: 'json',
+                method: ajaxMethod.post,
+                success: function () {
+
+                },
+                error: function (jqXHR) {
+
+                }
+            });
+        } else {
+            $('div.app-container').append(createPopup("프로세싱중인 이미지가 존재합니다", 'ERROR'));
+        }
+
+
+    });
+
 }
 
 function onSuccessDeleteImage(response) {
-
     imageGalleryImageList.find('li[data-image-id="' + response.result +'"]').remove();
     eDeleteConfirmModal.removeClass('show');
+    checkIfDropboxEmpty();
 }
 
 function checkIfDropboxEmpty() {
@@ -1220,17 +1267,21 @@ function uploadImage (imageItem, appendToImageList) {
     let sourceImageTag = imageItem.find('img.source-image');
     let data = new FormData();
 
-    imageItem.addClass('processing');
-    showImageItem(imageItem, 'image-gallery__image-wrapper');
-    if (appendToImageList) imageGalleryImageList.append(imageItem);
     let image = dataURLToBlob(sourceImageTag.attr('src'));
     let fileName = imageItem.find('div.image-gallery__caption').text();
     let repImage = imageItem.hasClass('rep-image');
+    let imageOrder = getImageOrder();
+
+    imageItem.addClass('processing');
+    imageItem.attr('data-image-order', imageOrder);
+    showImageItem(imageItem, 'image-gallery__image-wrapper');
+    if (appendToImageList) imageGalleryImageList.append(imageItem);
+
 
     data.append('image', image);
     data.append('fileName', fileName);
     data.append(imageGalleryDropBox.attr('data-owner-id-name'), imageGalleryDropBox.attr('data-owner-id'));
-    data.append('order', getImageOrder());
+    data.append('order', imageOrder);
     data.append('repImage', repImage);
 
     $.ajax({
@@ -1254,7 +1305,24 @@ function uploadImage (imageItem, appendToImageList) {
 }
 
 function getImageOrder() {
-    return imageGalleryDropBox.find('li.image-gallery__item').length;
+    let order = 0;
+    console.log('***************** start getImageOrder() *************************');
+    imageGalleryImageList.find('li.image-gallery__item').each(function () {
+        let imageOrder = $(this).attr('data-image-order');
+
+        console.log('imageorder: ' + imageOrder + ' | order: ' + order);
+        if (typeof imageOrder !== 'undefined' ) {
+            let imageOrderInt = parseInt(imageOrder);
+            if (imageOrderInt > order) {
+                console.log('imageOrderInt > order');
+                order = imageOrderInt;
+                console.log('order = imageOrderInt + 1: ' + order);
+            }
+
+        }
+    });
+    order++;
+    return order.toString();
 }
 
 
@@ -1356,49 +1424,3 @@ let dataURLToBlob = function (dataURL) {
     console.log(blob);
     return blob;
 }
-
-// function createImageGalleryErrorWrapper(wrapperClass, message, buttonClass, buttonLabel) {
-//     return '    <div class="image-gallery__error-wrapper' + wrapperClass + ' hide">' +
-//         '        <img src="' + $('meta[name=contextPath]').attr('content') + '/resources/image/image.png">' +
-//         '        <p>' + message + '</p>' +
-//         '        <button type="button" class="' + buttonClass + ' k-btn btn-bold image-gallery__btn">' + buttonLabel
-//     '        </button>' +
-//     '    </div>';
-// }
-
-// let imageGalleryItem = $('<li class="image-gallery__item"></li>');
-// imageGalleryItem.append(createImageGalleryErrorWrapper('image-gallery__upload-error-wrapper',
-//     '업로드를 실패하였습니다'),
-//     'image-gallery__upload-btn',
-//     '재업로드');
-// imageGalleryItem.append(createImageGalleryErrorWrapper('image-gallery__download-error-wrapper',
-//     '다운로드를 실패하였습니다'),
-//     'image-gallery__download-btn',
-//     '다운로드');
-//
-//
-// let imageWrapper = '<div class="image-gallery__image-wrapper">' +
-//     '    <div class="lds-ellipsis">' +
-//     '        <div></div>' +
-//     '        <div></div>' +
-//     '        <div></div>' +
-//     '        <div></div>' +
-//     '    </div>' +
-//     '    <div class="screen-filter"></div>' +
-//     '    <div class="image-gallery__check-icon-wrapper">' +
-//     '        <img src="' + $('meta[name=contextPath]').attr('content') + '/resources/image/round-check-primary.png"' +
-//     '             class="image-gallery__check-icon"/>' +
-//     '    </div>' +
-//     '    <div class="image-gallery__caption">' + fileName + '</div>' +
-//     '</div>';
-//
-//
-// let sourceImage = '<img src="' + dataUrl + '" ' +
-//     '     class="source-image" ' +
-//     '     data-file-name="' + fileName + '" />';
-//
-// addListenerToSourceImage(sourceImage);
-// $(imageWrapper).append(sourceImage);
-// imageGalleryItem.append(imageWrapper);
-//
-// return imageGalleryItem;

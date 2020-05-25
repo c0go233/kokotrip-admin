@@ -7,7 +7,7 @@
 <%@ attribute name="imageList" type="java.util.List" %>
 
 
-<div>
+<div class="section__content border-box">
     <div class="image-gallery__tool-bar">
         <input id="image-gallery-file-input" type="file" class="hide">
         <button id="image-gallery-add-btn" type="button" class="link-primary k-btn tool-bar__add-link img-hover-btn">
@@ -44,7 +44,9 @@
         <ul class="image-gallery__image-list">
 
             <c:forEach var="image" items="${imageList}">
-                <li class="image-gallery__item ${image.repImage ? 'rep-image' : ''} processing" data-image-id="${image.id}">
+                <li class="image-gallery__item ${image.repImage ? 'rep-image' : ''} processing"
+                    data-image-id="${image.id}"
+                    data-image-order="${image.order}">
                     <div class="image-gallery__image-wrapper">
                         <div class="lds-ellipsis">
                             <div></div>
@@ -86,6 +88,11 @@
     </div>
 
 </div>
+
+<div class="content__footer">
+    <button id="image-gallery__save-btn" class="k-btn btn-bold btn-large">저장하기</button>
+</div>
+
 
 <script>
 
