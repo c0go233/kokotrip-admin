@@ -48,7 +48,7 @@ public class CityModelMapperConfig {
         typeMap.addMapping(CityDto::getCityInfoDtoList, CityVm::setCityInfoVmList);
         typeMap.addMapping(CityDto::getThemeRelDtoList, CityVm::setThemeRelVmList);
         typeMap.addMapping(CityDto::getRegionDtoList, CityVm::setRegionVmList);
-        typeMap.addMapping(CityDto::getBaseImageDtoList, CityVm::setBaseImageVmList);
+        typeMap.addMapping(CityDto::getCityImageDtoList, CityVm::setBaseImageVmList);
     }
 
 }

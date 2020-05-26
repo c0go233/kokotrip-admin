@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kokotripadmin.constant.AppConstant;
 import com.kokotripadmin.dto.activity.*;
 import com.kokotripadmin.dto.city.CityDto;
+import com.kokotripadmin.dto.city.CityImageDto;
 import com.kokotripadmin.dto.city.CityInfoDto;
 import com.kokotripadmin.dto.common.BaseImageDto;
 import com.kokotripadmin.dto.common.LocatableAutoCompleteDto;
@@ -103,16 +104,16 @@ public class Convert {
         return file;
     }
 
-    public List<BaseImageDto> toBaseImageDto(List<? extends BaseImageEntity> baseImageEntityList) {
-        List<BaseImageDto> baseImageDtoList = new ArrayList<>();
-        for (BaseImageEntity baseImageEntity : baseImageEntityList) {
-            String imageUrl = bucketService.getEndPoint(baseImageEntity.getBucketKey());
-            BaseImageDto baseImageDto = new BaseImageDto(baseImageEntity.getId(), baseImageEntity.getName(),
-                                                         imageUrl, baseImageEntity.isRepImage(), baseImageEntity.getOrder());
-            baseImageDtoList.add(baseImageDto);
-        }
-        return  baseImageDtoList;
-    }
+//    public List<BaseImageDto> toBaseImageDto(List<? extends BaseImageEntity> baseImageEntityList) {
+//        List<BaseImageDto> baseImageDtoList = new ArrayList<>();
+//        for (BaseImageEntity baseImageEntity : baseImageEntityList) {
+//            String imageUrl = bucketService.getEndPoint(baseImageEntity.getBucketKey());
+//            BaseImageDto baseImageDto = new BaseImageDto(baseImageEntity.getId(), baseImageEntity.getName(),
+//                                                         imageUrl, baseImageEntity.isRepImage(), baseImageEntity.getOrder());
+//            baseImageDtoList.add(baseImageDto);
+//        }
+//        return  baseImageDtoList;
+//    }
 
 
 //  ============================================= STATE ================================================  //
@@ -159,11 +160,16 @@ public class Convert {
         for (CityThemeRel cityThemeRel : cityThemeRelList)
             cityDto.getThemeRelDtoList().add(modelMapper.map(cityThemeRel, ThemeRelDto.class));
 
-        cityDto.setBaseImageDtoList(toBaseImageDto(city.getCityImageList()));
+        for (CityImage cityImage : city.getCityImageList())
+            cityDto.getCityImageDtoList().add(cityImageToDto(cityImage));
 
         return cityDto;
     }
 
+    public CityImageDto cityImageToDto(CityImage cityImage) {
+        String imageUrl = bucketService.getEndPoint(cityImage.getBucketKey());
+        return new CityImageDto(cityImage.getId(), cityImage.getName(), imageUrl, cityImage.getOrder(), cityImage.isRepImage());
+    }
 
 
 

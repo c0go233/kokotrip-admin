@@ -1182,14 +1182,10 @@ function setImageGallery () {
             let imageId = $(this).attr('data-image-id');
             if (typeof imageId !== 'undefined' && imageId.length)
                 imageIdList.push(parseInt(imageId));
-                // imageIdList.push(imageId);
-
         });
 
-        console.log(imageIdList);
-
         if (!processingExists) {
-
+            processingAllImage();
             $.ajax({
                 url: $('meta[name=contextPath]').attr('content') + imageGalleryDropBox.attr('data-prefix-url') + '/order/save',
                 data: JSON.stringify(imageIdList),
@@ -1197,10 +1193,11 @@ function setImageGallery () {
                 dataType: 'json',
                 method: ajaxMethod.post,
                 success: function () {
-
+                    unprocessAllImage();
                 },
                 error: function (jqXHR) {
-
+                    unprocessAllImage();
+                    $('div.app-container').append(createPopup("이미지를 저장하지 못했습니다.", 'ERROR'));
                 }
             });
         } else {
@@ -1210,6 +1207,18 @@ function setImageGallery () {
 
     });
 
+}
+
+function processingAllImage() {
+    imageGalleryImageList.find('li.image-gallery__item').each(function () {
+       $(this).addClass('processing');
+    });
+}
+
+function unprocessAllImage() {
+    imageGalleryImageList.find('li.image-gallery__item').each(function () {
+        $(this).removeClass('processing');
+    });
 }
 
 function onSuccessDeleteImage(response) {
@@ -1306,19 +1315,14 @@ function uploadImage (imageItem, appendToImageList) {
 
 function getImageOrder() {
     let order = 0;
-    console.log('***************** start getImageOrder() *************************');
     imageGalleryImageList.find('li.image-gallery__item').each(function () {
         let imageOrder = $(this).attr('data-image-order');
 
-        console.log('imageorder: ' + imageOrder + ' | order: ' + order);
         if (typeof imageOrder !== 'undefined' ) {
             let imageOrderInt = parseInt(imageOrder);
             if (imageOrderInt > order) {
-                console.log('imageOrderInt > order');
                 order = imageOrderInt;
-                console.log('order = imageOrderInt + 1: ' + order);
             }
-
         }
     });
     order++;

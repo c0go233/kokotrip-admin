@@ -13,27 +13,24 @@ public class BaseImageDto extends BaseDto {
     private String  name;
     private String  fileType;
     private String  url;
-    private boolean repImage;
     private Integer order;
     private MultipartFile multipartFile;
 
     public BaseImageDto() {
     }
 
-    public BaseImageDto(String name, String fileType, Integer order, boolean repImage, MultipartFile multipartFile) {
+    public BaseImageDto(String name, String fileType, Integer order, MultipartFile multipartFile) {
         this.enabled = true;
         this.name = name;
         this.fileType = fileType;
         this.multipartFile = multipartFile;
         this.order = order;
-        this.repImage = repImage;
     }
 
-    public BaseImageDto(Integer id, String name, String url, boolean repImage, Integer order) {
+    public BaseImageDto(Integer id, String name, String url, Integer order) {
         super(id);
         this.name = name;
         this.url = url;
-        this.repImage = repImage;
         this.order = order;
     }
 }

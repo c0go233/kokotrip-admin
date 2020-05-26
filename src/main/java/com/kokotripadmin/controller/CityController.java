@@ -20,6 +20,7 @@ import com.kokotripadmin.service.interfaces.CityService;
 import com.kokotripadmin.service.interfaces.StateService;
 import com.kokotripadmin.service.interfaces.SupportLanguageService;
 import com.kokotripadmin.util.Convert;
+import com.kokotripadmin.viewmodel.city.CityImageVm;
 import com.kokotripadmin.viewmodel.city.CityInfoVm;
 import com.kokotripadmin.viewmodel.city.CityVm;
 import org.modelmapper.ModelMapper;
@@ -145,6 +146,10 @@ public class CityController extends BaseController {
         }
     }
 
+
+
+//  ==================================== CITY IMAGE ==========================================  //
+
     @PostMapping(value = "/image/save",
                  consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
                  produces = MediaType.APPLICATION_JSON_VALUE)
@@ -196,13 +201,13 @@ public class CityController extends BaseController {
     @PostMapping(value = "/image/order/save", produces = "application/json; charset=utf8")
     @ResponseBody
     public ResponseEntity<String> saveCityImageOrder(@RequestBody List<Integer> imageIdList) {
-//        imageIdList.add(3);
-
         cityService.updateImageOrder(imageIdList);
-        System.out.println(imageIdList.size());
-        return null;
+        return ResponseEntity.status(HttpStatus.OK).body(convert.resultToJson(""));
     }
 
+
+
+//  ==================================== CITY INFO ==========================================  //
 
     @PostMapping(value = "/info/delete", produces = "application/json; charset=utf8")
     @ResponseBody

@@ -31,7 +31,7 @@ public class CityDto extends BaseDto {
     private List<CityInfoDto>  cityInfoDtoList = new ArrayList<>();
     private List<ThemeRelDto>  themeRelDtoList = new ArrayList<>();
     private List<RegionDto>    regionDtoList   = new ArrayList<>();
-    private List<BaseImageDto> baseImageDtoList   = new ArrayList<>();
+    private List<CityImageDto> cityImageDtoList   = new ArrayList<>();
 
     public CityDto() {
     }
