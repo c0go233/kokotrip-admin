@@ -47,6 +47,7 @@ public class TourSpotModelMapperConfig {
         typeMap.addMapping(TourSpotDto::getTourSpotTicketDtoList, TourSpotVm::setTourSpotTicketVmList);
         typeMap.addMapping(TourSpotDto::getActivityDtoList, TourSpotVm::setActivityVmList);
         typeMap.addMapping(TourSpotDto::getPhotoZoneDtoList, TourSpotVm::setPhotoZoneVmList);
+        typeMap.addMapping(TourSpotDto::getTourSpotImageDtoList, TourSpotVm::setBaseImageVmList);
     }
 
     public static void tourSpotDescriptionToDto(ModelMapper modelMapper) {
@@ -62,6 +63,7 @@ public class TourSpotModelMapperConfig {
 
         typeMap.addMapping(TourSpotDescriptionDto::getTourSpotDescriptionInfoDtoList,
                            TourSpotDescriptionVm::setTourSpotDescriptionInfoVmList);
+        typeMap.addMapping(TourSpotDescriptionDto::getTourSpotDescriptionImageDtoList, TourSpotDescriptionVm::setBaseImageVmList);
     }
 
     public static void tourSpotDescriptionInfoToDto(ModelMapper modelMapper) {

@@ -1,19 +1,21 @@
 package com.kokotripadmin.service.implementations.activity;
 
 import com.kokotripadmin.constant.SupportLanguageEnum;
-import com.kokotripadmin.dao.interfaces.ActivityTicketDescriptionDao;
-import com.kokotripadmin.dao.interfaces.ActivityTicketDescriptionInfoDao;
+import com.kokotripadmin.dao.interfaces.activity.ActivityTicketDescriptionDao;
+import com.kokotripadmin.dao.interfaces.activity.ActivityTicketDescriptionImageDao;
+import com.kokotripadmin.dao.interfaces.activity.ActivityTicketDescriptionInfoDao;
 import com.kokotripadmin.dto.activity.ActivityTicketDescriptionDto;
+import com.kokotripadmin.dto.activity.ActivityTicketDescriptionImageDto;
 import com.kokotripadmin.dto.activity.ActivityTicketDescriptionInfoDto;
-import com.kokotripadmin.entity.activity.ActivityTicket;
-import com.kokotripadmin.entity.activity.ActivityTicketDescription;
-import com.kokotripadmin.entity.activity.ActivityTicketDescriptionInfo;
-import com.kokotripadmin.entity.activity.ActivityTicketInfo;
+import com.kokotripadmin.entity.activity.*;
 import com.kokotripadmin.entity.common.SupportLanguage;
 import com.kokotripadmin.exception.activity.ticket.*;
+import com.kokotripadmin.exception.image.FileIsNotImageException;
+import com.kokotripadmin.exception.image.ImageDuplicateException;
 import com.kokotripadmin.exception.support_language.SupportLanguageNotFoundException;
 import com.kokotripadmin.service.entityinterfaces.ActivityTicketEntityService;
 import com.kokotripadmin.service.entityinterfaces.SupportLanguageEntityService;
+import com.kokotripadmin.service.interfaces.BucketService;
 import com.kokotripadmin.service.interfaces.activity.ActivityTicketDescriptionService;
 import com.kokotripadmin.spec.ActivityTicketDescriptionSpec;
 import com.kokotripadmin.util.Convert;
@@ -23,7 +25,10 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -33,21 +38,29 @@ public class ActivityTicketDescriptionServiceImpl implements ActivityTicketDescr
     private final Convert                          convert;
     private final ActivityTicketDescriptionDao     activityTicketDescriptionDao;
     private final ActivityTicketDescriptionInfoDao activityTicketDescriptionInfoDao;
+    private final ActivityTicketDescriptionImageDao activityTicketDescriptionImageDao;
 
     private final ActivityTicketEntityService  activityTicketEntityService;
     private final SupportLanguageEntityService supportLanguageEntityService;
+    private final BucketService bucketService;
+
+    private final String ACTIVITY_TICKET_DESCRIPTION_IMAGE_DIRECTORY = "activity/ticket/description/image";
 
     public ActivityTicketDescriptionServiceImpl(ModelMapper modelMapper, Convert convert,
                                                 ActivityTicketDescriptionDao activityTicketDescriptionDao,
                                                 ActivityTicketDescriptionInfoDao activityTicketDescriptionInfoDao,
+                                                ActivityTicketDescriptionImageDao activityTicketDescriptionImageDao,
                                                 ActivityTicketEntityService activityTicketEntityService,
-                                                SupportLanguageEntityService supportLanguageEntityService) {
+                                                SupportLanguageEntityService supportLanguageEntityService,
+                                                BucketService bucketService) {
         this.modelMapper = modelMapper;
         this.convert = convert;
         this.activityTicketDescriptionDao = activityTicketDescriptionDao;
         this.activityTicketDescriptionInfoDao = activityTicketDescriptionInfoDao;
+        this.activityTicketDescriptionImageDao = activityTicketDescriptionImageDao;
         this.activityTicketEntityService = activityTicketEntityService;
         this.supportLanguageEntityService = supportLanguageEntityService;
+        this.bucketService = bucketService;
     }
 
     @Override
@@ -143,6 +156,72 @@ public class ActivityTicketDescriptionServiceImpl implements ActivityTicketDescr
         activityTicketDescriptionDao.delete(activityTicketDescription);
         return activityTicketId;
     }
+
+//  =================================== IMAGE ====================================================  //
+
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, readOnly = true)
+    public ActivityTicketDescriptionImage findImageByImageId(Integer activityTicketDescriptionImageId)
+    throws ActivityTicketDescriptionImageNotFoundException {
+        return activityTicketDescriptionImageDao.findById(activityTicketDescriptionImageId)
+                                                .orElseThrow(ActivityTicketDescriptionImageNotFoundException::new);
+    }
+
+    @Override
+    @Transactional
+    public Integer saveImage(ActivityTicketDescriptionImageDto activityTicketDescriptionImageDto)
+    throws ActivityTicketDescriptionNotFoundException, ImageDuplicateException, IOException, FileIsNotImageException {
+        ActivityTicketDescription activityTicketDescription =
+                findEntityById(activityTicketDescriptionImageDto.getActivityTicketDescriptionId());
+        String bucketKey = ACTIVITY_TICKET_DESCRIPTION_IMAGE_DIRECTORY + "/" + activityTicketDescription.getName() + "/" +
+                           activityTicketDescriptionImageDto.getName();
+
+        if (activityTicketDescriptionImageDao.count(ActivityTicketDescriptionSpec
+                                                            .findImageByIdAndImageBucketKey(activityTicketDescription.getId(),
+                                                                                            bucketKey)) > 0)
+            throw new ImageDuplicateException(activityTicketDescriptionImageDto.getName());
+
+        ActivityTicketDescriptionImage activityTicketDescriptionImage = modelMapper.map(activityTicketDescriptionImageDto,
+                                                                                        ActivityTicketDescriptionImage.class);
+        activityTicketDescriptionImage.setActivityTicketDescription(activityTicketDescription);
+        activityTicketDescriptionImage.setBucketKey(bucketKey);
+        activityTicketDescriptionImageDao.save(activityTicketDescriptionImage);
+        bucketService.uploadImage(bucketKey,
+                                  activityTicketDescriptionImageDto.getName(),
+                                  activityTicketDescriptionImageDto.getMultipartFile());
+        return activityTicketDescriptionImage.getId();
+    }
+
+    @Override
+    @Transactional
+    public void updateImageOrder(List<Integer> imageIdList) {
+        List<ActivityTicketDescriptionImage> activityTicketDescriptionImageList =
+                activityTicketDescriptionImageDao.findAll(ActivityTicketDescriptionSpec.findImageByIds(imageIdList));
+        HashMap<Integer, ActivityTicketDescriptionImage> activityTicketDescriptionImageHashMap
+                = activityTicketDescriptionImageList.stream()
+                                                    .collect(Collectors.toMap(ActivityTicketDescriptionImage::getId,
+                                                                              activityTicketDescriptionImage -> activityTicketDescriptionImage,
+                                                                              (oKey, nKey) -> oKey,
+                                                                              HashMap::new));
+        int order = 0;
+        for (Integer imageId : imageIdList) {
+            ActivityTicketDescriptionImage activityTicketDescriptionImage = activityTicketDescriptionImageHashMap.get(imageId);
+            if (activityTicketDescriptionImage != null) {
+                activityTicketDescriptionImage.setOrder(order);
+                order++;
+            }
+        }
+        activityTicketDescriptionImageDao.saveAll(activityTicketDescriptionImageList);
+    }
+
+    @Override
+    @Transactional
+    public void deleteImage(Integer activityTicketDescriptionImageId)
+    throws ActivityTicketDescriptionImageNotFoundException {
+        ActivityTicketDescriptionImage activityTicketDescriptionImage = findImageByImageId(activityTicketDescriptionImageId);
+        bucketService.deleteImage(activityTicketDescriptionImage.getBucketKey());
+        activityTicketDescriptionImageDao.delete(activityTicketDescriptionImage);
+    }
+
 
 
 //  ============================================ INFO ====================================================  //

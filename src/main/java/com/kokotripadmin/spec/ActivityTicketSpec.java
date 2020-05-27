@@ -1,10 +1,9 @@
 package com.kokotripadmin.spec;
 
-import com.kokotripadmin.entity.activity.ActivityTicket;
-import com.kokotripadmin.entity.activity.ActivityTicketInfo;
-import com.kokotripadmin.entity.activity.ActivityTicketInfo_;
-import com.kokotripadmin.entity.activity.ActivityTicket_;
+import com.kokotripadmin.entity.activity.*;
 import org.springframework.data.jpa.domain.Specification;
+
+import java.util.List;
 
 public class ActivityTicketSpec {
 
@@ -42,5 +41,34 @@ public class ActivityTicketSpec {
                                                                                      Integer supportLanguageId) {
         return Specification.where(findInfoById(activityTicketId)).and(findInfoBySupportLanguageId(supportLanguageId));
     }
+
+
+
+
+    public static Specification<ActivityTicketImage> findImageById(Integer activityTicketId) {
+        return (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get(ActivityTicketImage_.activityTicketId), activityTicketId);
+    }
+
+    public static Specification<ActivityTicketImage> findImageByImageBucketKey(String activityTicketImageBucketKey) {
+        return (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get(ActivityTicketImage_.bucketKey),
+                                                                               activityTicketImageBucketKey);
+    }
+
+    public static Specification<ActivityTicketImage> findImageByIdAndImageBucketKey(Integer activityTicketId, String activityTicketImageBucketKey) {
+        return Specification.where(findImageById(activityTicketId)).and(findImageByImageBucketKey(activityTicketImageBucketKey));
+    }
+
+    public static Specification<ActivityTicketImage> findImageByRepImage(boolean repImage) {
+        return (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get(ActivityTicketImage_.repImage), repImage);
+    }
+
+    public static Specification<ActivityTicketImage> findImageByIdAndRepImage(Integer activityTicketId, boolean repImage) {
+        return Specification.where(findImageById(activityTicketId)).and(findImageByRepImage(repImage));
+    }
+
+    public static Specification<ActivityTicketImage> findImageByIds(final List<Integer> imageIdList) {
+        return (root, criteriaQuery, criteriaBuilder) -> root.get(ActivityTicketImage_.id).in(imageIdList);
+    }
+
 
 }

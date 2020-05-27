@@ -32,6 +32,7 @@ public class ActivityModelMapperConfig {
         typeMap.addMapping(ActivityDto::getActivityInfoDtoList, ActivityVm::setActivityInfoVmList);
         typeMap.addMapping(ActivityDto::getActivityDescriptionDtoList, ActivityVm::setActivityDescriptionVmList);
         typeMap.addMapping(ActivityDto::getActivityTicketDtoList, ActivityVm::setActivityTicketVmList);
+        typeMap.addMapping(ActivityDto::getActivityImageDtoList, ActivityVm::setBaseImageVmList);
     }
 
 
@@ -51,6 +52,7 @@ public class ActivityModelMapperConfig {
 
         typeMap.addMapping(ActivityDescriptionDto::getActivityDescriptionInfoDtoList,
                            ActivityDescriptionVm::setActivityDescriptionInfoVmList);
+        typeMap.addMapping(ActivityDescriptionDto::getActivityDescriptionImageDtoList, ActivityDescriptionVm::setBaseImageVmList);
     }
 
     public static void activityDescriptionInfoToDto(ModelMapper modelMapper) {

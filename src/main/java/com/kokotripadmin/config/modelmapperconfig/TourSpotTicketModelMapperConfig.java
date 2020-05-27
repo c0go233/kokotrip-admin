@@ -7,6 +7,7 @@ import com.kokotripadmin.dto.tourspot.*;
 import com.kokotripadmin.entity.tourspot.ticket.*;
 import com.kokotripadmin.viewmodel.tourspot.TourSpotTicketDescriptionVm;
 import com.kokotripadmin.viewmodel.tourspot.TourSpotTicketVm;
+import com.kokotripadmin.viewmodel.tourspot.TourSpotVm;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
 
@@ -33,6 +34,7 @@ public class TourSpotTicketModelMapperConfig {
         typeMap.addMapping(TourSpotTicketDto::getTicketPriceDtoList, TourSpotTicketVm::setTicketPriceVmList);
         typeMap.addMapping(TourSpotTicketDto::getTourSpotTicketInfoDtoList, TourSpotTicketVm::setTourSpotTicketInfoVmList);
         typeMap.addMapping(TourSpotTicketDto::getTourSpotTicketDescriptionDtoList, TourSpotTicketVm::setTourSpotTicketDescriptionVmList);
+        typeMap.addMapping(TourSpotTicketDto::getTourSpotTicketImageDtoList, TourSpotTicketVm::setBaseImageVmList);
 
     }
 
@@ -64,6 +66,8 @@ public class TourSpotTicketModelMapperConfig {
 
         typeMap.addMapping(TourSpotTicketDescriptionDto::getTourSpotTicketDescriptionInfoDtoList,
                            TourSpotTicketDescriptionVm::setTourSpotTicketDescriptionInfoVmList);
+        typeMap.addMapping(TourSpotTicketDescriptionDto::getTourSpotTicketDescriptionImageDtoList,
+                           TourSpotTicketDescriptionVm::setBaseImageVmList);
     }
 
     public static void tourSpotTicketDescriptionInfoToDto(ModelMapper modelMapper) {

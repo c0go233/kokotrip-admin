@@ -6,11 +6,15 @@ import com.kokotripadmin.dto.region.RegionImageDto;
 import com.kokotripadmin.dto.region.RegionInfoDto;
 import com.kokotripadmin.exception.city.CityInfoNotFoundException;
 import com.kokotripadmin.exception.city.CityNotFoundException;
+import com.kokotripadmin.exception.image.FileIsNotImageException;
+import com.kokotripadmin.exception.image.ImageDuplicateException;
+import com.kokotripadmin.exception.image.RepImageNotDeletableException;
 import com.kokotripadmin.exception.region.*;
 import com.kokotripadmin.exception.support_language.SupportLanguageNotFoundException;
 import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
 import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface RegionService {
@@ -31,5 +35,11 @@ public interface RegionService {
 
     void delete(Integer regionId) throws RegionNotFoundException;
 
-    Integer saveImage(RegionImageDto regionImageDto);
+
+
+    void deleteImage(Integer imageId) throws RegionImageNotFoundException, RepImageNotDeletableException;
+    Integer saveImage(RegionImageDto cityImageDto)
+    throws RegionNotFoundException, ImageDuplicateException, IOException, FileIsNotImageException;
+    void updateRepImage(Integer imageId) throws RegionImageNotFoundException;
+    void updateImageOrder(List<Integer> imageIdList);
 }

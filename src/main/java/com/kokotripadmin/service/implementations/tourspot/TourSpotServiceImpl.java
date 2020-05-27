@@ -1,15 +1,14 @@
 package com.kokotripadmin.service.implementations.tourspot;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kokotripadmin.constant.SupportLanguageEnum;
-import com.kokotripadmin.dao.interfaces.tag.TagDao;
 import com.kokotripadmin.dao.interfaces.tourspot.TourSpotDao;
+import com.kokotripadmin.dao.interfaces.tourspot.TourSpotImageDao;
 import com.kokotripadmin.dao.interfaces.tourspot.TourSpotInfoDao;
-import com.kokotripadmin.dao.interfaces.tourspot.TourSpotTradingHourDao;
 import com.kokotripadmin.datatablesdao.TourSpotDataTablesDao;
 import com.kokotripadmin.dto.common.LocatableAutoCompleteDto;
 import com.kokotripadmin.dto.tourspot.TourSpotDto;
 import com.kokotripadmin.dto.common.TradingHourDto;
+import com.kokotripadmin.dto.tourspot.TourSpotImageDto;
 import com.kokotripadmin.dto.tourspot.TourSpotInfoDto;
 import com.kokotripadmin.entity.activity.Activity;
 import com.kokotripadmin.entity.common.DayOfWeek;
@@ -18,12 +17,16 @@ import com.kokotripadmin.entity.city.City;
 import com.kokotripadmin.entity.common.TradingHourType;
 import com.kokotripadmin.entity.tag.TagInfo;
 import com.kokotripadmin.entity.tourspot.TourSpot;
+import com.kokotripadmin.entity.tourspot.TourSpotImage;
 import com.kokotripadmin.entity.tourspot.TourSpotInfo;
 import com.kokotripadmin.entity.region.Region;
 import com.kokotripadmin.entity.tag.Tag;
 import com.kokotripadmin.entity.tourspot.TourSpotTradingHour;
 import com.kokotripadmin.exception.city.CityNotFoundException;
 import com.kokotripadmin.exception.day_of_week.DayOfWeekNotFoundException;
+import com.kokotripadmin.exception.image.FileIsNotImageException;
+import com.kokotripadmin.exception.image.ImageDuplicateException;
+import com.kokotripadmin.exception.image.RepImageNotDeletableException;
 import com.kokotripadmin.exception.region.RegionMismatchException;
 import com.kokotripadmin.exception.support_language.SupportLanguageNotFoundException;
 import com.kokotripadmin.exception.tag.TagInfoNotFoundException;
@@ -31,6 +34,7 @@ import com.kokotripadmin.exception.tag.TagNotFoundException;
 import com.kokotripadmin.exception.tour_spot.*;
 import com.kokotripadmin.exception.trading_hour_type.TradingHourTypeNotFoundException;
 import com.kokotripadmin.service.entityinterfaces.*;
+import com.kokotripadmin.service.interfaces.BucketService;
 import com.kokotripadmin.service.interfaces.tourspot.TourSpotService;
 import com.kokotripadmin.spec.tourspot.TourSpotSpec;
 import com.kokotripadmin.util.Convert;
@@ -43,7 +47,9 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class TourSpotServiceImpl implements TourSpotService, TourSpotEntityService {
@@ -52,11 +58,7 @@ public class TourSpotServiceImpl implements TourSpotService, TourSpotEntityServi
     private final TourSpotDao tourSpotDao;
     private final TourSpotDataTablesDao  tourSpotDataTablesDao;
     private final TourSpotInfoDao tourSpotInfoDao;
-
-
-    private final TourSpotTradingHourDao tourSpotTradingHourDao;
-    private final TagDao tagDao;
-
+    private final TourSpotImageDao tourSpotImageDao;
 
     private final CityEntityService cityEntityService;
     private final RegionEntityService regionEntityService;
@@ -64,30 +66,31 @@ public class TourSpotServiceImpl implements TourSpotService, TourSpotEntityServi
     private final SupportLanguageEntityService supportLanguageEntityService;
     private final TradingHourTypeEntityService tradingHourTypeEntityService;
     private final DayOfWeekEntityService dayOfWeekEntityService;
+    private final BucketService bucketService;
 
     private final Convert convert;
+
+    private final String TOUR_SPOT_IMAGE_DIRECTORY = "tour-spot/image";
 
     @Autowired
     public TourSpotServiceImpl(TourSpotDao tourSpotDao,
                                ModelMapper modelMapper,
                                TourSpotDataTablesDao tourSpotDataTablesDao,
                                TourSpotInfoDao tourSpotInfoDao,
-                               TourSpotTradingHourDao tourSpotTradingHourDao,
-                               TagDao tagDao,
+                               TourSpotImageDao tourSpotImageDao,
                                CityEntityService cityEntityService,
                                RegionEntityService regionEntityService,
                                TagEntityService tagEntityService,
                                SupportLanguageEntityService supportLanguageEntityService,
                                TradingHourTypeEntityService tradingHourTypeEntityService,
                                DayOfWeekEntityService dayOfWeekEntityService,
-                               Convert convert) {
+                               BucketService bucketService, Convert convert) {
 
         this.tourSpotDao = tourSpotDao;
         this.modelMapper = modelMapper;
         this.tourSpotDataTablesDao = tourSpotDataTablesDao;
         this.tourSpotInfoDao = tourSpotInfoDao;
-        this.tourSpotTradingHourDao = tourSpotTradingHourDao;
-        this.tagDao = tagDao;
+        this.tourSpotImageDao = tourSpotImageDao;
 
 
         this.cityEntityService = cityEntityService;
@@ -96,6 +99,7 @@ public class TourSpotServiceImpl implements TourSpotService, TourSpotEntityServi
         this.supportLanguageEntityService = supportLanguageEntityService;
         this.tradingHourTypeEntityService = tradingHourTypeEntityService;
         this.dayOfWeekEntityService = dayOfWeekEntityService;
+        this.bucketService = bucketService;
         this.convert = convert;
     }
 
@@ -271,6 +275,80 @@ public class TourSpotServiceImpl implements TourSpotService, TourSpotEntityServi
             if (region != null) regionEntityService.addThemeTagRel(region, tag, 1);
         }
     }
+
+
+
+    //  =================================== IMAGE ====================================================  //
+
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, readOnly = true)
+    public TourSpotImage findImageByImageId(Integer tourSpotImageId) throws TourSpotImageNotFoundException {
+        return tourSpotImageDao.findById(tourSpotImageId).orElseThrow(TourSpotImageNotFoundException::new);
+    }
+
+
+    @Override
+    @Transactional
+    public Integer saveImage(TourSpotImageDto tourSpotImageDto)
+    throws TourSpotNotFoundException, ImageDuplicateException, IOException, FileIsNotImageException {
+        TourSpot tourSpot = findEntityById(tourSpotImageDto.getTourSpotId());
+        String bucketKey = TOUR_SPOT_IMAGE_DIRECTORY + "/" + tourSpot.getName() + "/" + tourSpotImageDto.getName();
+
+        if (tourSpotImageDao.count(TourSpotSpec.findImageByIdAndImageBucketKey(tourSpot.getId(), bucketKey)) > 0)
+            throw new ImageDuplicateException(tourSpotImageDto.getName());
+
+        TourSpotImage tourSpotImage = modelMapper.map(tourSpotImageDto, TourSpotImage.class);
+        tourSpotImage.setTourSpot(tourSpot);
+        tourSpotImage.setBucketKey(bucketKey);
+        tourSpotImageDao.save(tourSpotImage);
+
+        bucketService.uploadImage(bucketKey, tourSpotImageDto.getName(), tourSpotImageDto.getMultipartFile());
+        return tourSpotImage.getId();
+    }
+
+    @Override
+    @Transactional
+    public void updateRepImage(Integer imageId) throws TourSpotImageNotFoundException {
+        TourSpotImage newRepImage = findImageByImageId(imageId);
+        List<TourSpotImage> repImageList = tourSpotImageDao.findAll(TourSpotSpec.findImageByIdAndRepImage(newRepImage.getTourSpotId(),
+                                                                                                          true));
+        for (TourSpotImage repImage : repImageList) {
+            if (newRepImage != repImage) repImage.setRepImage(false);
+        }
+        newRepImage.setRepImage(true);
+    }
+
+    @Override
+    @Transactional
+    public void updateImageOrder(List<Integer> imageIdList) {
+        List<TourSpotImage> tourSpotImageList = tourSpotImageDao.findAll(TourSpotSpec.findImageByIds(imageIdList));
+        HashMap<Integer, TourSpotImage> tourSpotImageHashMap = tourSpotImageList.stream()
+                                                                          .collect(Collectors.toMap(TourSpotImage::getId,
+                                                                                                    tourSpotImage -> tourSpotImage,
+                                                                                                    (oKey, nKey) -> oKey,
+                                                                                                    HashMap::new));
+        int order = 0;
+        for (Integer imageId : imageIdList) {
+            TourSpotImage tourSpotImage = tourSpotImageHashMap.get(imageId);
+            if (tourSpotImage != null) {
+                tourSpotImage.setOrder(order);
+                order++;
+            }
+        }
+        tourSpotImageDao.saveAll(tourSpotImageList);
+    }
+
+
+    @Override
+    @Transactional
+    public void deleteImage(Integer tourSpotImageId)
+    throws TourSpotImageNotFoundException, RepImageNotDeletableException {
+        TourSpotImage tourSpotImage = findImageByImageId(tourSpotImageId);
+        if (tourSpotImage.isRepImage())
+            throw new RepImageNotDeletableException();
+        bucketService.deleteImage(tourSpotImage.getBucketKey());
+        tourSpotImageDao.delete(tourSpotImage);
+    }
+
 
 
 

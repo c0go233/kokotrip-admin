@@ -1,10 +1,9 @@
 package com.kokotripadmin.spec;
 
-import com.kokotripadmin.entity.activity.ActivityDescription;
-import com.kokotripadmin.entity.activity.ActivityDescriptionInfo;
-import com.kokotripadmin.entity.activity.ActivityDescriptionInfo_;
-import com.kokotripadmin.entity.activity.ActivityDescription_;
+import com.kokotripadmin.entity.activity.*;
 import org.springframework.data.jpa.domain.Specification;
+
+import java.util.List;
 
 public class ActivityDescriptionSpec {
 
@@ -39,6 +38,23 @@ public class ActivityDescriptionSpec {
 
     public static Specification<ActivityDescription> findByActivityIdAndName(Integer activityId, String name) {
         return Specification.where(findByActivityId(activityId)).and(findByName(name));
+    }
+
+    public static Specification<ActivityDescriptionImage> findImageById(Integer activityDescriptionId) {
+        return (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get(ActivityDescriptionImage_.activityDescriptionId), activityDescriptionId);
+    }
+
+    public static Specification<ActivityDescriptionImage> findImageByImageBucketKey(String activityDescriptionImageBucketKey) {
+        return (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get(ActivityDescriptionImage_.bucketKey),
+                                                                               activityDescriptionImageBucketKey);
+    }
+
+    public static Specification<ActivityDescriptionImage> findImageByIdAndImageBucketKey(Integer activityDescriptionId, String activityDescriptionImageBucketKey) {
+        return Specification.where(findImageById(activityDescriptionId)).and(findImageByImageBucketKey(activityDescriptionImageBucketKey));
+    }
+
+    public static Specification<ActivityDescriptionImage> findImageByIds(final List<Integer> imageIdList) {
+        return (root, criteriaQuery, criteriaBuilder) -> root.get(ActivityDescriptionImage_.id).in(imageIdList);
     }
 
 

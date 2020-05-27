@@ -4,14 +4,19 @@ import com.kokotripadmin.constant.SupportLanguageEnum;
 import com.kokotripadmin.dao.interfaces.tourspot.*;
 import com.kokotripadmin.dto.ticket.TicketPriceDto;
 import com.kokotripadmin.dto.tourspot.TourSpotTicketDto;
+import com.kokotripadmin.dto.tourspot.TourSpotTicketImageDto;
 import com.kokotripadmin.dto.tourspot.TourSpotTicketInfoDto;
 import com.kokotripadmin.entity.common.SupportLanguage;
 import com.kokotripadmin.entity.ticket.TicketType;
 import com.kokotripadmin.entity.tourspot.TourSpot;
 import com.kokotripadmin.entity.tourspot.TourSpotInfo;
 import com.kokotripadmin.entity.tourspot.ticket.TourSpotTicket;
+import com.kokotripadmin.entity.tourspot.ticket.TourSpotTicketImage;
 import com.kokotripadmin.entity.tourspot.ticket.TourSpotTicketInfo;
 import com.kokotripadmin.entity.tourspot.ticket.TourSpotTicketPrice;
+import com.kokotripadmin.exception.image.FileIsNotImageException;
+import com.kokotripadmin.exception.image.ImageDuplicateException;
+import com.kokotripadmin.exception.image.RepImageNotDeletableException;
 import com.kokotripadmin.exception.support_language.SupportLanguageNotFoundException;
 import com.kokotripadmin.exception.ticket.TicketTypeNotFoundException;
 import com.kokotripadmin.exception.tour_spot.*;
@@ -20,6 +25,7 @@ import com.kokotripadmin.service.entityinterfaces.SupportLanguageEntityService;
 import com.kokotripadmin.service.entityinterfaces.TicketTypeEntityService;
 import com.kokotripadmin.service.entityinterfaces.TourSpotEntityService;
 import com.kokotripadmin.service.entityinterfaces.TourSpotTicketEntityService;
+import com.kokotripadmin.service.interfaces.BucketService;
 import com.kokotripadmin.service.interfaces.tourspot.TourSpotTicketService;
 import com.kokotripadmin.spec.tourspot.TourSpotTicketSpec;
 import com.kokotripadmin.util.Convert;
@@ -29,8 +35,11 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TourSpotTicketServiceImpl implements TourSpotTicketService, TourSpotTicketEntityService {
@@ -38,26 +47,34 @@ public class TourSpotTicketServiceImpl implements TourSpotTicketService, TourSpo
 
     private final TourSpotTicketDao tourSpotTicketDao;
     private final TourSpotTicketInfoDao tourSpotTicketInfoDao;
+    private final TourSpotTicketImageDao tourSpotTicketImageDao;
 
     private final TourSpotEntityService        tourSpotEntityService;
     private final TicketTypeEntityService      ticketTypeEntityService;
     private final SupportLanguageEntityService supportLanguageEntityService;
+    private final BucketService bucketService;
 
     private final ModelMapper modelMapper;
     private final Convert convert;
 
+    private final String TOUR_SPOT_TICKET_IMAGE_DIRECTORY = "tour-spot/ticket/image";
+
     public TourSpotTicketServiceImpl(TourSpotTicketDao tourSpotTicketDao,
+                                     TourSpotTicketImageDao tourSpotTicketImageDao,
                                      TourSpotEntityService tourSpotEntityService,
                                      TicketTypeEntityService ticketTypeEntityService,
                                      SupportLanguageEntityService supportLanguageEntityService,
                                      TourSpotTicketInfoDao tourSpotTicketInfoDao,
+                                     BucketService bucketService,
                                      ModelMapper modelMapper, Convert convert) {
 
         this.tourSpotTicketDao = tourSpotTicketDao;
+        this.tourSpotTicketImageDao = tourSpotTicketImageDao;
         this.tourSpotEntityService = tourSpotEntityService;
         this.ticketTypeEntityService = ticketTypeEntityService;
         this.supportLanguageEntityService = supportLanguageEntityService;
         this.tourSpotTicketInfoDao = tourSpotTicketInfoDao;
+        this.bucketService = bucketService;
         this.modelMapper = modelMapper;
         this.convert = convert;
     }
@@ -188,6 +205,78 @@ public class TourSpotTicketServiceImpl implements TourSpotTicketService, TourSpo
         return tourSpotId;
     }
 
+
+    //  =================================== IMAGE ====================================================  //
+
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, readOnly = true)
+    public TourSpotTicketImage findImageByImageId(Integer tourSpotTicketImageId) throws TourSpotTicketImageNotFoundException {
+        return tourSpotTicketImageDao.findById(tourSpotTicketImageId).orElseThrow(TourSpotTicketImageNotFoundException::new);
+    }
+
+
+    @Override
+    @Transactional
+    public Integer saveImage(TourSpotTicketImageDto tourSpotTicketImageDto)
+    throws TourSpotTicketNotFoundException, ImageDuplicateException, IOException, FileIsNotImageException {
+        TourSpotTicket tourSpot = findEntityById(tourSpotTicketImageDto.getTourSpotTicketId());
+        String bucketKey = TOUR_SPOT_TICKET_IMAGE_DIRECTORY + "/" + tourSpot.getName() + "/" + tourSpotTicketImageDto.getName();
+
+        if (tourSpotTicketImageDao.count(TourSpotTicketSpec.findImageByIdAndImageBucketKey(tourSpot.getId(), bucketKey)) > 0)
+            throw new ImageDuplicateException(tourSpotTicketImageDto.getName());
+
+        TourSpotTicketImage tourSpotTicketImage = modelMapper.map(tourSpotTicketImageDto, TourSpotTicketImage.class);
+        tourSpotTicketImage.setTourSpotTicket(tourSpot);
+        tourSpotTicketImage.setBucketKey(bucketKey);
+        tourSpotTicketImageDao.save(tourSpotTicketImage);
+
+        bucketService.uploadImage(bucketKey, tourSpotTicketImageDto.getName(), tourSpotTicketImageDto.getMultipartFile());
+        return tourSpotTicketImage.getId();
+    }
+
+    @Override
+    @Transactional
+    public void updateRepImage(Integer imageId) throws TourSpotTicketImageNotFoundException {
+        TourSpotTicketImage newRepImage = findImageByImageId(imageId);
+        List<TourSpotTicketImage> repImageList = tourSpotTicketImageDao.findAll(TourSpotTicketSpec.findImageByIdAndRepImage(newRepImage.getTourSpotTicketId(),
+                                                                                                          true));
+        for (TourSpotTicketImage repImage : repImageList) {
+            if (newRepImage != repImage) repImage.setRepImage(false);
+        }
+        newRepImage.setRepImage(true);
+    }
+
+    @Override
+    @Transactional
+    public void updateImageOrder(List<Integer> imageIdList) {
+        List<TourSpotTicketImage> tourSpotTicketImageList = tourSpotTicketImageDao.findAll(TourSpotTicketSpec.findImageByIds(imageIdList));
+        HashMap<Integer, TourSpotTicketImage> tourSpotTicketImageHashMap = tourSpotTicketImageList.stream()
+                                                                                .collect(Collectors
+                                                                                                 .toMap(TourSpotTicketImage::getId,
+                                                                                                          tourSpotTicketImage -> tourSpotTicketImage,
+                                                                                                        (oKey, nKey) -> oKey,
+                                                                                                        HashMap::new));
+        int order = 0;
+        for (Integer imageId : imageIdList) {
+            TourSpotTicketImage tourSpotTicketImage = tourSpotTicketImageHashMap.get(imageId);
+            if (tourSpotTicketImage != null) {
+                tourSpotTicketImage.setOrder(order);
+                order++;
+            }
+        }
+        tourSpotTicketImageDao.saveAll(tourSpotTicketImageList);
+    }
+
+
+    @Override
+    @Transactional
+    public void deleteImage(Integer tourSpotTicketImageId)
+    throws TourSpotTicketImageNotFoundException, RepImageNotDeletableException {
+        TourSpotTicketImage tourSpotTicketImage = findImageByImageId(tourSpotTicketImageId);
+        if (tourSpotTicketImage.isRepImage())
+            throw new RepImageNotDeletableException();
+        bucketService.deleteImage(tourSpotTicketImage.getBucketKey());
+        tourSpotTicketImageDao.delete(tourSpotTicketImage);
+    }
 
 //  ========================================== INFO ===========================================================  //
 

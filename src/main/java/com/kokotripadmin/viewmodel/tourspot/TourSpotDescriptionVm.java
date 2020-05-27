@@ -1,5 +1,6 @@
 package com.kokotripadmin.viewmodel.tourspot;
 
+import com.kokotripadmin.viewmodel.common.BaseImageVm;
 import com.kokotripadmin.viewmodel.common.BaseViewModel;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,6 +30,7 @@ public class TourSpotDescriptionVm extends BaseViewModel {
 
 
     private List<TourSpotDescriptionInfoVm> tourSpotDescriptionInfoVmList;
+    private List<BaseImageVm>                   baseImageVmList;
 
     public TourSpotDescriptionVm() {
     }

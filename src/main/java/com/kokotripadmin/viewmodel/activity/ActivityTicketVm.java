@@ -1,6 +1,7 @@
 package com.kokotripadmin.viewmodel.activity;
 
 import com.kokotripadmin.validator.TicketPriceConstraint;
+import com.kokotripadmin.viewmodel.common.BaseImageVm;
 import com.kokotripadmin.viewmodel.common.BaseViewModel;
 import com.kokotripadmin.viewmodel.ticket.TicketPriceVm;
 import lombok.Getter;
@@ -29,17 +30,18 @@ public class ActivityTicketVm extends BaseViewModel {
     @NotNull(message = "액티비티 티켓순서를 입력해주세요")
     private Integer order;
 
-    private String repImagePath;
+    private String  repImagePath;
     private Integer tourSpotId;
-    private String tourSpotName;
+    private String  tourSpotName;
     private Integer activityId;
-    private String activityName;
+    private String  activityName;
 
     @TicketPriceConstraint
     private List<TicketPriceVm> ticketPriceVmList;
 
-    private List<ActivityTicketInfoVm> activityTicketInfoVmList;
+    private List<ActivityTicketInfoVm>        activityTicketInfoVmList;
     private List<ActivityTicketDescriptionVm> activityTicketDescriptionVmList;
+    private List<BaseImageVm>                 baseImageVmList;
 
     public ActivityTicketVm() {
     }

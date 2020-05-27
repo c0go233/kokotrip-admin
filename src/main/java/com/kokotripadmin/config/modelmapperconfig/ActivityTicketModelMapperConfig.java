@@ -37,6 +37,7 @@ public class ActivityTicketModelMapperConfig {
         typeMap.addMapping(ActivityTicketDto::getTicketPriceDtoList, ActivityTicketVm::setTicketPriceVmList);
         typeMap.addMapping(ActivityTicketDto::getActivityTicketInfoDtoList, ActivityTicketVm::setActivityTicketInfoVmList);
         typeMap.addMapping(ActivityTicketDto::getActivityTicketDescriptionDtoList, ActivityTicketVm::setActivityTicketDescriptionVmList);
+        typeMap.addMapping(ActivityTicketDto::getActivityTicketImageDtoList, ActivityTicketVm::setBaseImageVmList);
 
     }
 
@@ -61,8 +62,6 @@ public class ActivityTicketModelMapperConfig {
         typeMap.addMapping(src -> src.getActivityTicket().getName(), ActivityTicketDescriptionDto::setActivityTicketName);
         typeMap.addMapping(src -> src.getActivityTicket().getActivity().getName(), ActivityTicketDescriptionDto::setActivityName);
         typeMap.addMapping(src -> src.getActivityTicket().getActivity().getId(), ActivityTicketDescriptionDto::setActivityId);
-
-
         typeMap.addMapping(src -> src.getActivityTicket().getActivity().getTourSpot().getId(),
                            ActivityTicketDescriptionDto::setTourSpotId);
         typeMap.addMapping(src -> src.getActivityTicket().getActivity().getTourSpot().getName(),
@@ -77,6 +76,8 @@ public class ActivityTicketModelMapperConfig {
 
         typeMap.addMapping(ActivityTicketDescriptionDto::getActivityTicketDescriptionInfoDtoList,
                            ActivityTicketDescriptionVm::setActivityTicketDescriptionInfoVmList);
+        typeMap.addMapping(ActivityTicketDescriptionDto::getActivityTicketDescriptionImageDtoList,
+                           ActivityTicketDescriptionVm::setBaseImageVmList);
     }
 
     public static void activityTicketDescriptionInfoToDto(ModelMapper modelMapper) {

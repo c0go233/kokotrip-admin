@@ -6,6 +6,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.Fetch;
 import javax.persistence.criteria.JoinType;
+import java.util.List;
 
 public class RegionSpec {
 
@@ -101,10 +102,35 @@ public class RegionSpec {
         return Specification.where(findThemeTagRelByThemeRelId(themeId)).and(findThemeTagRelByTagId(tagId, false, false));
     }
 
-//
-//    public static Specification<RegionThemeTagRel> findThemeTagRelById(Integer id) {
-//        return (root, criteriaQuery, criteriaBuilder) -> {
-//            return criteriaBuilder.equal(root.get(RegionThemeTagRel_.region))
-//        }
-//    }
+
+
+
+
+
+
+    public static Specification<RegionImage> findImageById(Integer regionId) {
+        return (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get(RegionImage_.regionId), regionId);
+    }
+
+    public static Specification<RegionImage> findImageByImageBucketKey(String regionImageBucketKey) {
+        return (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get(RegionImage_.bucketKey),
+                                                                               regionImageBucketKey);
+    }
+
+    public static Specification<RegionImage> findImageByIdAndImageBucketKey(Integer regionId, String regionImageBucketKey) {
+        return Specification.where(findImageById(regionId)).and(findImageByImageBucketKey(regionImageBucketKey));
+    }
+
+    public static Specification<RegionImage> findImageByRepImage(boolean repImage) {
+        return (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get(RegionImage_.repImage), repImage);
+    }
+
+    public static Specification<RegionImage> findImageByIdAndRepImage(Integer regionId, boolean repImage) {
+        return Specification.where(findImageById(regionId)).and(findImageByRepImage(repImage));
+    }
+
+    public static Specification<RegionImage> findImageByIds(final List<Integer> imageIdList) {
+        return (root, criteriaQuery, criteriaBuilder) -> root.get(RegionImage_.id).in(imageIdList);
+    }
+
 }

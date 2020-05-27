@@ -122,86 +122,6 @@ public class CityServiceImpl implements CityService, CityEntityService {
         return cityList.stream().collect(Collectors.toMap(City::getId, City::getName, (oKey, nKey) -> oKey, LinkedHashMap::new));
     }
 
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, readOnly = true)
-    public String findImageDirectoryById(Integer cityId) throws CityNotFoundException {
-        City city = findEntityById(cityId);
-        return "city/image/" + city.getName();
-    }
-
-
-    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, readOnly = true)
-    public CityImage findImageByImageId(Integer cityImageId) throws CityImageNotFoundException {
-        return cityImageDao.findById(cityImageId).orElseThrow(CityImageNotFoundException::new);
-    }
-
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, readOnly = true)
-    public String findNameById(Integer cityId) throws CityNotFoundException {
-        return findEntityById(cityId).getName();
-    }
-
-    @Override
-    @Transactional
-    public Integer saveImage(CityImageDto cityImageDto)
-    throws CityNotFoundException, ImageDuplicateException, IOException, FileIsNotImageException {
-        City city = findEntityById(cityImageDto.getCityId());
-        String bucketKey = CITY_IMAGE_DIRECTORY + "/" + city.getName() + "/" + cityImageDto.getName();
-
-        if (cityImageDao.count(CitySpec.findImageByIdAndImageBucketKey(city.getId(), bucketKey)) > 0)
-            throw new ImageDuplicateException(cityImageDto.getName());
-
-        CityImage cityImage = modelMapper.map(cityImageDto, CityImage.class);
-        cityImage.setCity(city);
-        cityImage.setBucketKey(bucketKey);
-        cityImageDao.saveAndFlush(cityImage);
-
-//        bucketService.uploadImage(bucketKey, cityImageDto.getName(), cityImageDto.getMultipartFile());
-        return cityImage.getId();
-    }
-
-    @Override
-    @Transactional
-    public void updateRepImage(Integer imageId) throws CityImageNotFoundException {
-        CityImage newRepImage = findImageByImageId(imageId);
-        List<CityImage> repImageList = cityImageDao.findAll(CitySpec.findImageByIdAndRepImage(newRepImage.getCityId(), true));
-        for (CityImage repImage : repImageList) {
-            if (newRepImage != repImage) repImage.setRepImage(false);
-        }
-        newRepImage.setRepImage(true);
-    }
-
-    @Override
-    public void updateImageOrder(List<Integer> imageIdList) {
-        List<CityImage> cityImageList = cityImageDao.findAll(CitySpec.findImageByIds(imageIdList));
-        HashMap<Integer, CityImage> cityImageHashMap = cityImageList.stream()
-                                                                    .collect(Collectors.toMap(CityImage::getId,
-                                                                                              cityImage -> cityImage,
-                                                                                              (oKey, nKey) -> oKey,
-                                                                                              HashMap::new));
-        int order = 0;
-        for (Integer imageId : imageIdList) {
-            CityImage cityImage = cityImageHashMap.get(imageId);
-            if (cityImage != null) {
-                cityImage.setOrder(order);
-                order++;
-            }
-        }
-        cityImageDao.saveAll(cityImageList);
-    }
-
-
-    @Override
-    @Transactional
-    public void deleteImage(Integer cityImageId)
-    throws CityImageNotFoundException, RepImageNotDeletableException {
-        CityImage cityImage = findImageByImageId(cityImageId);
-        if (cityImage.isRepImage())
-            throw new RepImageNotDeletableException();
-//        bucketService.deleteImage(cityImage.getBucketKey());
-        cityImageDao.delete(cityImage);
-    }
-
 
     @Override
     @Transactional
@@ -267,6 +187,78 @@ public class CityServiceImpl implements CityService, CityEntityService {
 
         return city;
     }
+
+
+
+
+//  =================================== CITY IMAGE ====================================================  //
+
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, readOnly = true)
+    public CityImage findImageByImageId(Integer cityImageId) throws CityImageNotFoundException {
+        return cityImageDao.findById(cityImageId).orElseThrow(CityImageNotFoundException::new);
+    }
+
+    @Override
+    @Transactional
+    public Integer saveImage(CityImageDto cityImageDto)
+    throws CityNotFoundException, ImageDuplicateException, IOException, FileIsNotImageException {
+        City city = findEntityById(cityImageDto.getCityId());
+        String bucketKey = CITY_IMAGE_DIRECTORY + "/" + city.getName() + "/" + cityImageDto.getName();
+
+        if (cityImageDao.count(CitySpec.findImageByIdAndImageBucketKey(city.getId(), bucketKey)) > 0)
+            throw new ImageDuplicateException(cityImageDto.getName());
+
+        CityImage cityImage = modelMapper.map(cityImageDto, CityImage.class);
+        cityImage.setCity(city);
+        cityImage.setBucketKey(bucketKey);
+        cityImageDao.save(cityImage);
+        bucketService.uploadImage(bucketKey, cityImageDto.getName(), cityImageDto.getMultipartFile());
+        return cityImage.getId();
+    }
+
+    @Override
+    @Transactional
+    public void updateRepImage(Integer imageId) throws CityImageNotFoundException {
+        CityImage newRepImage = findImageByImageId(imageId);
+        List<CityImage> repImageList = cityImageDao.findAll(CitySpec.findImageByIdAndRepImage(newRepImage.getCityId(), true));
+        for (CityImage repImage : repImageList) {
+            if (newRepImage != repImage) repImage.setRepImage(false);
+        }
+        newRepImage.setRepImage(true);
+    }
+
+    @Override
+    @Transactional
+    public void updateImageOrder(List<Integer> imageIdList) {
+        List<CityImage> cityImageList = cityImageDao.findAll(CitySpec.findImageByIds(imageIdList));
+        HashMap<Integer, CityImage> cityImageHashMap = cityImageList.stream()
+                                                                    .collect(Collectors.toMap(CityImage::getId,
+                                                                                              cityImage -> cityImage,
+                                                                                              (oKey, nKey) -> oKey,
+                                                                                              HashMap::new));
+        int order = 0;
+        for (Integer imageId : imageIdList) {
+            CityImage cityImage = cityImageHashMap.get(imageId);
+            if (cityImage != null) {
+                cityImage.setOrder(order);
+                order++;
+            }
+        }
+        cityImageDao.saveAll(cityImageList);
+    }
+
+
+    @Override
+    @Transactional
+    public void deleteImage(Integer cityImageId)
+    throws CityImageNotFoundException, RepImageNotDeletableException {
+        CityImage cityImage = findImageByImageId(cityImageId);
+        if (cityImage.isRepImage())
+            throw new RepImageNotDeletableException();
+        bucketService.deleteImage(cityImage.getBucketKey());
+        cityImageDao.delete(cityImage);
+    }
+
 
 //  ===============================================CITY INFO=======================================================  //
 

@@ -1,13 +1,12 @@
 package com.kokotripadmin.service.implementations;
 
 import com.kokotripadmin.constant.SupportLanguageEnum;
-import com.kokotripadmin.dao.interfaces.PhotoZoneDao;
-import com.kokotripadmin.dao.interfaces.PhotoZoneInfoDao;
+import com.kokotripadmin.dao.interfaces.photozone.PhotoZoneDao;
+import com.kokotripadmin.dao.interfaces.photozone.PhotoZoneInfoDao;
 import com.kokotripadmin.dto.photozone.PhotoZoneDto;
 import com.kokotripadmin.dto.photozone.PhotoZoneInfoDto;
 import com.kokotripadmin.entity.activity.Activity;
 import com.kokotripadmin.entity.activity.ActivityInfo;
-import com.kokotripadmin.entity.city.City;
 import com.kokotripadmin.entity.common.SupportLanguage;
 import com.kokotripadmin.entity.photozone.PhotoZone;
 import com.kokotripadmin.entity.photozone.PhotoZoneInfo;
@@ -32,8 +31,6 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;

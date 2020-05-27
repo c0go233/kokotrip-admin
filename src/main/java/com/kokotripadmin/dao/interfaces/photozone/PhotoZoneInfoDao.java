@@ -1,4 +1,4 @@
-package com.kokotripadmin.dao.interfaces;
+package com.kokotripadmin.dao.interfaces.photozone;
 
 import com.kokotripadmin.dao.interfaces.common.GenericDao;
 import com.kokotripadmin.entity.photozone.PhotoZoneInfo;

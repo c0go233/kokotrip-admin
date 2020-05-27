@@ -32,14 +32,11 @@ public interface CityService {
 
     LinkedHashMap<Integer, String> findAllAsLinkedHashMap();
     DataTablesOutput<CityDto> findAllByPagination(DataTablesInput input);
-    void deleteImage(Integer imageId) throws CityImageNotFoundException, RepImageNotDeletableException;
-    String findNameById(Integer cityId) throws CityNotFoundException;
 
+
+    void deleteImage(Integer imageId) throws CityImageNotFoundException, RepImageNotDeletableException;
     Integer saveImage(CityImageDto cityImageDto)
     throws CityNotFoundException, ImageDuplicateException, IOException, FileIsNotImageException;
-    String findImageDirectoryById(Integer cityId) throws CityNotFoundException;
-
     void updateRepImage(Integer imageId) throws CityImageNotFoundException;
-
     void updateImageOrder(List<Integer> imageIdList);
 }

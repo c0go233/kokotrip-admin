@@ -2,9 +2,13 @@ package com.kokotripadmin.service.interfaces.activity;
 
 import com.kokotripadmin.dto.activity.ActivityDescriptionDto;
 import com.kokotripadmin.dto.activity.ActivityDto;
+import com.kokotripadmin.dto.activity.ActivityImageDto;
 import com.kokotripadmin.dto.activity.ActivityInfoDto;
 import com.kokotripadmin.dto.common.LocatableAutoCompleteDto;
 import com.kokotripadmin.exception.activity.*;
+import com.kokotripadmin.exception.image.FileIsNotImageException;
+import com.kokotripadmin.exception.image.ImageDuplicateException;
+import com.kokotripadmin.exception.image.RepImageNotDeletableException;
 import com.kokotripadmin.exception.support_language.SupportLanguageNotFoundException;
 import com.kokotripadmin.exception.tag.TagInfoNotFoundException;
 import com.kokotripadmin.exception.tag.TagNotFoundException;
@@ -13,6 +17,7 @@ import com.kokotripadmin.exception.tour_spot.TourSpotNotFoundException;
 import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
 import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface ActivityService {
@@ -36,4 +41,11 @@ public interface ActivityService {
     List<LocatableAutoCompleteDto> findAllAsLocatableAutoComplete(String search);
 
     String getNameById(Integer activityId) throws ActivityNotFoundException;
+
+
+    void deleteImage(Integer imageId) throws ActivityImageNotFoundException, RepImageNotDeletableException;
+    Integer saveImage(ActivityImageDto activityImageDto)
+    throws ActivityNotFoundException, ImageDuplicateException, IOException, FileIsNotImageException;
+    void updateRepImage(Integer imageId) throws ActivityImageNotFoundException;
+    void updateImageOrder(List<Integer> imageIdList);
 }

@@ -1,39 +1,32 @@
 package com.kokotripadmin.service.implementations;
 
 import com.kokotripadmin.constant.SupportLanguageEnum;
-import com.kokotripadmin.dao.interfaces.region.RegionDao;
-import com.kokotripadmin.dao.interfaces.region.RegionInfoDao;
-import com.kokotripadmin.dao.interfaces.region.RegionThemeRelDao;
-import com.kokotripadmin.dao.interfaces.region.RegionThemeTagRelDao;
+import com.kokotripadmin.dao.interfaces.region.*;
 import com.kokotripadmin.dao.interfaces.tourspot.TourSpotDao;
-import com.kokotripadmin.dao.interfaces.tourspot.TourSpotInfoDao;
 import com.kokotripadmin.datatablesdao.RegionDataTablesDao;
-import com.kokotripadmin.dto.common.GenericInfoDto;
 import com.kokotripadmin.dto.region.RegionDto;
+import com.kokotripadmin.dto.region.RegionImageDto;
 import com.kokotripadmin.dto.region.RegionInfoDto;
-import com.kokotripadmin.entity.city.CityThemeRel;
-import com.kokotripadmin.entity.city.CityThemeTagRel;
 import com.kokotripadmin.entity.common.SupportLanguage;
 import com.kokotripadmin.entity.city.CityInfo;
-import com.kokotripadmin.entity.region.Region;
-import com.kokotripadmin.entity.region.RegionInfo;
-import com.kokotripadmin.entity.region.RegionThemeRel;
-import com.kokotripadmin.entity.region.RegionThemeTagRel;
+import com.kokotripadmin.entity.region.*;
 import com.kokotripadmin.entity.city.City;
 import com.kokotripadmin.entity.tag.Tag;
 import com.kokotripadmin.entity.tag.Theme;
 import com.kokotripadmin.entity.tourspot.TourSpot;
 import com.kokotripadmin.entity.tourspot.TourSpotInfo;
-import com.kokotripadmin.exception.city.CityInfoNotDeletableException;
 import com.kokotripadmin.exception.city.CityInfoNotFoundException;
 import com.kokotripadmin.exception.city.CityNotFoundException;
+import com.kokotripadmin.exception.image.FileIsNotImageException;
+import com.kokotripadmin.exception.image.ImageDuplicateException;
+import com.kokotripadmin.exception.image.RepImageNotDeletableException;
 import com.kokotripadmin.exception.region.*;
 import com.kokotripadmin.exception.support_language.SupportLanguageNotFoundException;
 import com.kokotripadmin.service.entityinterfaces.CityEntityService;
 import com.kokotripadmin.service.entityinterfaces.RegionEntityService;
 import com.kokotripadmin.service.entityinterfaces.SupportLanguageEntityService;
+import com.kokotripadmin.service.interfaces.BucketService;
 import com.kokotripadmin.service.interfaces.RegionService;
-import com.kokotripadmin.spec.CitySpec;
 import com.kokotripadmin.spec.RegionSpec;
 import com.kokotripadmin.spec.tourspot.TourSpotSpec;
 import com.kokotripadmin.util.Convert;
@@ -47,10 +40,11 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
-
-import static com.kokotripadmin.entity.region.RegionInfo_.cityInfo;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -66,12 +60,14 @@ public class RegionServiceImpl implements RegionService, RegionEntityService {
     private final RegionThemeRelDao regionThemeRelDao;
     private final RegionThemeTagRelDao regionThemeTagRelDao;
     private final TourSpotDao tourSpotDao;
-    private final TourSpotInfoDao tourSpotInfoDao;
+    private final RegionImageDao regionImageDao;
+
 
     private final SupportLanguageEntityService supportLanguageEntityService;
     private final CityEntityService cityEntityService;
+    private final BucketService bucketService;
 
-
+    private final String REGION_IMAGE_DIRECTORY = "region/image";
 
     @Autowired
     public RegionServiceImpl(RegionDao regionDao,
@@ -81,9 +77,10 @@ public class RegionServiceImpl implements RegionService, RegionEntityService {
                              RegionThemeRelDao regionThemeRelDao,
                              RegionThemeTagRelDao regionThemeTagRelDao,
                              TourSpotDao tourSpotDao,
-                             TourSpotInfoDao tourSpotInfoDao,
                              SupportLanguageEntityService supportLanguageEntityService,
-                             CityEntityService cityEntityService, Convert convert) {
+                             CityEntityService cityEntityService, Convert convert,
+                             RegionImageDao regionImageDao,
+                             BucketService bucketService) {
 
         this.regionDao = regionDao;
         this.modelMapper = modelMapper;
@@ -92,10 +89,11 @@ public class RegionServiceImpl implements RegionService, RegionEntityService {
         this.regionThemeRelDao = regionThemeRelDao;
         this.regionThemeTagRelDao = regionThemeTagRelDao;
         this.tourSpotDao = tourSpotDao;
-        this.tourSpotInfoDao = tourSpotInfoDao;
+        this.regionImageDao = regionImageDao;
         this.supportLanguageEntityService = supportLanguageEntityService;
         this.cityEntityService = cityEntityService;
         this.convert = convert;
+        this.bucketService = bucketService;
     }
 
 
@@ -230,12 +228,86 @@ public class RegionServiceImpl implements RegionService, RegionEntityService {
         }
     }
 
+
+
+//  =================================== REGION IMAGE ====================================================  //
+
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, readOnly = true)
+    public RegionImage findImageByImageId(Integer regionImageId) throws RegionImageNotFoundException {
+        return regionImageDao.findById(regionImageId).orElseThrow(RegionImageNotFoundException::new);
+    }
+
+
+    @Override
+    @Transactional
+    public Integer saveImage(RegionImageDto regionImageDto)
+    throws RegionNotFoundException, ImageDuplicateException, IOException, FileIsNotImageException {
+        Region region = findEntityById(regionImageDto.getRegionId());
+        String bucketKey = REGION_IMAGE_DIRECTORY + "/" + region.getName() + "/" + regionImageDto.getName();
+
+        if (regionImageDao.count(RegionSpec.findImageByIdAndImageBucketKey(region.getId(), bucketKey)) > 0)
+            throw new ImageDuplicateException(regionImageDto.getName());
+
+        RegionImage regionImage = modelMapper.map(regionImageDto, RegionImage.class);
+        regionImage.setRegion(region);
+        regionImage.setBucketKey(bucketKey);
+        regionImageDao.save(regionImage);
+
+        bucketService.uploadImage(bucketKey, regionImageDto.getName(), regionImageDto.getMultipartFile());
+        return regionImage.getId();
+    }
+
+    @Override
+    @Transactional
+    public void updateRepImage(Integer imageId) throws RegionImageNotFoundException {
+        RegionImage newRepImage = findImageByImageId(imageId);
+        List<RegionImage> repImageList = regionImageDao.findAll(RegionSpec.findImageByIdAndRepImage(newRepImage.getRegionId(), true));
+        for (RegionImage repImage : repImageList) {
+            if (newRepImage != repImage) repImage.setRepImage(false);
+        }
+        newRepImage.setRepImage(true);
+    }
+
+    @Override
+    @Transactional
+    public void updateImageOrder(List<Integer> imageIdList) {
+        List<RegionImage> regionImageList = regionImageDao.findAll(RegionSpec.findImageByIds(imageIdList));
+        HashMap<Integer, RegionImage> regionImageHashMap = regionImageList.stream()
+                                                                          .collect(Collectors.toMap(RegionImage::getId,
+                                                                                              regionImage -> regionImage,
+                                                                                                    (oKey, nKey) -> oKey,
+                                                                                                    HashMap::new));
+        int order = 0;
+        for (Integer imageId : imageIdList) {
+            RegionImage regionImage = regionImageHashMap.get(imageId);
+            if (regionImage != null) {
+                regionImage.setOrder(order);
+                order++;
+            }
+        }
+        regionImageDao.saveAll(regionImageList);
+    }
+
+
+    @Override
+    @Transactional
+    public void deleteImage(Integer regionImageId)
+    throws RegionImageNotFoundException, RepImageNotDeletableException {
+        RegionImage regionImage = findImageByImageId(regionImageId);
+        if (regionImage.isRepImage())
+            throw new RepImageNotDeletableException();
+        bucketService.deleteImage(regionImage.getBucketKey());
+        regionImageDao.delete(regionImage);
+    }
+
+
+
+
 //  =================================== REGION INFO ====================================================  //
 
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, readOnly = true)
     public RegionInfo findInfoEntityByInfoId(Integer infoId) throws RegionInfoNotFoundException {
-        RegionInfo regionInfo = regionInfoDao.findById(infoId).orElseThrow(() -> new RegionInfoNotFoundException());
-        return regionInfo;
+        return regionInfoDao.findById(infoId).orElseThrow(RegionInfoNotFoundException::new);
     }
 
     @Override

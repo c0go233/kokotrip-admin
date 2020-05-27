@@ -2,18 +2,20 @@ package com.kokotripadmin.service.implementations.activity;
 
 import com.kokotripadmin.constant.SupportLanguageEnum;
 import com.kokotripadmin.dao.interfaces.activity.ActivityDescriptionDao;
+import com.kokotripadmin.dao.interfaces.activity.ActivityDescriptionImageDao;
 import com.kokotripadmin.dao.interfaces.activity.ActivityDescriptionInfoDao;
 import com.kokotripadmin.dto.activity.ActivityDescriptionDto;
+import com.kokotripadmin.dto.activity.ActivityDescriptionImageDto;
 import com.kokotripadmin.dto.activity.ActivityDescriptionInfoDto;
-import com.kokotripadmin.entity.activity.Activity;
-import com.kokotripadmin.entity.activity.ActivityDescription;
-import com.kokotripadmin.entity.activity.ActivityDescriptionInfo;
-import com.kokotripadmin.entity.activity.ActivityInfo;
+import com.kokotripadmin.entity.activity.*;
 import com.kokotripadmin.entity.common.SupportLanguage;
 import com.kokotripadmin.exception.activity.*;
+import com.kokotripadmin.exception.image.FileIsNotImageException;
+import com.kokotripadmin.exception.image.ImageDuplicateException;
 import com.kokotripadmin.exception.support_language.SupportLanguageNotFoundException;
 import com.kokotripadmin.service.entityinterfaces.ActivityEntityService;
 import com.kokotripadmin.service.entityinterfaces.SupportLanguageEntityService;
+import com.kokotripadmin.service.interfaces.BucketService;
 import com.kokotripadmin.service.interfaces.activity.ActivityDescriptionService;
 import com.kokotripadmin.spec.ActivityDescriptionSpec;
 import com.kokotripadmin.util.Convert;
@@ -23,7 +25,10 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ActivityDescriptionServiceImpl implements ActivityDescriptionService {
@@ -33,22 +38,30 @@ public class ActivityDescriptionServiceImpl implements ActivityDescriptionServic
     private final Convert convert;
     private final ActivityDescriptionDao     activityDescriptionDao;
     private final ActivityDescriptionInfoDao activityDescriptionInfoDao;
+    private final ActivityDescriptionImageDao activityDescriptionImageDao;
 
     private final ActivityEntityService        activityEntityService;
     private final SupportLanguageEntityService supportLanguageEntityService;
+    private final BucketService bucketService;
+
+    private final String ACTIVITY_DESCRIPTION_IMAGE_DIRECTORY = "activity/description/image";
 
     public ActivityDescriptionServiceImpl(ModelMapper modelMapper,
                                           Convert convert,
                                           ActivityDescriptionDao activityDescriptionDao,
                                           ActivityDescriptionInfoDao activityDescriptionInfoDao,
+                                          ActivityDescriptionImageDao activityDescriptionImageDao,
                                           ActivityEntityService activityEntityService,
-                                          SupportLanguageEntityService supportLanguageEntityService) {
+                                          SupportLanguageEntityService supportLanguageEntityService,
+                                          BucketService bucketService) {
         this.modelMapper = modelMapper;
         this.convert = convert;
         this.activityDescriptionDao = activityDescriptionDao;
         this.activityDescriptionInfoDao = activityDescriptionInfoDao;
+        this.activityDescriptionImageDao = activityDescriptionImageDao;
         this.activityEntityService = activityEntityService;
         this.supportLanguageEntityService = supportLanguageEntityService;
+        this.bucketService = bucketService;
     }
 
 
@@ -144,6 +157,71 @@ public class ActivityDescriptionServiceImpl implements ActivityDescriptionServic
         Integer activityId = activityDescription.getActivityId();
         activityDescriptionDao.delete(activityDescription);
         return activityId;
+    }
+
+
+//  =================================== IMAGE ====================================================  //
+
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, readOnly = true)
+    public ActivityDescriptionImage findImageByImageId(Integer activityDescriptionImageId)
+    throws ActivityDescriptionImageNotFoundException {
+        return activityDescriptionImageDao.findById(activityDescriptionImageId)
+                                          .orElseThrow(ActivityDescriptionImageNotFoundException::new);
+    }
+
+    @Override
+    @Transactional
+    public Integer saveImage(ActivityDescriptionImageDto activityDescriptionImageDto)
+    throws ActivityDescriptionNotFoundException, ImageDuplicateException, IOException, FileIsNotImageException {
+        ActivityDescription activityDescription =
+                findEntityById(activityDescriptionImageDto.getActivityDescriptionId());
+        String bucketKey = ACTIVITY_DESCRIPTION_IMAGE_DIRECTORY + "/" + activityDescription.getName() + "/" +
+                           activityDescriptionImageDto.getName();
+
+        if (activityDescriptionImageDao.count(ActivityDescriptionSpec.findImageByIdAndImageBucketKey(activityDescription.getId(),
+                                                                                                     bucketKey)) > 0)
+            throw new ImageDuplicateException(activityDescriptionImageDto.getName());
+
+        ActivityDescriptionImage activityDescriptionImage = modelMapper.map(activityDescriptionImageDto,
+                                                                            ActivityDescriptionImage.class);
+        activityDescriptionImage.setActivityDescription(activityDescription);
+        activityDescriptionImage.setBucketKey(bucketKey);
+        activityDescriptionImageDao.save(activityDescriptionImage);
+        bucketService.uploadImage(bucketKey,
+                                  activityDescriptionImageDto.getName(),
+                                  activityDescriptionImageDto.getMultipartFile());
+        return activityDescriptionImage.getId();
+    }
+
+    @Override
+    @Transactional
+    public void updateImageOrder(List<Integer> imageIdList) {
+        List<ActivityDescriptionImage> activityDescriptionImageList =
+                activityDescriptionImageDao.findAll(ActivityDescriptionSpec.findImageByIds(imageIdList));
+        HashMap<Integer, ActivityDescriptionImage> activityDescriptionImageHashMap
+                = activityDescriptionImageList.stream()
+                                              .collect(Collectors.toMap(ActivityDescriptionImage::getId,
+                                                                        activityDescriptionImage -> activityDescriptionImage,
+                                                                        (oKey, nKey) -> oKey,
+                                                                        HashMap::new));
+        int order = 0;
+        for (Integer imageId : imageIdList) {
+            ActivityDescriptionImage activityDescriptionImage = activityDescriptionImageHashMap.get(imageId);
+            if (activityDescriptionImage != null) {
+                activityDescriptionImage.setOrder(order);
+                order++;
+            }
+        }
+        activityDescriptionImageDao.saveAll(activityDescriptionImageList);
+    }
+
+    @Override
+    @Transactional
+    public void deleteImage(Integer activityDescriptionImageId)
+    throws ActivityDescriptionImageNotFoundException {
+        ActivityDescriptionImage activityDescriptionImage = findImageByImageId(activityDescriptionImageId);
+        bucketService.deleteImage(activityDescriptionImage.getBucketKey());
+        activityDescriptionImageDao.delete(activityDescriptionImage);
     }
 
 

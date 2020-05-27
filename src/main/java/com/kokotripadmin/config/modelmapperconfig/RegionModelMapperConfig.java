@@ -17,9 +17,7 @@ public class RegionModelMapperConfig {
 
     public static void regionToDto(ModelMapper modelMapper) {
         TypeMap<Region, RegionDto> typeMap = modelMapper.createTypeMap(Region.class, RegionDto.class);
-
         typeMap.addMapping(src -> src.getCity().getName(), RegionDto::setCityName);
-
         typeMap.addMapping(src -> src.getCity().getStateId(), RegionDto::setStateId);
         typeMap.addMapping(src -> src.getCity().getState().getName(), RegionDto::setStateName);
     }
@@ -41,10 +39,12 @@ public class RegionModelMapperConfig {
         typeMap.addMapping(src -> src.getTag().getName(), ThemeTagRelDto::setTagName);
     }
 
+    @SuppressWarnings("Duplicates")
     public static void regionDtoToVm(ModelMapper modelMapper) {
         TypeMap<RegionDto, RegionVm> typeMap = modelMapper.createTypeMap(RegionDto.class, RegionVm.class);
         typeMap.addMapping(RegionDto::getRegionInfoDtoList, RegionVm::setRegionInfoVmList);
         typeMap.addMapping(RegionDto::getThemeRelDtoList, RegionVm::setThemeRelVmList);
+        typeMap.addMapping(RegionDto::getRegionImageDtoList, RegionVm::setBaseImageVmList);
     }
 
 }

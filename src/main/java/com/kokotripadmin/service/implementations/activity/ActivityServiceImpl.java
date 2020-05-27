@@ -2,12 +2,15 @@ package com.kokotripadmin.service.implementations.activity;
 
 import com.kokotripadmin.constant.SupportLanguageEnum;
 import com.kokotripadmin.dao.interfaces.activity.ActivityDao;
+import com.kokotripadmin.dao.interfaces.activity.ActivityImageDao;
 import com.kokotripadmin.dao.interfaces.activity.ActivityInfoDao;
 import com.kokotripadmin.datatablesdao.ActivityDataTablesDao;
 import com.kokotripadmin.dto.activity.ActivityDto;
+import com.kokotripadmin.dto.activity.ActivityImageDto;
 import com.kokotripadmin.dto.activity.ActivityInfoDto;
 import com.kokotripadmin.dto.common.LocatableAutoCompleteDto;
 import com.kokotripadmin.entity.activity.Activity;
+import com.kokotripadmin.entity.activity.ActivityImage;
 import com.kokotripadmin.entity.activity.ActivityInfo;
 import com.kokotripadmin.entity.city.City;
 import com.kokotripadmin.entity.common.SupportLanguage;
@@ -17,12 +20,16 @@ import com.kokotripadmin.entity.tag.TagInfo;
 import com.kokotripadmin.entity.tourspot.TourSpot;
 import com.kokotripadmin.entity.tourspot.TourSpotInfo;
 import com.kokotripadmin.exception.activity.*;
+import com.kokotripadmin.exception.image.FileIsNotImageException;
+import com.kokotripadmin.exception.image.ImageDuplicateException;
+import com.kokotripadmin.exception.image.RepImageNotDeletableException;
 import com.kokotripadmin.exception.support_language.SupportLanguageNotFoundException;
 import com.kokotripadmin.exception.tag.TagInfoNotFoundException;
 import com.kokotripadmin.exception.tag.TagNotFoundException;
 import com.kokotripadmin.exception.tour_spot.TourSpotInfoNotFoundException;
 import com.kokotripadmin.exception.tour_spot.TourSpotNotFoundException;
 import com.kokotripadmin.service.entityinterfaces.*;
+import com.kokotripadmin.service.interfaces.BucketService;
 import com.kokotripadmin.service.interfaces.activity.ActivityService;
 import com.kokotripadmin.spec.ActivitySpec;
 import com.kokotripadmin.util.Convert;
@@ -34,9 +41,11 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ActivityServiceImpl implements ActivityService, ActivityEntityService {
@@ -48,33 +57,41 @@ public class ActivityServiceImpl implements ActivityService, ActivityEntityServi
     private final ActivityInfoDao       activityInfoDao;
     private final ActivityDao           activityDao;
     private final ActivityDataTablesDao activityDataTablesDao;
+    private final ActivityImageDao activityImageDao;
 
     private final TourSpotEntityService        tourSpotEntityService;
     private final TagEntityService             tagEntityService;
     private final SupportLanguageEntityService supportLanguageEntityService;
     private final CityEntityService            cityEntityService;
     private final RegionEntityService          regionEntityService;
+    private final BucketService bucketService;
+
+    private final String ACTIVITY_IMAGE_DIRECTORY = "activity/image";
 
     public ActivityServiceImpl(ModelMapper modelMapper,
                                Convert convert,
                                ActivityDao activityDao,
                                ActivityInfoDao activityInfoDao,
                                ActivityDataTablesDao activityDataTablesDao,
+                               ActivityImageDao activityImageDao,
                                TourSpotEntityService tourSpotEntityService,
                                TagEntityService tagEntityService,
                                SupportLanguageEntityService supportLanguageEntityService,
                                CityEntityService cityEntityService,
-                               RegionEntityService regionEntityService) {
+                               RegionEntityService regionEntityService,
+                               BucketService bucketService) {
         this.modelMapper = modelMapper;
         this.convert = convert;
         this.activityDao = activityDao;
         this.activityInfoDao = activityInfoDao;
         this.activityDataTablesDao = activityDataTablesDao;
+        this.activityImageDao = activityImageDao;
         this.tourSpotEntityService = tourSpotEntityService;
         this.tagEntityService = tagEntityService;
         this.supportLanguageEntityService = supportLanguageEntityService;
         this.cityEntityService = cityEntityService;
         this.regionEntityService = regionEntityService;
+        this.bucketService = bucketService;
     }
 
 
@@ -239,6 +256,81 @@ public class ActivityServiceImpl implements ActivityService, ActivityEntityServi
         activityDao.delete(activity);
         return tourSpotId;
     }
+
+
+//  =================================== IMAGE ====================================================  //
+
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, readOnly = true)
+    public ActivityImage findImageByImageId(Integer activityImageId) throws ActivityImageNotFoundException {
+        return activityImageDao.findById(activityImageId).orElseThrow(ActivityImageNotFoundException::new);
+    }
+
+
+    @Override
+    @Transactional
+    public Integer saveImage(ActivityImageDto activityImageDto)
+    throws ActivityNotFoundException, ImageDuplicateException, IOException, FileIsNotImageException {
+        Activity activity = findEntityById(activityImageDto.getActivityId());
+        String bucketKey = ACTIVITY_IMAGE_DIRECTORY + "/" + activity.getName() + "/" + activityImageDto.getName();
+
+        if (activityImageDao.count(ActivitySpec.findImageByIdAndImageBucketKey(activity.getId(), bucketKey)) > 0)
+            throw new ImageDuplicateException(activityImageDto.getName());
+
+        ActivityImage activityImage = modelMapper.map(activityImageDto, ActivityImage.class);
+        activityImage.setActivity(activity);
+        activityImage.setBucketKey(bucketKey);
+        activityImageDao.save(activityImage);
+
+        bucketService.uploadImage(bucketKey, activityImageDto.getName(), activityImageDto.getMultipartFile());
+        return activityImage.getId();
+    }
+
+    @Override
+    @Transactional
+    public void updateRepImage(Integer imageId) throws ActivityImageNotFoundException {
+        ActivityImage newRepImage = findImageByImageId(imageId);
+        List<ActivityImage> repImageList = activityImageDao.findAll(ActivitySpec.findImageByIdAndRepImage(newRepImage.getActivityId(),
+                                                                                                          true));
+        for (ActivityImage repImage : repImageList) {
+            if (newRepImage != repImage) repImage.setRepImage(false);
+        }
+        newRepImage.setRepImage(true);
+    }
+
+    @Override
+    @Transactional
+    public void updateImageOrder(List<Integer> imageIdList) {
+        List<ActivityImage> activityImageList = activityImageDao.findAll(ActivitySpec.findImageByIds(imageIdList));
+        HashMap<Integer, ActivityImage> activityImageHashMap = activityImageList.stream()
+                                                                                .collect(Collectors.toMap(ActivityImage::getId,
+                                                                                                          activityImage -> activityImage,
+                                                                                                          (oKey, nKey) -> oKey,
+                                                                                                          HashMap::new));
+        int order = 0;
+        for (Integer imageId : imageIdList) {
+            ActivityImage activityImage = activityImageHashMap.get(imageId);
+            if (activityImage != null) {
+                activityImage.setOrder(order);
+                order++;
+            }
+        }
+        activityImageDao.saveAll(activityImageList);
+    }
+
+
+    @Override
+    @Transactional
+    public void deleteImage(Integer activityImageId)
+    throws ActivityImageNotFoundException, RepImageNotDeletableException {
+        ActivityImage activityImage = findImageByImageId(activityImageId);
+        if (activityImage.isRepImage())
+            throw new RepImageNotDeletableException();
+        bucketService.deleteImage(activityImage.getBucketKey());
+        activityImageDao.delete(activityImage);
+    }
+
+
+
 
 
 //  ============================================= INFO =========================================  //

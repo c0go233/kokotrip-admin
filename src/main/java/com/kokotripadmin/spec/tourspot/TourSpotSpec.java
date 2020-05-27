@@ -4,6 +4,7 @@ import com.kokotripadmin.entity.tourspot.*;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.JoinType;
+import java.util.List;
 
 public class TourSpotSpec {
 
@@ -56,6 +57,36 @@ public class TourSpotSpec {
         return (root, criteriaQuery, criteriaBuilder) ->
                 criteriaBuilder.like(root.get(TourSpot_.name), "%" + tourSpotName + "%");
     }
+
+
+
+
+
+    public static Specification<TourSpotImage> findImageById(Integer tourSpotId) {
+        return (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get(TourSpotImage_.tourSpotId), tourSpotId);
+    }
+
+    public static Specification<TourSpotImage> findImageByImageBucketKey(String tourSpotImageBucketKey) {
+        return (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get(TourSpotImage_.bucketKey),
+                                                                               tourSpotImageBucketKey);
+    }
+
+    public static Specification<TourSpotImage> findImageByIdAndImageBucketKey(Integer tourSpotId, String tourSpotImageBucketKey) {
+        return Specification.where(findImageById(tourSpotId)).and(findImageByImageBucketKey(tourSpotImageBucketKey));
+    }
+
+    public static Specification<TourSpotImage> findImageByRepImage(boolean repImage) {
+        return (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get(TourSpotImage_.repImage), repImage);
+    }
+
+    public static Specification<TourSpotImage> findImageByIdAndRepImage(Integer tourSpotId, boolean repImage) {
+        return Specification.where(findImageById(tourSpotId)).and(findImageByRepImage(repImage));
+    }
+
+    public static Specification<TourSpotImage> findImageByIds(final List<Integer> imageIdList) {
+        return (root, criteriaQuery, criteriaBuilder) -> root.get(TourSpotImage_.id).in(imageIdList);
+    }
+
 
 
 }

@@ -1,5 +1,6 @@
 package com.kokotripadmin.viewmodel.activity;
 
+import com.kokotripadmin.viewmodel.common.BaseImageVm;
 import com.kokotripadmin.viewmodel.common.GenericInfoVm;
 import com.kokotripadmin.viewmodel.common.BaseViewModel;
 import lombok.Getter;
@@ -27,11 +28,12 @@ public class ActivityDescriptionVm extends BaseViewModel {
     private Integer order;
     private boolean popup;
     private Integer activityId;
-    private String activityName;
+    private String  activityName;
     private Integer tourSpotId;
-    private String tourSpotName;
+    private String  tourSpotName;
 
     private List<ActivityDescriptionInfoVm> activityDescriptionInfoVmList;
+    private List<BaseImageVm>               baseImageVmList;
 
 
     public ActivityDescriptionVm() {

@@ -2,18 +2,21 @@ package com.kokotripadmin.service.implementations.tourspot;
 
 import com.kokotripadmin.constant.SupportLanguageEnum;
 import com.kokotripadmin.dao.interfaces.tourspot.TourSpotDescriptionDao;
+import com.kokotripadmin.dao.interfaces.tourspot.TourSpotDescriptionImageDao;
 import com.kokotripadmin.dao.interfaces.tourspot.TourSpotDescriptionInfoDao;
 import com.kokotripadmin.dto.tourspot.TourSpotDescriptionDto;
+import com.kokotripadmin.dto.tourspot.TourSpotDescriptionImageDto;
 import com.kokotripadmin.dto.tourspot.TourSpotDescriptionInfoDto;
-import com.kokotripadmin.entity.tourspot.TourSpot;
-import com.kokotripadmin.entity.tourspot.TourSpotDescription;
-import com.kokotripadmin.entity.tourspot.TourSpotDescriptionInfo;
-import com.kokotripadmin.entity.tourspot.TourSpotInfo;
+import com.kokotripadmin.entity.tourspot.*;
 import com.kokotripadmin.entity.common.SupportLanguage;
+import com.kokotripadmin.exception.image.FileIsNotImageException;
+import com.kokotripadmin.exception.image.ImageDuplicateException;
+import com.kokotripadmin.exception.image.RepImageNotDeletableException;
 import com.kokotripadmin.exception.support_language.SupportLanguageNotFoundException;
 import com.kokotripadmin.exception.tour_spot.*;
 import com.kokotripadmin.service.entityinterfaces.SupportLanguageEntityService;
 import com.kokotripadmin.service.entityinterfaces.TourSpotEntityService;
+import com.kokotripadmin.service.interfaces.BucketService;
 import com.kokotripadmin.service.interfaces.tourspot.TourSpotDescriptionService;
 import com.kokotripadmin.spec.tourspot.TourSpotDescriptionSpec;
 import com.kokotripadmin.util.Convert;
@@ -23,33 +26,43 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
 public class TourSpotDescriptionServiceImpl implements TourSpotDescriptionService {
 
-    private final ModelMapper modelMapper;
-    private final Convert convert;
-    private final TourSpotDescriptionDao tourSpotDescriptionDao;
-    private final TourSpotDescriptionInfoDao tourSpotDescriptionInfoDao;
+    private final ModelMapper                 modelMapper;
+    private final Convert                     convert;
+    private final TourSpotDescriptionDao      tourSpotDescriptionDao;
+    private final TourSpotDescriptionInfoDao  tourSpotDescriptionInfoDao;
+    private final TourSpotDescriptionImageDao tourSpotDescriptionImageDao;
 
-    private final TourSpotEntityService tourSpotEntityService;
+    private final TourSpotEntityService        tourSpotEntityService;
     private final SupportLanguageEntityService supportLanguageEntityService;
+    private final BucketService                bucketService;
 
+    private final String TOUR_SPOT_DESCRIPTION_IMAGE_DIRECTORY = "tour-spot/description/image";
 
     public TourSpotDescriptionServiceImpl(ModelMapper modelMapper,
                                           Convert convert,
                                           TourSpotDescriptionDao tourSpotDescriptionDao,
                                           TourSpotDescriptionInfoDao tourSpotDescriptionInfoDao,
+                                          TourSpotDescriptionImageDao tourSpotDescriptionImageDao,
                                           TourSpotEntityService tourSpotEntityService,
-                                          SupportLanguageEntityService supportLanguageEntityService) {
+                                          SupportLanguageEntityService supportLanguageEntityService,
+                                          BucketService bucketService) {
         this.modelMapper = modelMapper;
         this.convert = convert;
         this.tourSpotDescriptionDao = tourSpotDescriptionDao;
         this.tourSpotDescriptionInfoDao = tourSpotDescriptionInfoDao;
+        this.tourSpotDescriptionImageDao = tourSpotDescriptionImageDao;
         this.tourSpotEntityService = tourSpotEntityService;
         this.supportLanguageEntityService = supportLanguageEntityService;
+        this.bucketService = bucketService;
     }
 
 
@@ -84,8 +97,8 @@ public class TourSpotDescriptionServiceImpl implements TourSpotDescriptionServic
     @Transactional
     public Integer save(TourSpotDescriptionDto tourSpotDescriptionDto)
     throws TourSpotNotFoundException, TourSpotInfoNotFoundException, TourSpotDescriptionNotFoundException,
-            TourSpotDescriptionAlreadyExistsException, SupportLanguageNotFoundException,
-            TourSpotDescriptionInfoAlreadyExistsException, TourSpotDescriptionInfoNotFoundException {
+           TourSpotDescriptionAlreadyExistsException, SupportLanguageNotFoundException,
+           TourSpotDescriptionInfoAlreadyExistsException, TourSpotDescriptionInfoNotFoundException {
 
         TourSpotDescription tourSpotDescription;
         if (tourSpotDescriptionDto.getId() == null) tourSpotDescription = create(tourSpotDescriptionDto);
@@ -95,14 +108,15 @@ public class TourSpotDescriptionServiceImpl implements TourSpotDescriptionServic
     }
 
     private boolean existsByTourSpotIdAndName(Integer tourSpotId, String tourSpotDescriptionName) {
-        long count = tourSpotDescriptionDao.count(TourSpotDescriptionSpec.findByTourSpotIdAndName(tourSpotId, tourSpotDescriptionName));
+        long count = tourSpotDescriptionDao
+                .count(TourSpotDescriptionSpec.findByTourSpotIdAndName(tourSpotId, tourSpotDescriptionName));
         return count > 0;
     }
 
     private TourSpotDescription create(TourSpotDescriptionDto tourSpotDescriptionDto)
     throws TourSpotNotFoundException, SupportLanguageNotFoundException, TourSpotDescriptionInfoAlreadyExistsException,
-            TourSpotInfoNotFoundException, TourSpotDescriptionAlreadyExistsException,
-            TourSpotDescriptionNotFoundException {
+           TourSpotInfoNotFoundException, TourSpotDescriptionAlreadyExistsException,
+           TourSpotDescriptionNotFoundException {
 
         TourSpot tourSpot = tourSpotEntityService.findEntityById(tourSpotDescriptionDto.getTourSpotId());
 
@@ -124,12 +138,12 @@ public class TourSpotDescriptionServiceImpl implements TourSpotDescriptionServic
 
     private TourSpotDescription update(TourSpotDescriptionDto tourSpotDescriptionDto)
     throws TourSpotDescriptionNotFoundException, TourSpotDescriptionAlreadyExistsException,
-            TourSpotDescriptionInfoNotFoundException {
+           TourSpotDescriptionInfoNotFoundException {
 
         TourSpotDescription tourSpotDescription = findEntityById(tourSpotDescriptionDto.getId());
 
         if (!tourSpotDescription.getName().equals(tourSpotDescriptionDto.getName())
-                && existsByTourSpotIdAndName(tourSpotDescription.getTourSpotId(), tourSpotDescriptionDto.getName()))
+            && existsByTourSpotIdAndName(tourSpotDescription.getTourSpotId(), tourSpotDescriptionDto.getName()))
             throw new TourSpotDescriptionAlreadyExistsException(tourSpotDescriptionDto.getName());
 
         tourSpotDescription.clone(tourSpotDescriptionDto);
@@ -137,6 +151,73 @@ public class TourSpotDescriptionServiceImpl implements TourSpotDescriptionServic
 
         return tourSpotDescription;
     }
+
+
+    //  =================================== IMAGE ====================================================  //
+
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, readOnly = true)
+    public TourSpotDescriptionImage findImageByImageId(Integer tourSpotDescriptionImageId)
+    throws TourSpotDescriptionImageNotFoundException {
+        return tourSpotDescriptionImageDao.findById(tourSpotDescriptionImageId)
+                                          .orElseThrow(TourSpotDescriptionImageNotFoundException::new);
+    }
+
+    @Override
+    @Transactional
+    public Integer saveImage(TourSpotDescriptionImageDto tourSpotDescriptionImageDto)
+    throws TourSpotDescriptionNotFoundException, ImageDuplicateException, IOException, FileIsNotImageException {
+        TourSpotDescription tourSpotDescription =
+                findEntityById(tourSpotDescriptionImageDto.getTourSpotDescriptionId());
+        String bucketKey = TOUR_SPOT_DESCRIPTION_IMAGE_DIRECTORY + "/" + tourSpotDescription.getName() + "/" +
+                           tourSpotDescriptionImageDto.getName();
+
+        if (tourSpotDescriptionImageDao.count(TourSpotDescriptionSpec
+                                                      .findImageByIdAndImageBucketKey(tourSpotDescription.getId(),
+                                                                                      bucketKey)) > 0)
+            throw new ImageDuplicateException(tourSpotDescriptionImageDto.getName());
+
+        TourSpotDescriptionImage tourSpotDescriptionImage = modelMapper.map(tourSpotDescriptionImageDto,
+                                                                            TourSpotDescriptionImage.class);
+        tourSpotDescriptionImage.setTourSpotDescription(tourSpotDescription);
+        tourSpotDescriptionImage.setBucketKey(bucketKey);
+        tourSpotDescriptionImageDao.save(tourSpotDescriptionImage);
+        bucketService.uploadImage(bucketKey,
+                                  tourSpotDescriptionImageDto.getName(),
+                                  tourSpotDescriptionImageDto.getMultipartFile());
+        return tourSpotDescriptionImage.getId();
+    }
+
+    @Override
+    @Transactional
+    public void updateImageOrder(List<Integer> imageIdList) {
+        List<TourSpotDescriptionImage> tourSpotDescriptionImageList =
+                tourSpotDescriptionImageDao.findAll(TourSpotDescriptionSpec.findImageByIds(imageIdList));
+        HashMap<Integer, TourSpotDescriptionImage> tourSpotDescriptionImageHashMap
+                = tourSpotDescriptionImageList.stream()
+                                              .collect(Collectors.toMap(TourSpotDescriptionImage::getId,
+                                                                        tourSpotDescriptionImage -> tourSpotDescriptionImage,
+                                                                        (oKey, nKey) -> oKey,
+                                                                        HashMap::new));
+        int order = 0;
+        for (Integer imageId : imageIdList) {
+            TourSpotDescriptionImage tourSpotDescriptionImage = tourSpotDescriptionImageHashMap.get(imageId);
+            if (tourSpotDescriptionImage != null) {
+                tourSpotDescriptionImage.setOrder(order);
+                order++;
+            }
+        }
+        tourSpotDescriptionImageDao.saveAll(tourSpotDescriptionImageList);
+    }
+
+    @Override
+    @Transactional
+    public void deleteImage(Integer tourSpotDescriptionImageId)
+    throws TourSpotDescriptionImageNotFoundException {
+        TourSpotDescriptionImage tourSpotDescriptionImage = findImageByImageId(tourSpotDescriptionImageId);
+        bucketService.deleteImage(tourSpotDescriptionImage.getBucketKey());
+        tourSpotDescriptionImageDao.delete(tourSpotDescriptionImage);
+    }
+
 
 
     //  ============================================================================================================= //
@@ -156,8 +237,8 @@ public class TourSpotDescriptionServiceImpl implements TourSpotDescriptionServic
     @SuppressWarnings("Duplicates")
     public TourSpotDescriptionInfoDto saveInfo(TourSpotDescriptionInfoDto tourSpotDescriptionInfoDto)
     throws SupportLanguageNotFoundException, TourSpotInfoNotFoundException,
-            TourSpotDescriptionInfoAlreadyExistsException, TourSpotDescriptionNotFoundException,
-            TourSpotDescriptionInfoNotEditableException, TourSpotDescriptionInfoNotFoundException {
+           TourSpotDescriptionInfoAlreadyExistsException, TourSpotDescriptionNotFoundException,
+           TourSpotDescriptionInfoNotEditableException, TourSpotDescriptionInfoNotFoundException {
 
         TourSpotDescriptionInfo tourSpotDescriptionInfo;
         if (tourSpotDescriptionInfoDto.getId() == null)
@@ -204,7 +285,7 @@ public class TourSpotDescriptionServiceImpl implements TourSpotDescriptionServic
     private TourSpotDescriptionInfo createInfo(TourSpotDescription tourSpotDescription,
                                                TourSpotDescriptionInfoDto tourSpotDescriptionInfoDto)
     throws SupportLanguageNotFoundException, TourSpotDescriptionInfoAlreadyExistsException,
-            TourSpotInfoNotFoundException, TourSpotDescriptionNotFoundException {
+           TourSpotInfoNotFoundException, TourSpotDescriptionNotFoundException {
 
         if (tourSpotDescription == null)
             tourSpotDescription = findEntityById(tourSpotDescriptionInfoDto.getTourSpotDescriptionId());

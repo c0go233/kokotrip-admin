@@ -1,6 +1,7 @@
 package com.kokotripadmin.viewmodel.tourspot;
 
 import com.kokotripadmin.validator.TradingHourConstraint;
+import com.kokotripadmin.viewmodel.common.BaseImageVm;
 import com.kokotripadmin.viewmodel.common.BaseViewModel;
 import com.kokotripadmin.viewmodel.common.TradingHourVm;
 import com.kokotripadmin.viewmodel.activity.ActivityVm;
@@ -66,6 +67,7 @@ public class TourSpotVm extends BaseViewModel {
     private List<TourSpotTicketVm>      tourSpotTicketVmList;
     private List<ActivityVm>            activityVmList;
     private List<PhotoZoneVm>           photoZoneVmList;
+    private List<BaseImageVm>           baseImageVmList;
 
     public TourSpotVm() {
     }

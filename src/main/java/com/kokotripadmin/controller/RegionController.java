@@ -88,7 +88,8 @@ public class RegionController extends BaseController {
     public String addRegion(Model model, @RequestParam(value = "cityId", required = false) Integer cityId)
     throws CityNotFoundException {
 
-        RegionVm regionVm = model.containsAttribute(REGION_VM) ? (RegionVm) model.asMap().get(REGION_VM) : new RegionVm(true);
+        RegionVm regionVm =
+                model.containsAttribute(REGION_VM) ? (RegionVm) model.asMap().get(REGION_VM) : new RegionVm(true);
 
         if (cityId != null) {
             CityDto cityDto = cityService.findById(cityId);
@@ -159,13 +160,13 @@ public class RegionController extends BaseController {
                  produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<String> saveRegionImage(@RequestParam("image") MultipartFile multipartFile,
-                                                @RequestParam("fileName") String fileName,
-                                                @RequestParam("regionId") Integer regionId,
-                                                @RequestParam("order") Integer order,
-                                                @RequestParam("repImage") boolean repImage) {
+                                                  @RequestParam("fileName") String fileName,
+                                                  @RequestParam("regionId") Integer regionId,
+                                                  @RequestParam("order") Integer order,
+                                                  @RequestParam("repImage") boolean repImage) {
         try {
             RegionImageDto regionImageDto = new RegionImageDto(fileName, multipartFile.getContentType(), order,
-                                                             repImage, regionId, multipartFile);
+                                                               repImage, regionId, multipartFile);
             Integer regionImageId = regionService.saveImage(regionImageDto);
             return ResponseEntity.status(HttpStatus.OK).body(convert.resultToJson(regionImageId.toString()));
         } catch (AmazonServiceException exception) {
@@ -180,7 +181,7 @@ public class RegionController extends BaseController {
     @ResponseBody
     public ResponseEntity<String> updateRepImage(@RequestParam("imageId") Integer imageId) {
         try {
-            cityService.updateRepImage(imageId);
+            regionService.updateRepImage(imageId);
             return ResponseEntity.status(HttpStatus.OK).body(convert.resultToJson(""));
         } catch (RegionImageNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(convert.exceptionToJson(e.getMessage()));
@@ -192,7 +193,7 @@ public class RegionController extends BaseController {
     public ResponseEntity<String> deleteRegionImage(@RequestParam("id") Integer imageId) {
 
         try {
-            cityService.deleteImage(imageId);
+            regionService.deleteImage(imageId);
             return ResponseEntity.status(HttpStatus.OK).body(convert.resultToJson(imageId.toString()));
         } catch (AmazonServiceException | RegionImageNotFoundException | RepImageNotDeletableException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(convert.exceptionToJson(e.getMessage()));
@@ -201,11 +202,10 @@ public class RegionController extends BaseController {
         }
     }
 
-
     @PostMapping(value = "/image/order/save", produces = "application/json; charset=utf8")
     @ResponseBody
-    public ResponseEntity<String> saveCityImageOrder(@RequestBody List<Integer> imageIdList) {
-        cityService.updateImageOrder(imageIdList);
+    public ResponseEntity<String> saveRegionImageOrder(@RequestBody List<Integer> imageIdList) {
+        regionService.updateImageOrder(imageIdList);
         return ResponseEntity.status(HttpStatus.OK).body(convert.resultToJson(""));
     }
 

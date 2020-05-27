@@ -2,9 +2,13 @@ package com.kokotripadmin.service.interfaces.tourspot;
 
 import com.kokotripadmin.dto.common.LocatableAutoCompleteDto;
 import com.kokotripadmin.dto.tourspot.TourSpotDto;
+import com.kokotripadmin.dto.tourspot.TourSpotImageDto;
 import com.kokotripadmin.dto.tourspot.TourSpotInfoDto;
 import com.kokotripadmin.exception.city.CityNotFoundException;
 import com.kokotripadmin.exception.day_of_week.DayOfWeekNotFoundException;
+import com.kokotripadmin.exception.image.FileIsNotImageException;
+import com.kokotripadmin.exception.image.ImageDuplicateException;
+import com.kokotripadmin.exception.image.RepImageNotDeletableException;
 import com.kokotripadmin.exception.region.RegionMismatchException;
 import com.kokotripadmin.exception.region.RegionNotFoundException;
 import com.kokotripadmin.exception.support_language.SupportLanguageNotFoundException;
@@ -15,6 +19,7 @@ import com.kokotripadmin.exception.trading_hour_type.TradingHourTypeNotFoundExce
 import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
 import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface TourSpotService {
@@ -36,4 +41,11 @@ public interface TourSpotService {
     void delete(Integer tourSpotId) throws TourSpotNotFoundException;
 
     void deleteInfo(Integer tourSpotInfoId) throws TourSpotInfoNotFoundException, TourSpotInfoNotDeletableException;
+
+
+    void deleteImage(Integer imageId) throws TourSpotImageNotFoundException, RepImageNotDeletableException;
+    Integer saveImage(TourSpotImageDto tourSpotImageDto)
+    throws TourSpotNotFoundException, ImageDuplicateException, IOException, FileIsNotImageException;
+    void updateRepImage(Integer imageId) throws TourSpotImageNotFoundException;
+    void updateImageOrder(List<Integer> imageIdList);
 }

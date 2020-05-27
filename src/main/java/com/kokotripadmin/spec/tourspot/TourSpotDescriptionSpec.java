@@ -1,10 +1,9 @@
 package com.kokotripadmin.spec.tourspot;
 
-import com.kokotripadmin.entity.tourspot.TourSpotDescription;
-import com.kokotripadmin.entity.tourspot.TourSpotDescriptionInfo;
-import com.kokotripadmin.entity.tourspot.TourSpotDescription_;
-import com.kokotripadmin.entity.tourspot.TourSpotDescriptionInfo_;
+import com.kokotripadmin.entity.tourspot.*;
 import org.springframework.data.jpa.domain.Specification;
+
+import java.util.List;
 
 public class TourSpotDescriptionSpec {
 
@@ -40,4 +39,25 @@ public class TourSpotDescriptionSpec {
     public static Specification<TourSpotDescription> findByTourSpotIdAndName(Integer tourSpotId, String name) {
         return Specification.where(findByTourSpotId(tourSpotId)).and(findByName(name));
     }
+
+
+
+    public static Specification<TourSpotDescriptionImage> findImageById(Integer tourSpotDescriptionId) {
+        return (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get(TourSpotDescriptionImage_.tourSpotDescriptionId),
+                                                                               tourSpotDescriptionId);
+    }
+
+    public static Specification<TourSpotDescriptionImage> findImageByImageBucketKey(String tourSpotDescriptionImageBucketKey) {
+        return (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get(TourSpotDescriptionImage_.bucketKey),
+                                                                               tourSpotDescriptionImageBucketKey);
+    }
+
+    public static Specification<TourSpotDescriptionImage> findImageByIdAndImageBucketKey(Integer tourSpotDescriptionId, String tourSpotDescriptionImageBucketKey) {
+        return Specification.where(findImageById(tourSpotDescriptionId)).and(findImageByImageBucketKey(tourSpotDescriptionImageBucketKey));
+    }
+
+    public static Specification<TourSpotDescriptionImage> findImageByIds(final List<Integer> imageIdList) {
+        return (root, criteriaQuery, criteriaBuilder) -> root.get(TourSpotDescriptionImage_.id).in(imageIdList);
+    }
+
 }

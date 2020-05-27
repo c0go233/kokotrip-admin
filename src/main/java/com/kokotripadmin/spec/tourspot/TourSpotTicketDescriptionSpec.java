@@ -1,10 +1,9 @@
 package com.kokotripadmin.spec.tourspot;
 
-import com.kokotripadmin.entity.tourspot.ticket.TourSpotTicketDescription;
-import com.kokotripadmin.entity.tourspot.ticket.TourSpotTicketDescriptionInfo;
-import com.kokotripadmin.entity.tourspot.ticket.TourSpotTicketDescriptionInfo_;
-import com.kokotripadmin.entity.tourspot.ticket.TourSpotTicketDescription_;
+import com.kokotripadmin.entity.tourspot.ticket.*;
 import org.springframework.data.jpa.domain.Specification;
+
+import java.util.List;
 
 public class TourSpotTicketDescriptionSpec {
 
@@ -42,5 +41,27 @@ public class TourSpotTicketDescriptionSpec {
         return Specification.where(findByTourSpotTicketId(tourSpotTicketId)).and(findByName(name));
     }
 
+
+
+
+
+
+    public static Specification<TourSpotTicketDescriptionImage> findImageById(Integer tourSpotTicketDescriptionId) {
+        return (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get(TourSpotTicketDescriptionImage_.tourSpotTicketDescriptionId),
+                                                                               tourSpotTicketDescriptionId);
+    }
+
+    public static Specification<TourSpotTicketDescriptionImage> findImageByImageBucketKey(String tourSpotTicketDescriptionImageBucketKey) {
+        return (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get(TourSpotTicketDescriptionImage_.bucketKey),
+                                                                               tourSpotTicketDescriptionImageBucketKey);
+    }
+
+    public static Specification<TourSpotTicketDescriptionImage> findImageByIdAndImageBucketKey(Integer tourSpotTicketDescriptionId, String tourSpotTicketDescriptionImageBucketKey) {
+        return Specification.where(findImageById(tourSpotTicketDescriptionId)).and(findImageByImageBucketKey(tourSpotTicketDescriptionImageBucketKey));
+    }
+
+    public static Specification<TourSpotTicketDescriptionImage> findImageByIds(final List<Integer> imageIdList) {
+        return (root, criteriaQuery, criteriaBuilder) -> root.get(TourSpotTicketDescriptionImage_.id).in(imageIdList);
+    }
 
 }

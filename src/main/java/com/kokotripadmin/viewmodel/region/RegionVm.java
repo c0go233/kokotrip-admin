@@ -1,6 +1,7 @@
 package com.kokotripadmin.viewmodel.region;
 
 
+import com.kokotripadmin.viewmodel.common.BaseImageVm;
 import com.kokotripadmin.viewmodel.common.BaseViewModel;
 import com.kokotripadmin.viewmodel.common.GenericInfoVm;
 import com.kokotripadmin.viewmodel.common.ThemeRelVm;
@@ -46,6 +47,7 @@ public class RegionVm extends BaseViewModel {
 
     private List<ThemeRelVm> themeRelVmList;
     private List<RegionInfoVm> regionInfoVmList;
+    private List<BaseImageVm> baseImageVmList;
 
     public RegionVm() {
     }
