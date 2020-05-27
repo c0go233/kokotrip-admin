@@ -16,6 +16,10 @@ public class PhotoZoneImageDto extends BaseImageDto {
     public PhotoZoneImageDto() {
     }
 
+    public PhotoZoneImageDto(Integer id, String name, String url, Integer order) {
+        super(id, name, url, order);
+    }
+
     public PhotoZoneImageDto(String name, String fileType, Integer order, boolean repImage,
                              Integer photoZoneId, MultipartFile multipartFile) {
         super(name, fileType, order, multipartFile);

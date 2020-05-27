@@ -16,6 +16,9 @@ public class CityImage extends BaseImageEntity {
     @Column(name = "city_id", insertable = false, updatable = false)
     private Integer cityId;
 
+    @Column(name = "rep_image")
+    private boolean repImage;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "city_id")
     private City city;

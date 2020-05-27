@@ -8,8 +8,10 @@ import com.kokotripadmin.constant.DayOfWeekEnum;
 import com.kokotripadmin.constant.TradingHourTypeEnum;
 import com.kokotripadmin.dto.common.LocatableAutoCompleteDto;
 import com.kokotripadmin.dto.region.RegionDto;
+import com.kokotripadmin.dto.tourspot.TourSpotDescriptionImageDto;
 import com.kokotripadmin.dto.tourspot.TourSpotDto;
 import com.kokotripadmin.dto.tourspot.TourSpotInfoDto;
+import com.kokotripadmin.entity.tourspot.TourSpotDescription;
 import com.kokotripadmin.exception.city.CityNotFoundException;
 import com.kokotripadmin.exception.day_of_week.DayOfWeekNotFoundException;
 import com.kokotripadmin.exception.region.RegionMismatchException;
@@ -85,6 +87,8 @@ public class TourSpotController extends BaseController {
 
     @GetMapping("/add")
     public String addTourSpot(Model model) {
+
+
 
         if (!model.containsAttribute(TOUR_SPOT_VM))
             model.addAttribute(TOUR_SPOT_VM, new TourSpotVm(true));

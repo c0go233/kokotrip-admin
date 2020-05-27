@@ -2,6 +2,7 @@ package com.kokotripadmin.service.interfaces;
 
 import com.kokotripadmin.dto.common.GenericInfoDto;
 import com.kokotripadmin.dto.region.RegionDto;
+import com.kokotripadmin.dto.region.RegionImageDto;
 import com.kokotripadmin.dto.region.RegionInfoDto;
 import com.kokotripadmin.exception.city.CityInfoNotFoundException;
 import com.kokotripadmin.exception.city.CityNotFoundException;
@@ -29,4 +30,6 @@ public interface RegionService {
             RegionInfoNotFoundException, RegionNotEditableException;
 
     void delete(Integer regionId) throws RegionNotFoundException;
+
+    Integer saveImage(RegionImageDto regionImageDto);
 }

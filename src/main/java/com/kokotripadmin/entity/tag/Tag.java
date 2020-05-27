@@ -29,9 +29,6 @@ public class Tag extends BaseEntity {
     @Column(name = "rep_image_path")
     private String repImagePath;
 
-    @Column(name = "rep_image_file_type")
-    private String repImageFileType;
-
     @Column(name = "theme_id", updatable=false, insertable=false)
     private Integer themeId;
 
@@ -49,7 +46,6 @@ public class Tag extends BaseEntity {
         this.name = tagDto.getName();
         this.enabled = tagDto.isEnabled();
         this.repImagePath = tagDto.getRepImagePath();
-        this.repImageFileType = tagDto.getRepImageFileType();
     }
 
 }

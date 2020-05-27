@@ -20,8 +20,6 @@ public class TagInfo extends BaseInfoEntity {
     @Column(name = "rep_image_path")
     private String repImagePath;
 
-    @Column(name = "rep_image_file_type")
-    private String repImageFileType;
 
     @Column(name = "tag_id", insertable = false, updatable = false)
     private Integer tagId;
@@ -41,7 +39,6 @@ public class TagInfo extends BaseInfoEntity {
 
     public void denormalize(Tag tag) {
         this.repImagePath = tag.getRepImagePath();
-        this.repImageFileType = tag.getRepImageFileType();
         this.enabled = tag.isEnabled();
     }
 

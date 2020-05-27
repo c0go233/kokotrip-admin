@@ -14,6 +14,10 @@ public class TourSpotTicketDescriptionImageDto extends BaseImageDto {
     public TourSpotTicketDescriptionImageDto() {
     }
 
+    public TourSpotTicketDescriptionImageDto(Integer id, String name, String url, Integer order) {
+        super(id, name, url, order);
+    }
+
     public TourSpotTicketDescriptionImageDto(String name, String fileType, Integer order,
                                              Integer tourSpotTicketDescriptionId, MultipartFile multipartFile) {
         super(name, fileType, order, multipartFile);

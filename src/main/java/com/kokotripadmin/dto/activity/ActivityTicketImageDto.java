@@ -15,8 +15,13 @@ public class ActivityTicketImageDto extends BaseImageDto {
     public ActivityTicketImageDto() {
     }
 
+    public ActivityTicketImageDto(Integer id, String name, String url, Integer order, boolean repImage) {
+        super(id, name, url, order);
+        this.repImage = repImage;
+    }
+
     public ActivityTicketImageDto(String name, String fileType, Integer order, boolean repImage,
-                        Integer activityTicketId, MultipartFile multipartFile) {
+                                  Integer activityTicketId, MultipartFile multipartFile) {
         super(name, fileType, order, multipartFile);
         this.activityTicketId = activityTicketId;
         this.repImage = repImage;

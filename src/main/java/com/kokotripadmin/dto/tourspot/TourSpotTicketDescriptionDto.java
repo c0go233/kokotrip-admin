@@ -2,6 +2,8 @@ package com.kokotripadmin.dto.tourspot;
 
 import com.kokotripadmin.dto.common.BaseDto;
 import com.kokotripadmin.dto.common.GenericInfoDto;
+import com.kokotripadmin.entity.tourspot.TourSpotDescriptionImage;
+import com.kokotripadmin.entity.tourspot.ticket.TourSpotTicketDescriptionImage;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,6 +25,7 @@ public class TourSpotTicketDescriptionDto extends BaseDto {
     private String tourSpotTicketName;
 
     private List<TourSpotTicketDescriptionInfoDto> tourSpotTicketDescriptionInfoDtoList = new ArrayList<>();
+    private List<TourSpotTicketDescriptionImageDto> tourSpotTicketDescriptionImageDtoList = new ArrayList<>();
 
     public TourSpotTicketDescriptionDto() {
     }

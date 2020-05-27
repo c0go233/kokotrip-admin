@@ -29,9 +29,6 @@ public class Theme extends BaseEntity {
     @Column(name = "rep_image_path")
     private String repImagePath;
 
-    @Column(name = "rep_image_file_type")
-    private String repImageFileType;
-
     @OneToMany(cascade = CascadeType.ALL,
                fetch = FetchType.LAZY,
                mappedBy = "theme",
@@ -49,7 +46,6 @@ public class Theme extends BaseEntity {
         this.name = themeDto.getName();
         this.enabled = themeDto.isEnabled();
         this.repImagePath = themeDto.getRepImagePath();
-        this.repImageFileType = themeDto.getRepImageFileType();
     }
 
     public void updateInfos() {

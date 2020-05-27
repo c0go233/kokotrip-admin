@@ -2,6 +2,7 @@ package com.kokotripadmin.entity.activity;
 
 import com.kokotripadmin.dto.activity.ActivityDescriptionDto;
 import com.kokotripadmin.entity.common.BaseEntity;
+import com.kokotripadmin.entity.tourspot.TourSpotDescriptionImage;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -42,6 +43,15 @@ public class ActivityDescription extends BaseEntity {
                mappedBy = "activityDescription",
                orphanRemoval = true)
     private List<ActivityDescriptionInfo> activityDescriptionInfoList = new ArrayList<>();
+
+
+    @OneToMany(cascade = CascadeType.ALL,
+               fetch = FetchType.LAZY,
+               mappedBy = "activityDescription",
+               orphanRemoval = true)
+    @OrderBy("order asc")
+    private List<ActivityDescriptionImage> activityDescriptionImageList = new ArrayList<>();
+
 
     public void clone(ActivityDescriptionDto activityDescriptionDto) {
         this.name = activityDescriptionDto.getName();

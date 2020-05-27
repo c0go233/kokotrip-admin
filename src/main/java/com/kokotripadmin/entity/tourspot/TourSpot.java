@@ -5,6 +5,7 @@ import com.kokotripadmin.dto.common.TradingHourDto;
 import com.kokotripadmin.dto.tourspot.TourSpotDto;
 import com.kokotripadmin.entity.activity.Activity;
 import com.kokotripadmin.entity.city.City;
+import com.kokotripadmin.entity.city.CityImage;
 import com.kokotripadmin.entity.common.BaseEntity;
 import com.kokotripadmin.entity.photozone.PhotoZone;
 import com.kokotripadmin.entity.region.Region;
@@ -121,6 +122,13 @@ public class TourSpot extends BaseEntity {
                fetch = FetchType.LAZY,
                orphanRemoval = true)
     private List<PhotoZone> photoZoneList = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL,
+               fetch = FetchType.LAZY,
+               mappedBy = "tourSpot",
+               orphanRemoval = true)
+    @OrderBy("order asc")
+    private List<TourSpotImage> tourSpotImageList = new ArrayList<>();
 
     public void setForeignEntities(City city, Region region, Tag tag) {
         this.city = city;

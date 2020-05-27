@@ -30,6 +30,7 @@ public class RegionDto extends BaseDto {
 
     private List<RegionInfoDto> regionInfoDtoList =  new ArrayList<>();
     private List<ThemeRelDto> themeRelDtoList = new ArrayList<>();
+    private List<RegionImageDto> regionImageDtoList = new ArrayList<>();
 
     public RegionDto() {
     }

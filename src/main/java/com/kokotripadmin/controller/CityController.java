@@ -20,7 +20,6 @@ import com.kokotripadmin.service.interfaces.CityService;
 import com.kokotripadmin.service.interfaces.StateService;
 import com.kokotripadmin.service.interfaces.SupportLanguageService;
 import com.kokotripadmin.util.Convert;
-import com.kokotripadmin.viewmodel.city.CityImageVm;
 import com.kokotripadmin.viewmodel.city.CityInfoVm;
 import com.kokotripadmin.viewmodel.city.CityVm;
 import org.modelmapper.ModelMapper;

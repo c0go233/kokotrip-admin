@@ -3,6 +3,7 @@ package com.kokotripadmin.entity.tourspot.ticket;
 import com.kokotripadmin.dto.tourspot.TourSpotTicketDto;
 import com.kokotripadmin.entity.common.BaseEntity;
 import com.kokotripadmin.entity.tourspot.TourSpot;
+import com.kokotripadmin.entity.tourspot.TourSpotImage;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -58,6 +59,13 @@ public class TourSpotTicket extends BaseEntity {
                mappedBy = "tourSpotTicket",
                orphanRemoval = true)
     private List<TourSpotTicketDescription> tourSpotTicketDescriptionList =  new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL,
+               fetch = FetchType.LAZY,
+               mappedBy = "tourSpotTicket",
+               orphanRemoval = true)
+    @OrderBy("order asc")
+    private List<TourSpotTicketImage> tourSpotTicketImageList = new ArrayList<>();
 
     @SuppressWarnings("Duplicates")
     public void clone(TourSpotTicketDto tourSpotTicketDto) {

@@ -17,7 +17,6 @@ public class TagDto extends BaseDto {
     private boolean enabled;
 
     private String repImagePath;
-    private String repImageFileType;
     private String themeName;
     private Integer themeId;
 

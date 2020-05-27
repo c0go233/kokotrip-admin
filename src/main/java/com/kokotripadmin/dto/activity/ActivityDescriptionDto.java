@@ -24,7 +24,7 @@ public class ActivityDescriptionDto extends BaseDto {
     private String tourSpotName;
 
     private List<ActivityDescriptionInfoDto> activityDescriptionInfoDtoList = new ArrayList<>();
-
+    private List<ActivityDescriptionImageDto> activityDescriptionImageDtoList = new ArrayList<>();
 
     public ActivityDescriptionDto(Integer id, String name, boolean enabled, String description, int order) {
         super(id);

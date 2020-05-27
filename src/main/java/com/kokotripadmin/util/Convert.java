@@ -7,12 +7,13 @@ import com.kokotripadmin.dto.activity.*;
 import com.kokotripadmin.dto.city.CityDto;
 import com.kokotripadmin.dto.city.CityImageDto;
 import com.kokotripadmin.dto.city.CityInfoDto;
-import com.kokotripadmin.dto.common.BaseImageDto;
 import com.kokotripadmin.dto.common.LocatableAutoCompleteDto;
 import com.kokotripadmin.dto.common.ThemeRelDto;
 import com.kokotripadmin.dto.photozone.PhotoZoneDto;
+import com.kokotripadmin.dto.photozone.PhotoZoneImageDto;
 import com.kokotripadmin.dto.photozone.PhotoZoneInfoDto;
 import com.kokotripadmin.dto.region.RegionDto;
+import com.kokotripadmin.dto.region.RegionImageDto;
 import com.kokotripadmin.dto.region.RegionInfoDto;
 import com.kokotripadmin.dto.state.StateDto;
 import com.kokotripadmin.dto.tag.TagDto;
@@ -28,10 +29,11 @@ import com.kokotripadmin.entity.city.City;
 import com.kokotripadmin.entity.city.CityImage;
 import com.kokotripadmin.entity.city.CityInfo;
 import com.kokotripadmin.entity.city.CityThemeRel;
-import com.kokotripadmin.entity.common.BaseImageEntity;
 import com.kokotripadmin.entity.photozone.PhotoZone;
+import com.kokotripadmin.entity.photozone.PhotoZoneImage;
 import com.kokotripadmin.entity.photozone.PhotoZoneInfo;
 import com.kokotripadmin.entity.region.Region;
+import com.kokotripadmin.entity.region.RegionImage;
 import com.kokotripadmin.entity.region.RegionInfo;
 import com.kokotripadmin.entity.region.RegionThemeRel;
 import com.kokotripadmin.entity.tag.Tag;
@@ -54,7 +56,6 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -193,10 +194,16 @@ public class Convert {
         for (RegionThemeRel regionThemeRel : regionThemeRelList)
             regionDto.getThemeRelDtoList().add(modelMapper.map(regionThemeRel, ThemeRelDto.class));
 
+        for (RegionImage regionImage : region.getRegionImageList())
+            regionDto.getRegionImageDtoList().add(regionImageToDto(regionImage));
+
         return regionDto;
     }
 
-
+    public RegionImageDto regionImageToDto(RegionImage regionImage) {
+        String imageUrl = bucketService.getEndPoint(regionImage.getBucketKey());
+        return new RegionImageDto(regionImage.getId(), regionImage.getName(), imageUrl, regionImage.getOrder(), regionImage.isRepImage());
+    }
 
 //  ============================================= THEME & TAG ================================================  //
 
@@ -280,8 +287,19 @@ public class Convert {
         for (PhotoZone photoZone : tourSpot.getPhotoZoneList())
             tourSpotDto.getPhotoZoneDtoList().add(photoZoneToDto(photoZone));
 
+        for (TourSpotImage tourSpotImage : tourSpot.getTourSpotImageList())
+            tourSpotDto.getTourSpotImageDtoList().add(tourSpotImageToDto(tourSpotImage));
+
         return tourSpotDto;
     }
+
+    public TourSpotImageDto tourSpotImageToDto(TourSpotImage tourSpotImage) {
+        String imageUrl = bucketService.getEndPoint(tourSpotImage.getBucketKey());
+        return new TourSpotImageDto(tourSpotImage.getId(), tourSpotImage.getName(), imageUrl, tourSpotImage.getOrder(), tourSpotImage.isRepImage());
+    }
+
+
+
 
     public List<LocatableAutoCompleteDto> tourSpotToLocatableAutoCompleteDto(List<TourSpot> tourSpotList) {
         List<LocatableAutoCompleteDto> locatableAutoCompleteDtoList = new ArrayList<>();
@@ -301,7 +319,17 @@ public class Convert {
             tourSpotDescriptionDto.getTourSpotDescriptionInfoDtoList().add(modelMapper.map(tourSpotDescriptionInfo,
                                                                                            TourSpotDescriptionInfoDto.class));
 
+        for (TourSpotDescriptionImage tourSpotDescriptionImage : tourSpotDescription.getTourSpotDescriptionImageList())
+            tourSpotDescriptionDto.getTourSpotDescriptionImageDtoList().add(tourSpotDescriptionImageToDto(tourSpotDescriptionImage));
         return tourSpotDescriptionDto;
+    }
+
+    public TourSpotDescriptionImageDto tourSpotDescriptionImageToDto(TourSpotDescriptionImage tourSpotDescriptionImage) {
+        String imageUrl = bucketService.getEndPoint(tourSpotDescriptionImage.getBucketKey());
+        return new TourSpotDescriptionImageDto(tourSpotDescriptionImage.getId(),
+                                               tourSpotDescriptionImage.getName(),
+                                               imageUrl,
+                                               tourSpotDescriptionImage.getOrder());
     }
 
 
@@ -318,11 +346,18 @@ public class Convert {
         for (TourSpotTicketInfo tourSpotTicketInfo : tourSpotTicket.getTourSpotTicketInfoList())
             tourSpotTicketDto.getTourSpotTicketInfoDtoList().add(modelMapper.map(tourSpotTicketInfo, TourSpotTicketInfoDto.class));
 
-
         for (TourSpotTicketDescription tourSpotTicketDescription : tourSpotTicket.getTourSpotTicketDescriptionList())
             tourSpotTicketDto.getTourSpotTicketDescriptionDtoList().add(tourSpotTicketDescriptionToDto(tourSpotTicketDescription));
 
+        for (TourSpotTicketImage tourSpotTicketImage : tourSpotTicket.getTourSpotTicketImageList())
+            tourSpotTicketDto.getTourSpotTicketImageDtoList().add(tourSpotTicketImageToDto(tourSpotTicketImage));
+
         return tourSpotTicketDto;
+    }
+
+    public TourSpotTicketImageDto tourSpotTicketImageToDto(TourSpotTicketImage tourSpotTicketImage) {
+        String imageUrl = bucketService.getEndPoint(tourSpotTicketImage.getBucketKey());
+        return new TourSpotTicketImageDto(tourSpotTicketImage.getId(), tourSpotTicketImage.getName(), imageUrl, tourSpotTicketImage.getOrder(), tourSpotTicketImage.isRepImage());
     }
 
     public TourSpotTicketDto tourSpotTicketToDto(TourSpotTicket tourSpotTicket) {
@@ -341,7 +376,18 @@ public class Convert {
                                         .add(modelMapper.map(tourSpotTicketDescriptionInfo,
                                                              TourSpotTicketDescriptionInfoDto.class));
 
+        for (TourSpotTicketDescriptionImage tourSpotTicketDescriptionImage : tourSpotTicketDescription.getTourSpotTicketDescriptionImageList())
+            tourSpotTicketDescriptionDto.getTourSpotTicketDescriptionImageDtoList().add(tourSpotTicketDescriptionImageToDto(tourSpotTicketDescriptionImage));
+
         return tourSpotTicketDescriptionDto;
+    }
+
+    public TourSpotTicketDescriptionImageDto tourSpotTicketDescriptionImageToDto(TourSpotTicketDescriptionImage tourSpotTicketDescriptionImage) {
+        String imageUrl = bucketService.getEndPoint(tourSpotTicketDescriptionImage.getBucketKey());
+        return new TourSpotTicketDescriptionImageDto(tourSpotTicketDescriptionImage.getId(),
+                                                     tourSpotTicketDescriptionImage.getName(),
+                                                     imageUrl,
+                                                     tourSpotTicketDescriptionImage.getOrder());
     }
 
 
@@ -378,7 +424,15 @@ public class Convert {
         for (ActivityTicket activityTicket : activity.getActivityTicketList())
             activityDto.getActivityTicketDtoList().add(activityTicketToDto(activityTicket));
 
+        for (ActivityImage activityImage : activity.getActivityImageList())
+            activityDto.getActivityImageDtoList().add(activityImageToDto(activityImage));
+
         return activityDto;
+    }
+
+    public ActivityImageDto activityImageToDto(ActivityImage activityImage) {
+        String imageUrl = bucketService.getEndPoint(activityImage.getBucketKey());
+        return new ActivityImageDto(activityImage.getId(), activityImage.getName(), imageUrl, activityImage.getOrder(), activityImage.isRepImage());
     }
 
     public ActivityDescriptionDto activityDescriptionToDto(ActivityDescription activityDescription) {
@@ -396,7 +450,15 @@ public class Convert {
                                   .add(modelMapper.map(activityDescriptionInfo,
                                                        ActivityDescriptionInfoDto.class));
 
+        for (ActivityDescriptionImage activityDescriptionImage : activityDescription.getActivityDescriptionImageList())
+            activityDescriptionDto.getActivityDescriptionImageDtoList().add(activityDescriptionImageToDto(activityDescriptionImage));
+
         return activityDescriptionDto;
+    }
+
+    public ActivityDescriptionImageDto activityDescriptionImageToDto(ActivityDescriptionImage activityDescriptionImage) {
+        String imageUrl = bucketService.getEndPoint(activityDescriptionImage.getBucketKey());
+        return new ActivityDescriptionImageDto(activityDescriptionImage.getId(), activityDescriptionImage.getName(), imageUrl, activityDescriptionImage.getOrder());
     }
 
 
@@ -417,7 +479,15 @@ public class Convert {
         for (ActivityTicketDescription activityTicketDescription : activityTicket.getActivityTicketDescriptionList())
             activityTicketDto.getActivityTicketDescriptionDtoList().add(activityTicketDescriptionToDto(activityTicketDescription));
 
+        for (ActivityTicketImage activityTicketImage : activityTicket.getActivityTicketImageList())
+            activityTicketDto.getActivityTicketImageDtoList().add(activityTicketImageToDto(activityTicketImage));
+
         return activityTicketDto;
+    }
+
+    public ActivityTicketImageDto activityTicketImageToDto(ActivityTicketImage activityTicketImage) {
+        String imageUrl = bucketService.getEndPoint(activityTicketImage.getBucketKey());
+        return new ActivityTicketImageDto(activityTicketImage.getId(), activityTicketImage.getName(), imageUrl, activityTicketImage.getOrder(), activityTicketImage.isRepImage());
     }
 
     public ActivityTicketDescriptionDto activityTicketDescriptionToDto(ActivityTicketDescription activityTicketDescription) {
@@ -436,7 +506,14 @@ public class Convert {
                                         .add(modelMapper.map(activityTicketDescriptionInfo,
                                                              ActivityTicketDescriptionInfoDto.class));
 
+        for (ActivityTicketDescriptionImage activityTicketDescriptionImage : activityTicketDescription.getActivityTicketDescriptionImageList())
+            activityTicketDescriptionDto.getActivityTicketDescriptionImageDtoList().add(activityTicketDescriptionImageToDto(activityTicketDescriptionImage));
         return activityTicketDescriptionDto;
+    }
+
+    public ActivityTicketDescriptionImageDto activityTicketDescriptionImageToDto(ActivityTicketDescriptionImage activityTicketDescriptionImage) {
+        String imageUrl = bucketService.getEndPoint(activityTicketDescriptionImage.getBucketKey());
+        return new ActivityTicketDescriptionImageDto(activityTicketDescriptionImage.getId(), activityTicketDescriptionImage.getName(), imageUrl, activityTicketDescriptionImage.getOrder());
     }
 
 //  ============================================ PHOTO ZONE ====================================================================  //
@@ -451,8 +528,18 @@ public class Convert {
         for (PhotoZoneInfo photoZoneInfo : photoZone.getPhotoZoneInfoList()) {
             photoZoneDto.getPhotoZoneInfoDtoList().add(modelMapper.map(photoZoneInfo, PhotoZoneInfoDto.class));
         }
+
+        for (PhotoZoneImage photoZoneImage : photoZone.getPhotoZoneImageList())
+            photoZoneDto.getPhotoZoneImageDtoList().add(photoZoneImageToDto(photoZoneImage));
+
         return photoZoneDto;
     }
+
+    public PhotoZoneImageDto photoZoneImageToDto(PhotoZoneImage photoZoneImage) {
+        String imageUrl = bucketService.getEndPoint(photoZoneImage.getBucketKey());
+        return new PhotoZoneImageDto(photoZoneImage.getId(), photoZoneImage.getName(), imageUrl, photoZoneImage.getOrder());
+    }
+
 
     public List<LocatableAutoCompleteDto> activityToLocatableAutoCompleteDto(List<Activity> activityList) {
         List<LocatableAutoCompleteDto> locatableAutoCompleteDtoList = new ArrayList<>();

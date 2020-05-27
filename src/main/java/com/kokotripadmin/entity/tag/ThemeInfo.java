@@ -20,9 +20,6 @@ public class ThemeInfo extends BaseInfoEntity {
     @Column(name = "rep_image_path")
     private String repImagePath;
 
-    @Column(name = "rep_image_file_type")
-    private String repImageFileType;
-
     @Column(name = "theme_id", insertable = false, updatable = false)
     private Integer themeId;
 
@@ -42,6 +39,5 @@ public class ThemeInfo extends BaseInfoEntity {
     public void denormalize(Theme theme) {
         this.enabled = theme.isEnabled();
         this.repImagePath = theme.getRepImagePath();
-        this.repImageFileType = theme.getRepImageFileType();
     }
 }

@@ -15,6 +15,11 @@ public class RegionImageDto extends BaseImageDto {
     public RegionImageDto() {
     }
 
+    public RegionImageDto(Integer id, String name, String url, Integer order, boolean repImage) {
+        super(id, name, url, order);
+        this.repImage = repImage;
+    }
+
     public RegionImageDto(String name, String fileType, Integer order, boolean repImage,
                           Integer regionId, MultipartFile multipartFile) {
         super(name, fileType, order, multipartFile);

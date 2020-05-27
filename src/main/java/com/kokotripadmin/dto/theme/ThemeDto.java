@@ -19,7 +19,6 @@ public class ThemeDto extends BaseDto {
     private boolean enabled;
 
     private String repImagePath;
-    private String repImageFileType;
 
     private List<TagDto>       tagDtoList = new ArrayList<>();
     private List<ThemeInfoDto> themeInfoDtoList = new ArrayList<>();

@@ -1,6 +1,7 @@
 package com.kokotripadmin.dto.photozone;
 
 import com.kokotripadmin.dto.common.BaseDto;
+import com.kokotripadmin.entity.photozone.PhotoZoneImage;
 import com.kokotripadmin.entity.photozone.PhotoZoneInfo;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,6 +29,7 @@ public class PhotoZoneDto extends BaseDto {
     private String activityName;
 
     private List<PhotoZoneInfoDto> photoZoneInfoDtoList = new ArrayList<>();
+    private List<PhotoZoneImageDto> photoZoneImageDtoList = new ArrayList<>();
 
     public PhotoZoneDto() {
     }

@@ -114,7 +114,6 @@ create table `city`
   `latitude`            decimal(18, 12) not null,
   `longitude`           decimal(18, 12) not null,
   `rep_image_path`      varchar(4096),
-  `rep_image_file_type` varchar(10),
   `state_id`            int(11)         not null,
   `created_at`          timestamp       not null default current_timestamp,
   `updated_at`          timestamp       not null default current_timestamp on update current_timestamp,
@@ -126,17 +125,17 @@ create table `city`
 
 
 insert into `city`
-values (null, '서울', 1, 37.56667, 126.97806, null, null, 1, current_timestamp(), current_timestamp());
+values (null, '서울', 1, 37.56667, 126.97806, null, 1, current_timestamp(), current_timestamp());
 insert into `city`
-values (null, '부산', 1, 35.17944, 129.07556, null, null, 2, current_timestamp(), current_timestamp());
+values (null, '부산', 1, 35.17944, 129.07556, null, 2, current_timestamp(), current_timestamp());
 insert into `city`
-values (null, '인천', 1, 37.45639, 126.70528, null, null, 3, current_timestamp(), current_timestamp());
+values (null, '인천', 1, 37.45639, 126.70528, null, 3, current_timestamp(), current_timestamp());
 insert into `city`
-values (null, '대구', 1, 35.87222, 128.60250, null, null, 4, current_timestamp(), current_timestamp());
+values (null, '대구', 1, 35.87222, 128.60250, null, 4, current_timestamp(), current_timestamp());
 insert into `city`
-values (null, '대전', 1, 36.35111, 127.38500, null, null, 5, current_timestamp(), current_timestamp());
+values (null, '대전', 1, 36.35111, 127.38500, null, 5, current_timestamp(), current_timestamp());
 insert into `city`
-values (null, '광주', 1, 35.15972, 126.85306, null, null, 6, current_timestamp(), current_timestamp());
+values (null, '광주', 1, 35.15972, 126.85306, null, 6, current_timestamp(), current_timestamp());
 
 
 # 1. city_image disabled will affect the rep_image_path and rep_image_file_type of this table
@@ -151,7 +150,6 @@ create table `city_info`
   `latitude`            decimal(18, 12) not null, -- denormalization
   `longitude`           decimal(18, 12) not null, -- denormalization
   `rep_image_path`      varchar(4096),            -- denormalization
-  `rep_image_file_type` varchar(10),              -- denormalization
   `city_id`             int(11)         not null,
   `support_language_id` int(11)         not null,
   `created_at`          timestamp       not null default current_timestamp,
@@ -188,7 +186,6 @@ create table `region`
   `latitude`            decimal(18, 12) not null,
   `longitude`           decimal(18, 12) not null,
   `rep_image_path`      varchar(4096),
-  `rep_image_file_type` varchar(10),
   `city_id`             int(11)         not null,
   `created_at`          timestamp       not null default current_timestamp,
   `updated_at`          timestamp       not null default current_timestamp on update current_timestamp,
@@ -211,7 +208,6 @@ create table `region_info`
   `latitude`            decimal(18, 12) not null, -- denormalization
   `longitude`           decimal(18, 12) not null, -- denormalization
   `rep_image_path`      varchar(4096),            -- denormalization
-  `rep_image_file_type` varchar(10),              -- denormalization
   `city_info_id`        int(11)         not null,
   `region_id`           int(11)         not null,
   `support_language_id` int(11)         not null,
@@ -366,7 +362,6 @@ create table `theme`
   `name`                varchar(100) not null,
   `enabled`             tinyint(1)   not null,
   `rep_image_path`      varchar(4096),
-  `rep_image_file_type` varchar(10),
   `created_at`          timestamp    not null default current_timestamp,
   `updated_at`          timestamp    not null default current_timestamp on update current_timestamp,
 
@@ -381,7 +376,6 @@ create table `theme_info`
   `name`                varchar(100),
   `enabled`             tinyint(1) not null,
   `rep_image_path`      varchar(4096),
-  `rep_image_file_type` varchar(10),
   `theme_id`            int(11)    not null,
   `support_language_id` int(11)    not null,
   `created_at`          timestamp  not null default current_timestamp,
@@ -392,21 +386,21 @@ create table `theme_info`
   constraint `fk_support_language_id_by_theme_info` foreign key (`support_language_id`) references `support_language` (`id`)
 );
 
+
 create table `tag`
 (
   `id`                  int(11)      not null auto_increment,
   `name`                varchar(100) not null,
   `enabled`             tinyint(1)   not null,
   `rep_image_path`      varchar(4096),
-  `rep_image_file_type` varchar(10),
   `theme_id`            int(11)      not null,
   `created_at`          timestamp    not null default current_timestamp,
   `updated_at`          timestamp    not null default current_timestamp on update current_timestamp,
 
   primary key (`id`),
   constraint `fk_theme_id_by_tag` foreign key (`theme_id`) references `theme` (`id`)
-
 );
+
 
 create table `tag_info`
 (
@@ -414,7 +408,6 @@ create table `tag_info`
   `name`                varchar(100),
   `enabled`             tinyint(1) not null,
   `rep_image_path`      varchar(4096),
-  `rep_image_file_type` varchar(10),
   `tag_id`              int(11)    not null,
   `support_language_id` int(11)    not null,
   `created_at`          timestamp  not null default current_timestamp,
@@ -424,6 +417,7 @@ create table `tag_info`
   constraint `fk_tag_id_by_tag_info` foreign key (`tag_id`) references `tag` (`id`),
   constraint `fk_support_language_id_by_tag_info` foreign key (`support_language_id`) references `support_language` (`id`)
 );
+
 
 
 
@@ -450,7 +444,6 @@ create table `tour_spot`
   `popular_score`             decimal(3, 1) not null, -- out of 10
   `number_of_wish_list_saved` int(11)       not null,
   `rep_image_path`            varchar(4096),
-  `rep_image_file_type`       varchar(10),
   `city_id`                   int(11)       not null,
   `region_id`                 int(11),
   `tag_id`                    int(11)       not null,
@@ -484,7 +477,6 @@ create table `tour_spot_info`
   `popular_score`             decimal(3, 1) not null,
   `number_of_wish_list_saved` int(11)       not null,
   `rep_image_path`            varchar(4096),
-  `rep_image_file_type`       varchar(10),
   `city_id`                   int(11)       not null, -- denormal
   `region_id`                 int(11),                -- denormalization
   `tour_spot_id`              int(11)       not null,
@@ -499,6 +491,7 @@ create table `tour_spot_info`
   constraint `fk_tour_spot_id_by_tour_spot_info` foreign key (`tour_spot_id`) references `tour_spot` (`id`),
   constraint `fk_support_language_id_by_tour_spot_info` foreign key (`support_language_id`) references `support_language` (`id`)
 );
+
 
 
 
@@ -673,7 +666,6 @@ create table `tour_spot_ticket`
   `order`               int            not null,
   `rep_price`           decimal(10, 2) not null, -- by default price for adult is representative price
   `rep_image_path`      varchar(4096),
-  `rep_image_file_type` varchar(10),
   `tour_spot_id`        int(11)        not null,
   `created_at`          timestamp      not null default current_timestamp,
   `updated_at`          timestamp      not null default current_timestamp on update current_timestamp,
@@ -681,6 +673,7 @@ create table `tour_spot_ticket`
   primary key (`id`),
   constraint `fk_tour_spot_id_by_tour_spot_ticket` foreign key (`tour_spot_id`) references `tour_spot` (`id`)
 );
+
 
 
 
@@ -693,7 +686,6 @@ create table `tour_spot_ticket_info`
   `order`               int            not null,
   `rep_price`           decimal(10, 2) not null, -- by default price for adult is representative price
   `rep_image_path`      varchar(4096),
-  `rep_image_file_type` varchar(10),
   `tour_spot_info_id`   int(11)        not null,
   `tour_spot_ticket_id` int(11)        not null,
   `support_language_id` int(11)        not null,
@@ -776,7 +768,6 @@ create table `activity`
   `number_of_wish_list_saved` int(11)       not null,
   `popular_score`             int(11)       not null,
   `rep_image_path`            varchar(4096),
-  `rep_image_file_type`       varchar(10),
   `tour_spot_id`              int(11)       not null,
   `tag_id`                    int(11)       not null,
   `created_at`                timestamp     not null default current_timestamp,
@@ -786,6 +777,7 @@ create table `activity`
   constraint `fk_tour_spot_id_by_activity` foreign key (`tour_spot_id`) references `tour_spot` (`id`),
   constraint `fk_tag_id_by_activity` foreign key (`tag_id`) references `tag` (`id`)
 );
+
 
 
 use kokotrip;
@@ -812,7 +804,6 @@ create table `activity_info`
   `popular_score`             int(11)       not null,
   `tag_name`                  varchar(50)   not null,
   `rep_image_path`            varchar(4096),
-  `rep_image_file_type`       varchar(10),
   `tour_spot_info_id`         int(11)       not null,
   `activity_id`               int(11)       not null,
   `tag_info_id`               int(11)       not null,
@@ -876,7 +867,6 @@ create table `activity_ticket`
   `order`               int            not null,
   `rep_price`           decimal(10, 2) not null, -- by default price for adult is representative price
   `rep_image_path`      varchar(4096),
-  `rep_image_file_type` varchar(10),
   `activity_id`         int(11)        not null,
   `created_at`          timestamp      not null default current_timestamp,
   `updated_at`          timestamp      not null default current_timestamp on update current_timestamp,
@@ -884,6 +874,8 @@ create table `activity_ticket`
   primary key (`id`),
   constraint `fk_activity_id` foreign key (`activity_id`) references `activity` (`id`)
 );
+
+
 
 create table `activity_ticket_info`
 (
@@ -894,7 +886,6 @@ create table `activity_ticket_info`
   `order`               int            not null,
   `rep_price`           decimal(10, 2) not null, -- by default price for adult is representative price
   `rep_image_path`      varchar(4096),
-  `rep_image_file_type` varchar(10),
   `activity_info_id`    int(11)        not null,
   `activity_ticket_id`  int(11)        not null,
   `support_language_id` int(11)        not null,
@@ -906,6 +897,7 @@ create table `activity_ticket_info`
   constraint `fk_activity_info_id_by_activity_ticket_info` foreign key (`activity_info_id`) references `activity_info` (`id`),
   constraint `fk_support_language_id_by_activity_ticket_info` foreign key (`support_language_id`) references `support_language` (`id`)
 );
+
 
 create table `activity_ticket_price`
 (
@@ -1059,7 +1051,6 @@ create table `photo_zone`
   `longitude`           decimal(18, 12),
   `address`             varchar(1000),
   `rep_image_path`      varchar(4096),
-  `rep_image_file_type` varchar(10),
   `tour_spot_id`        int(11), -- nullable because there are photo_zones which are not tour_spots
   `activity_id`         int(11),
   `parent_tour_spot_id` int(11)       not null,
@@ -1084,7 +1075,6 @@ create table `photo_zone_info`
   `longitude`                decimal(18, 12),
   `address`                  varchar(1000),
   `rep_image_path`           varchar(4096),
-  `rep_image_file_type`      varchar(10),
   `photo_zone_id`            int(11)       not null,
   `parent_tour_spot_info_id` int           not null,
   `tour_spot_info_id`        int(11),
@@ -1122,6 +1112,206 @@ create table `city_image`
 );
 
 
+# TODO: execute 11/05/2020
+
+create table `region_image`
+(
+    `id`         int(11)       not null auto_increment,
+    `name`       varchar(255)  not null,
+    `enabled`    tinyint(1)    not null,
+    `order`      int           not null,
+    `file_type`  varchar(10)   not null,
+    `bucket_key` varchar(1000) not null,
+    `rep_image`  tinyint(1)    not null,
+#     `width`      int(10)       not null,
+#     `height`     int(10)       not null,
+    `region_id`  int(11)       not null,
+    `created_at` timestamp     not null default current_timestamp,
+    `updated_at` timestamp     not null default current_timestamp on update current_timestamp,
+
+    primary key (`id`),
+    constraint `fk_region_id_by_region_image` foreign key (`region_id`) references `region` (`id`)
+);
+
+create table `tour_spot_image`
+(
+    `id`           binary(16)    not null,
+    `name`         varchar(255)  not null,
+    `enabled`      tinyint(1)    not null,
+    `order`      int           not null,
+    `file_type`  varchar(10)   not null,
+    `bucket_key` varchar(1000) not null,
+    `rep_image`  tinyint(1)    not null,
+#     `width`        int(10)       not null,
+#     `height`       int(10)       not null,
+    `tour_spot_id` int(11)       not null,
+    #   `season_id`                int(11)       not null,
+    `created_at`   timestamp     not null default current_timestamp,
+    `updated_at`   timestamp     not null default current_timestamp on update current_timestamp,
+
+    primary key (`id`),
+    constraint `fk_tour_spot_id_by_tour_spot_image` foreign key (`tour_spot_id`) references `tour_spot` (`id`)
+    #   constraint `fk_season_id` foreign key (`season_id`) references `season` (`id`)
+);
+
+# 1. when converting to dto, put order of tour_spot_description so that it can be easily mapped on client side
+# 2. select * from this table where tour_spot_id = :tour_spot_id so no need to left join or something
+# 3. order of this table is the order of picture on description
+create table `tour_spot_description_image`
+(
+    `id`                       binary(16)    not null,
+    `name`                     varchar(255)  not null,
+    `enabled`                  tinyint(1)    not null,
+    `order`      int           not null,
+    `file_type`  varchar(10)   not null,
+    `bucket_key` varchar(1000) not null,
+#     `width`                    int(10)       not null,
+#     `height`                   int(10)       not null,
+    `tour_spot_id`             int(11)       not null,
+    `tour_spot_description_id` int(11)       not null,
+    #   `season_id`                int(11)       not null,
+    `created_at`               timestamp     not null default current_timestamp,
+    `updated_at`               timestamp     not null default current_timestamp on update current_timestamp,
+
+    primary key (`id`),
+    constraint `fk_tour_spot_id_by_tour_spot_description_image` foreign key (`tour_spot_id`) references `tour_spot` (`id`),
+    constraint `fk_tour_spot_description_id_by_tour_spot_description_image` foreign key (`tour_spot_description_id`) references `tour_spot_description` (`id`)
+);
+
+
+create table `tour_spot_ticket_image`
+(
+    `id`                  binary(16)    not null,
+    `name`                varchar(255)  not null,
+    `enabled`             tinyint(1)    not null,
+    `order`      int           not null,
+    `file_type`  varchar(10)   not null,
+    `bucket_key` varchar(1000) not null,
+    `rep_image`  tinyint(1)    not null,
+#     `width`               int(10)       not null,
+#     `height`              int(10)       not null,
+    `tour_spot_ticket_id` int(11)       not null,
+    #   `season_id`                int(11)       not null,
+    `created_at`          timestamp     not null default current_timestamp,
+    `updated_at`          timestamp     not null default current_timestamp on update current_timestamp,
+
+    primary key (`id`),
+    constraint `fk_tour_spot_ticket_id_by_tour_spot_ticket_image` foreign key (`tour_spot_ticket_id`) references `tour_spot_ticket` (`id`)
+);
+
+create table `tour_spot_ticket_description_image`
+(
+    `id`                              binary(16)    not null,
+    `name`                            varchar(255)  not null,
+    `enabled`                         tinyint(1)    not null,
+    `order`      int           not null,
+    `file_type`  varchar(10)   not null,
+    `bucket_key` varchar(1000) not null,
+#     `width`                           int(10)       not null,
+#     `height`                          int(10)       not null,
+    `tour_spot_ticket_id`             int(11)       not null,
+    `tour_spot_ticket_description_id` int(11)       not null,
+    #   `season_id`                int(11)       not null,
+    `created_at`                      timestamp     not null default current_timestamp,
+    `updated_at`                      timestamp     not null default current_timestamp on update current_timestamp,
+
+    primary key (`id`),
+    constraint `fk_tour_spot_ticket_id_by_tour_spot_ticket_description_image` foreign key (`tour_spot_ticket_id`) references `tour_spot_ticket` (`id`),
+    constraint `fk_tour_spot_ticket_description_id_by_tour_spot_ticket_desc_img` foreign key (`tour_spot_ticket_description_id`) references `tour_spot_ticket_description` (`id`)
+);
+
+
+-- season will be populated on application level when start so does not need denorlization?
+-- tour_spot_image stores image of tour spot in different seasons, and in the list of tour_spot, it will display representative picture regardless of its season, but when detailed tour_spot page show current season's pictures
+-- tour_spot_image stores all the images for this tour_spot even the ones that are used in description, activity, tickets
+create table `activity_image`
+(
+    `id`                              binary(16)    not null,
+    `name`                            varchar(255)  not null,
+    `enabled`                         tinyint(1)    not null,
+    `order`      int           not null,
+    `file_type`  varchar(10)   not null,
+    `bucket_key` varchar(1000) not null,
+    `rep_image`  tinyint(1)    not null,
+#     `width`                           int(10)       not null,
+#     `height`                          int(10)       not null,
+    `activity_id`             int(11)       not null,
+    `created_at`              timestamp     not null default current_timestamp,
+    `updated_at`              timestamp     not null default current_timestamp on update current_timestamp,
+
+    primary key (`id`),
+    constraint `fk_activity_id_by_activity_image` foreign key (`activity_id`) references `activity` (`id`)
+);
+
+create table `activity_description_image`
+(
+    `id`                       binary(16)    not null,
+    `name`                     varchar(255)  not null,
+    `enabled`                  tinyint(1)    not null,
+    `order`      int           not null,
+    `file_type`  varchar(10)   not null,
+    `bucket_key` varchar(1000) not null,
+#     `width`                    int(10)       not null,
+#     `height`                   int(10)       not null,
+    `activity_id`             int(11)       not null,
+    `activity_description_id` int(11)       not null,
+    #   `season_id`                int(11)       not null,
+    `created_at`               timestamp     not null default current_timestamp,
+    `updated_at`               timestamp     not null default current_timestamp on update current_timestamp,
+
+    primary key (`id`),
+    constraint `fk_activity_id_by_activity_description_image` foreign key (`activity_id`) references `activity` (`id`),
+    constraint `fk_activity_description_id_by_activity_description_image` foreign key (`activity_description_id`) references `activity_description` (`id`)
+);
+
+
+-- ticket also has pictures frames on the top so that it should load all the picture beloging to this ticket, that's why tour_spot_cticket_id is there
+-- if picture is only used for ticket not in tour_spot, then tour_spot_image_id null and then create relatvePath by itself and only shared in this table not tour_spot_image
+-- most of images used in ticket will refer to the images in tour_spot_image
+create table `activity_ticket_image`
+(
+    `id`                              binary(16)    not null,
+    `name`                            varchar(255)  not null,
+    `enabled`                         tinyint(1)    not null,
+    `order`      int           not null,
+    `file_type`  varchar(10)   not null,
+    `bucket_key` varchar(1000) not null,
+    `rep_image`  tinyint(1)    not null,
+#     `width`                           int(10)       not null,
+#     `height`                          int(10)       not null,
+    `activity_ticket_id`                    int(11)       not null,
+    `created_at`                            timestamp     not null default current_timestamp,
+    `updated_at`                            timestamp     not null default current_timestamp on update current_timestamp,
+
+    primary key (`id`),
+    constraint `fk_activity_ticket_id_by_activity_ticket_image` foreign key (`activity_ticket_id`) references `activity_ticket` (`id`)
+);
+
+
+
+create table `activity_ticket_description_image`
+(
+    `id`                       binary(16)    not null,
+    `name`                     varchar(255)  not null,
+    `enabled`                  tinyint(1)    not null,
+    `order`      int           not null,
+    `file_type`  varchar(10)   not null,
+    `bucket_key` varchar(1000) not null,
+#     `width`                    int(10)       not null,
+#     `height`                   int(10)       not null,
+    `activity_ticket_id`             int(11)       not null,
+    `activity_ticket_description_id` int(11)       not null,
+    #   `season_id`                int(11)       not null,
+    `created_at`               timestamp     not null default current_timestamp,
+    `updated_at`               timestamp     not null default current_timestamp on update current_timestamp,
+
+    primary key (`id`),
+    constraint `fk_activity_ticket_id_by_activity_ticket_description_image` foreign key (`activity_ticket_id`) references `activity_ticket` (`id`),
+    constraint `fk_activity_ticket_description_id_by_activity_ticket_desc_image` foreign key (`activity_ticket_description_id`) references `activity_ticket_description` (`id`)
+);
+
+
+
 
 delete
 from city_image
@@ -1129,21 +1319,11 @@ where id > 0;
 
 drop table city_image;
 
-# TODO: execute 11/05/2020
-alter table city drop column `rep_image_file_type`;
-alter table city_info drop column `rep_image_file_type`;
-alter table region drop column `rep_image_file_type`;
-alter table region_info drop column `rep_image_file_type`;
-alter table tour_spot drop column `rep_image_file_type`;
-alter table tour_spot_info drop column `rep_image_file_type`;
-alter table tour_spot drop column `rep_image_file_type`;
-alter table tour_spot_info drop column `rep_image_file_type`;
-alter table tour_spot_ticket drop column `rep_image_file_type`;
-alter table tour_spot_ticket_info drop column `rep_image_file_type`;
-alter table activity drop column `rep_image_file_type`;
-alter table activity_info drop column `rep_image_file_type`;
-alter table activity_ticket drop column `rep_image_file_type`;
-alter table activity_ticket_info drop column `rep_image_file_type`;
+
+
+
+select *
+from activity;
 
 
 
@@ -1164,171 +1344,28 @@ alter table activity_ticket_info drop column `rep_image_file_type`;
 -- For list of tour_spots then join tour_spot_image and where device_type_id = @device_type_id and put relative path to the object of tour_spot_info by using "as"
 -- For detail page of tour_spot then execute another query to get all images with enabled, device_type_id = @device_type_id and sort and put images to tour_spot_description on user's mobile or web
 -- tour_spot_image class will have season name variables and query will have as season name with season table joined with support_language considered
-# TODO: have not been implemented
-create table `tour_spot_image`
-(
-  `id`           binary(16)    not null,
-  `name`         varchar(255)  not null,
-  `enabled`      tinyint(1)    not null,
-  `file_type`    varchar(10)   not null,
-  `path`         varchar(4096) not null,
-  `width`        int(10)       not null,
-  `height`       int(10)       not null,
-  `tour_spot_id` int(11)       not null,
-  #   `season_id`                int(11)       not null,
-  `created_at`   timestamp     not null default current_timestamp,
-  `updated_at`   timestamp     not null default current_timestamp on update current_timestamp,
 
-  primary key (`id`),
-  constraint `fk_tour_spot_id` foreign key (`tour_spot_id`) references `tour_spot` (`id`)
-  #   constraint `fk_season_id` foreign key (`season_id`) references `season` (`id`)
-);
 
 
 # TODO: have not implemented
-create table `tour_spot_ticket_description_image`
-(
-  `id`                              binary(16)    not null,
-  `name`                            varchar(255)  not null,
-  `enabled`                         tinyint(1)    not null,
-  `order`                           int(11)       not null,
-  `file_type`                       varchar(10)   not null,
-  `path`                            varchar(4096) not null,
-  `width`                           int(10)       not null,
-  `height`                          int(10)       not null,
-  `tour_spot_ticket_id`             int(11)       not null,
-  `tour_spot_ticket_description_id` int(11)       not null,
-  #   `season_id`                int(11)       not null,
-  `created_at`                      timestamp     not null default current_timestamp,
-  `updated_at`                      timestamp     not null default current_timestamp on update current_timestamp,
 
-  primary key (`id`),
-  constraint `fk_tour_spot_ticket_id` foreign key (`tour_spot_ticket_id`) references `tour_spot_ticket` (`id`),
-  constraint `fk_tour_spot_ticket_description_id` foreign key (`tour_spot_ticket_description_id`) references `tour_spot_ticket_description` (`id`)
-);
 
 
 # TODO: have not implemented
-create table `tour_spot_ticket_image`
-(
-  `id`                  binary(16)    not null,
-  `name`                varchar(255)  not null,
-  `enabled`             tinyint(1)    not null,
-  `file_type`           varchar(10)   not null,
-  `path`                varchar(4096) not null,
-  `width`               int(10)       not null,
-  `height`              int(10)       not null,
-  `tour_spot_ticket_id` int(11)       not null,
-  #   `season_id`                int(11)       not null,
-  `created_at`          timestamp     not null default current_timestamp,
-  `updated_at`          timestamp     not null default current_timestamp on update current_timestamp,
-
-  primary key (`id`),
-  constraint `fk_tour_spot_ticket_id_by_tour_spot_ticket_image` foreign key (`tour_spot_ticket_id`) references `tour_spot_ticket` (`id`)
-);
 
 
 
-# TODO: have not implemented yet
-# 1. when converting to dto, put order of tour_spot_description so that it can be easily mapped on client side
-# 2. select * from this table where tour_spot_id = :tour_spot_id so no need to left join or something
-# 3. order of this table is the order of picture on description
-create table `tour_spot_description_image`
-(
-  `id`                       binary(16)    not null,
-  `name`                     varchar(255)  not null,
-  `enabled`                  tinyint(1)    not null,
-  `order`                    int(11)       not null,
-  `file_type`                varchar(10)   not null,
-  `path`                     varchar(4096) not null,
-  `width`                    int(10)       not null,
-  `height`                   int(10)       not null,
-  `tour_spot_id`             int(11)       not null,
-  `tour_spot_description_id` int(11)       not null,
-  #   `season_id`                int(11)       not null,
-  `created_at`               timestamp     not null default current_timestamp,
-  `updated_at`               timestamp     not null default current_timestamp on update current_timestamp,
-
-  primary key (`id`),
-  constraint `fk_tour_spot_id_by_tour_spot_description_image` foreign key (`tour_spot_id`) references `tour_spot` (`id`),
-  constraint `fk_tour_spot_description_id_by_tour_spot_description_image` foreign key (`tour_spot_description_id`) references `tour_spot_description` (`id`)
-);
-
-
-# TODO: have not been implemented
-create table `region_image`
-(
-  `id`         int(11)       not null auto_increment,
-  `name`       varchar(255)  not null,
-  `enabled`    tinyint(1)    not null,
-  `file_type`  varchar(10)   not null,
-  `path`       varchar(4096) not null,
-  `width`      int(10)       not null,
-  `height`     int(10)       not null,
-  `region_id`  int(11)       not null,
-  `created_at` timestamp     not null default current_timestamp,
-  `updated_at` timestamp     not null default current_timestamp on update current_timestamp,
-
-  primary key (`id`),
-  constraint `fk_region_id_by_region_image` foreign key (`region_id`) references `region` (`id`)
-);
 
 
 
--- season will be populated on application level when start so does not need denorlization?
--- tour_spot_image stores image of tour spot in different seasons, and in the list of tour_spot, it will display representative picture regardless of its season, but when detailed tour_spot page show current season's pictures
--- tour_spot_image stores all the images for this tour_spot even the ones that are used in description, activity, tickets
-create table `activity_image`
-(
-  `id`                      binary(16)    not null,
-  `activity_id`             int(11)       not null,
-  --     `tour_spot_image_id` int(11), -- nullable because some pics are only belonging to the activity_image not tour_spot_image
-  `activity_description_id` int(11)       not null, -- does not make sense if you have pictures that are not used in activity in activity_image unlike tour_spot_image that holds all the images that are common for everything beloging to the tour_spot like activity, ticket
-  `is_representative`       tinyint(11)   not null,
-  `relative_path`           varchar(4096) not null,
-  `file_type`               varchar(10)   not null,
-  `file_name`               varchar(255)  not null,
-  `width`                   int(10)       not null,
-  `height`                  int(10)       not null,
-  `enabled`                 tinyint(1)    not null,
-  `created_at`              timestamp     not null default current_timestamp,
-  `updated_at`              timestamp     not null default current_timestamp on update current_timestamp,
-
-  primary key (`id`),
-  constraint `fk_activity_id` foreign key (`activity_id`) references `activity` (`id`),
-  -- 	constraint `fk_tour_spot_image_id` foreign key(`tour_spot_imagae_id`) references `tour_spot_image` (`id`),
-  constraint `fk_acvitiy_description_id` foreign key (`activity_description_id`) references `activity_description` (`id`)
-);
 
 
 
--- ticket also has pictures frames on the top so that it should load all the picture beloging to this ticket, that's why tour_spot_cticket_id is there
--- if picture is only used for ticket not in tour_spot, then tour_spot_image_id null and then create relatvePath by itself and only shared in this table not tour_spot_image
--- most of images used in ticket will refer to the images in tour_spot_image
-create table `activity_ticket_image`
-(
-  `id`                                    binary(16)    not null,
-  --     `tour_spot_image_id` int(11),
-  `activity_ticket_description_id`        int(11),
-  `activity_ticket_id`                    int(11)       not null,
-  `is_representative`                     tinyint(1)    not null,
-  `relative_path`                         varchar(4096) not null, -- denormalization
-  `file_type`                             varchar(10)   not null, -- denormalization
-  `file_name`                             varchar(255)  not null, -- denormalization
-  `width`                                 int(10)       not null, -- denormalization
-  `height`                                int(10)       not null, -- denormalization
-  `enabled`                               tinyint(1)    not null, -- denormalization
-  `relative_path_to_representative_image` varchar(4096) not null, -- denormal
-  `representative_image_file_type`        varchar(10)   not null, -- denormal
-  `created_at`                            timestamp     not null default current_timestamp,
-  `updated_at`                            timestamp     not null default current_timestamp on update current_timestamp,
 
-  primary key (`id`),
-  constraint `fk_activity_ticket_description_id` foreign key (`activity_ticket_description_id`) references `activity_ticket_description` (`id`),
-  constraint `fk_activity_ticket_id` foreign key (`activity_ticket_id`) references `activity_ticket` (`id`)
-  -- 	constraint `fk_tour_spot_image_id` foreign key(`tour_spot_imagae_id`) references `tour_spot_image` (`id`)
 
-);
+
+
+
 
 
 # 1. login type include email and password login, Kakao, Facebook, Google logins

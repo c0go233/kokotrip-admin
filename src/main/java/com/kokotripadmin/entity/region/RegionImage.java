@@ -1,12 +1,11 @@
 package com.kokotripadmin.entity.region;
 
+import com.kokotripadmin.entity.city.City;
 import com.kokotripadmin.entity.common.BaseImageEntity;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 
 @Entity
@@ -15,6 +14,14 @@ import javax.persistence.Table;
 @Setter
 public class RegionImage extends BaseImageEntity {
 
-    @Column(name = "region_id")
-    private int regionId;
+    @Column(name = "region_id", insertable = false, updatable = false)
+    private Integer regionId;
+
+    @Column(name = "rep_image")
+    private boolean repImage;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "region_id")
+    private Region region;
+
 }

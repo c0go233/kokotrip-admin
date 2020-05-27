@@ -5,6 +5,7 @@ import com.kokotripadmin.dto.photozone.PhotoZoneDto;
 import com.kokotripadmin.entity.activity.Activity;
 import com.kokotripadmin.entity.common.BaseEntity;
 import com.kokotripadmin.entity.tourspot.TourSpot;
+import com.kokotripadmin.entity.tourspot.TourSpotImage;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -68,6 +69,13 @@ public class PhotoZone extends BaseEntity {
                fetch = FetchType.LAZY,
                orphanRemoval=true)
     private List<PhotoZoneInfo> photoZoneInfoList = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL,
+               fetch = FetchType.LAZY,
+               mappedBy = "photoZone",
+               orphanRemoval = true)
+    @OrderBy("order asc")
+    private List<PhotoZoneImage> photoZoneImageList = new ArrayList<>();
 
     public void setForeignEntities(TourSpot parentTourSpot, TourSpot tourSpot, Activity activity) {
         this.parentTourSpot = parentTourSpot;

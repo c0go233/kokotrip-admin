@@ -5,6 +5,7 @@ import com.kokotripadmin.dto.common.GenericInfoDto;
 import com.kokotripadmin.dto.tag.TagDto;
 import com.kokotripadmin.dto.tourspot.TourSpotDto;
 import com.kokotripadmin.entity.activity.ActivityTicket;
+import com.kokotripadmin.entity.tourspot.TourSpotDescriptionImage;
 import com.kokotripadmin.viewmodel.tourspot.TourSpotVm;
 import lombok.Getter;
 import lombok.Setter;
@@ -35,6 +36,8 @@ public class ActivityDto extends BaseDto {
     private List<ActivityInfoDto> activityInfoDtoList = new ArrayList<>();
     private List<ActivityDescriptionDto> activityDescriptionDtoList = new ArrayList<>();
     private List<ActivityTicketDto> activityTicketDtoList = new ArrayList<>();
+    private List<ActivityImageDto> activityImageDtoList = new ArrayList<>();
+
 
     //For datatables output
     private TourSpotDto tourSpot = new TourSpotDto();

@@ -16,6 +16,11 @@ public class ActivityImageDto extends BaseImageDto {
     public ActivityImageDto() {
     }
 
+    public ActivityImageDto(Integer id, String name, String url, Integer order, boolean repImage) {
+        super(id, name, url, order);
+        this.repImage = repImage;
+    }
+
     public ActivityImageDto(String name, String fileType, Integer order, boolean repImage,
                             Integer activityId, MultipartFile multipartFile) {
         super(name, fileType, order, multipartFile);

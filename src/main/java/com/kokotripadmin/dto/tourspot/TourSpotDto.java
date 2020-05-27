@@ -8,6 +8,7 @@ import com.kokotripadmin.dto.common.TradingHourDto;
 import com.kokotripadmin.dto.activity.ActivityDto;
 import com.kokotripadmin.dto.photozone.PhotoZoneDto;
 import com.kokotripadmin.dto.region.RegionDto;
+import com.kokotripadmin.entity.tourspot.TourSpotImage;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -45,6 +46,7 @@ public class TourSpotDto extends BaseDto {
     private List<TradingHourDto> tradingHourDtoList = new ArrayList<>();
     private List<ActivityDto> activityDtoList = new ArrayList<>();
     private List<PhotoZoneDto> photoZoneDtoList = new ArrayList<>();
+    private List<TourSpotImageDto> tourSpotImageDtoList = new ArrayList<>();
 
 //  dummy property for datatables
     private CityDto city = new CityDto();

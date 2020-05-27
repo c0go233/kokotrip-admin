@@ -1,6 +1,7 @@
 package com.kokotripadmin.entity.tourspot;
 
 import com.kokotripadmin.dto.tourspot.TourSpotDescriptionDto;
+import com.kokotripadmin.entity.city.CityImage;
 import com.kokotripadmin.entity.common.BaseEntity;
 import lombok.Getter;
 import lombok.Setter;
@@ -43,6 +44,12 @@ public class TourSpotDescription extends BaseEntity {
                orphanRemoval = true)
     private List<TourSpotDescriptionInfo> tourSpotDescriptionInfoList = new ArrayList<>();
 
+    @OneToMany(cascade = CascadeType.ALL,
+               fetch = FetchType.LAZY,
+               mappedBy = "tourSpotDescription",
+               orphanRemoval = true)
+    @OrderBy("order asc")
+    private List<TourSpotDescriptionImage> tourSpotDescriptionImageList = new ArrayList<>();
 
     @SuppressWarnings("Duplicates")
     public void clone(TourSpotDescriptionDto tourSpotDescriptionDto) {

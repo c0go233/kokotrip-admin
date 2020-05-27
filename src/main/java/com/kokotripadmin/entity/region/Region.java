@@ -1,6 +1,7 @@
 package com.kokotripadmin.entity.region;
 
 import com.kokotripadmin.dto.region.RegionDto;
+import com.kokotripadmin.entity.city.CityImage;
 import com.kokotripadmin.entity.common.BaseEntity;
 import com.kokotripadmin.entity.city.City;
 import lombok.Getter;
@@ -59,6 +60,13 @@ public class Region extends BaseEntity {
                mappedBy = "region",
                orphanRemoval = true)
     private List<RegionThemeTagRel> regionThemeTagRelList = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL,
+               fetch = FetchType.LAZY,
+               mappedBy = "region",
+               orphanRemoval = true)
+    @OrderBy("order asc")
+    private List<RegionImage> regionImageList = new ArrayList<>();
 
     @SuppressWarnings("Duplicates")
     public void clone(RegionDto regionDto) {

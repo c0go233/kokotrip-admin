@@ -25,6 +25,7 @@ public class ActivityTicketDescriptionDto extends BaseDto {
     private String activityTicketName;
 
     private List<ActivityTicketDescriptionInfoDto> activityTicketDescriptionInfoDtoList = new ArrayList<>();
+    private List<ActivityTicketDescriptionImageDto> activityTicketDescriptionImageDtoList = new ArrayList<>();
 
     public ActivityTicketDescriptionDto() {
     }

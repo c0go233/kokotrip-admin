@@ -28,8 +28,6 @@ public class BaseImageEntity extends BaseEntity {
     @Column(name = "file_type")
     protected String fileType;
 
-    @Column(name = "rep_image")
-    protected boolean repImage;
 
 //    @Column(name = "width")
 //    private int width;

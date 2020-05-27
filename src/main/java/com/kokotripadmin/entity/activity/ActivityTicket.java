@@ -59,6 +59,13 @@ public class ActivityTicket extends BaseEntity {
                orphanRemoval = true)
     private List<ActivityTicketDescription> activityTicketDescriptionList = new ArrayList<>();
 
+    @OneToMany(cascade = CascadeType.ALL,
+               fetch = FetchType.LAZY,
+               mappedBy = "activityTicket",
+               orphanRemoval = true)
+    @OrderBy("order asc")
+    private List<ActivityTicketImage> activityTicketImageList = new ArrayList<>();
+
     @SuppressWarnings("Duplicates")
     public void clone(ActivityTicketDto activityTicketDto) {
         this.name = activityTicketDto.getName();

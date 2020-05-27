@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kokotripadmin.constant.AppConstant;
 import com.kokotripadmin.dto.city.CityDto;
 import com.kokotripadmin.dto.region.RegionDto;
+import com.kokotripadmin.dto.region.RegionImageDto;
 import com.kokotripadmin.dto.region.RegionInfoDto;
 import com.kokotripadmin.entity.city.City;
 import com.kokotripadmin.entity.region.Region;
@@ -163,10 +164,10 @@ public class RegionController extends BaseController {
                                                 @RequestParam("order") Integer order,
                                                 @RequestParam("repImage") boolean repImage) {
         try {
-            RegionImageDto cityImageDto = new RegionImageDto(fileName, multipartFile.getContentType(), order,
-                                                         repImage, regionId, multipartFile);
-            Integer cityImageId = cityService.saveImage(cityImageDto);
-            return ResponseEntity.status(HttpStatus.OK).body(convert.resultToJson(cityImageId.toString()));
+            RegionImageDto regionImageDto = new RegionImageDto(fileName, multipartFile.getContentType(), order,
+                                                             repImage, regionId, multipartFile);
+            Integer regionImageId = regionService.saveImage(regionImageDto);
+            return ResponseEntity.status(HttpStatus.OK).body(convert.resultToJson(regionImageId.toString()));
         } catch (AmazonServiceException exception) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(convert.exceptionToJson(exception.getMessage()));
         } catch (RegionNotFoundException | FileIsNotImageException | ImageDuplicateException | IOException |

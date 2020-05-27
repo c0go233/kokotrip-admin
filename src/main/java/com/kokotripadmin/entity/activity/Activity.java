@@ -82,6 +82,13 @@ public class Activity extends BaseEntity {
                orphanRemoval=true)
     private List<ActivityTicket> activityTicketList = new ArrayList<>();
 
+    @OneToMany(cascade = CascadeType.ALL,
+               fetch = FetchType.LAZY,
+               mappedBy = "activity",
+               orphanRemoval = true)
+    @OrderBy("order asc")
+    private List<ActivityImage> activityImageList = new ArrayList<>();
+
     public void setForeignEntities(TourSpot tourSpot, Tag tag) {
         this.tourSpot = tourSpot;
         this.tag = tag;

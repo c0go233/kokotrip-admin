@@ -20,7 +20,6 @@ public class TagVm extends BaseViewModel {
 
     private boolean enabled;
     private String repImagePath;
-    private String repImageFileType;
     private String themeName;
 
     @NotNull(message = "상위분류를 선택해주세요")

@@ -21,7 +21,6 @@ public class ThemeVm extends BaseViewModel {
 
     private boolean enabled;
     private String repImagePath;
-    private String repImageFileType;
 
     private List<ThemeInfoVm> themeInfoVmList;
     private List<TagVm> tagVmList;
