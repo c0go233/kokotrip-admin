@@ -1,5 +1,6 @@
 package com.kokotripadmin.service.implementations.tourspot;
 
+import com.kokotripadmin.constant.BucketDirectoryConstant;
 import com.kokotripadmin.constant.SupportLanguageEnum;
 import com.kokotripadmin.dao.interfaces.tourspot.TourSpotTicketDescriptionImageDao;
 import com.kokotripadmin.dao.interfaces.tourspot.TourSpotTicketDescriptionInfoDao;
@@ -39,9 +40,9 @@ public class TourSpotTicketDescriptionServiceImpl implements TourSpotTicketDescr
     private final TourSpotTicketDescriptionInfoDao  tourSpotTicketDescriptionInfoDao;
     private final TourSpotTicketDescriptionImageDao tourSpotTicketDescriptionImageDao;
 
-    private final TourSpotTicketEntityService tourSpotTicketEntityService;
+    private final TourSpotTicketEntityService  tourSpotTicketEntityService;
     private final SupportLanguageEntityService supportLanguageEntityService;
-    private final BucketService bucketService;
+    private final BucketService                bucketService;
 
     private final String TOUR_SPOT_TICKET_DESCRIPTION_IMAGE_DIRECTORY = "tour-spot/ticket/description/image";
 
@@ -78,7 +79,7 @@ public class TourSpotTicketDescriptionServiceImpl implements TourSpotTicketDescr
     public TourSpotTicketDescription findEntityById(Integer tourSpotTicketDescriptionId)
     throws TourSpotTicketDescriptionNotFoundException {
         return tourSpotTicketDescriptionDao.findById(tourSpotTicketDescriptionId)
-                                     .orElseThrow(TourSpotTicketDescriptionNotFoundException::new);
+                                           .orElseThrow(TourSpotTicketDescriptionNotFoundException::new);
     }
 
     @Override
@@ -94,39 +95,44 @@ public class TourSpotTicketDescriptionServiceImpl implements TourSpotTicketDescr
     @Transactional
     public Integer save(TourSpotTicketDescriptionDto tourSpotTicketDescriptionDto)
     throws TourSpotTicketDescriptionNotFoundException,
-            TourSpotTicketDescriptionAlreadyExistsException, SupportLanguageNotFoundException,
-            TourSpotTicketDescriptionInfoAlreadyExistsException, TourSpotTicketDescriptionInfoNotFoundException,
-            TourSpotTicketNotFoundException, TourSpotTicketInfoNotFoundException {
+           TourSpotTicketDescriptionAlreadyExistsException, SupportLanguageNotFoundException,
+           TourSpotTicketDescriptionInfoAlreadyExistsException, TourSpotTicketDescriptionInfoNotFoundException,
+           TourSpotTicketNotFoundException, TourSpotTicketInfoNotFoundException {
 
         TourSpotTicketDescription tourSpotTicketDescription;
-        if (tourSpotTicketDescriptionDto.getId() == null) tourSpotTicketDescription = create(tourSpotTicketDescriptionDto);
+        if (tourSpotTicketDescriptionDto.getId() == null)
+            tourSpotTicketDescription = create(tourSpotTicketDescriptionDto);
         else tourSpotTicketDescription = update(tourSpotTicketDescriptionDto);
         tourSpotTicketDescriptionDao.save(tourSpotTicketDescription);
         return tourSpotTicketDescription.getId();
     }
 
     private boolean existsByTourSpotTicketIdAndName(Integer tourSpotTicketId, String name) {
-        long count = tourSpotTicketDescriptionDao.count(TourSpotTicketDescriptionSpec.findByTourSpotTicketIdAndName(tourSpotTicketId, name));
+        long count = tourSpotTicketDescriptionDao
+                .count(TourSpotTicketDescriptionSpec.findByTourSpotTicketIdAndName(tourSpotTicketId, name));
         return count > 0;
     }
 
     private TourSpotTicketDescription create(TourSpotTicketDescriptionDto tourSpotTicketDescriptionDto)
     throws SupportLanguageNotFoundException, TourSpotTicketDescriptionInfoAlreadyExistsException,
-            TourSpotTicketDescriptionAlreadyExistsException, TourSpotTicketDescriptionNotFoundException,
-            TourSpotTicketNotFoundException, TourSpotTicketInfoNotFoundException {
+           TourSpotTicketDescriptionAlreadyExistsException, TourSpotTicketDescriptionNotFoundException,
+           TourSpotTicketNotFoundException, TourSpotTicketInfoNotFoundException {
 
-        TourSpotTicket tourSpotTicket = tourSpotTicketEntityService.findEntityById(tourSpotTicketDescriptionDto.getTourSpotTicketId());
+        TourSpotTicket tourSpotTicket =
+                tourSpotTicketEntityService.findEntityById(tourSpotTicketDescriptionDto.getTourSpotTicketId());
 
         if (existsByTourSpotTicketIdAndName(tourSpotTicket.getId(), tourSpotTicketDescriptionDto.getName()))
             throw new TourSpotTicketDescriptionAlreadyExistsException(tourSpotTicketDescriptionDto.getName());
 
-        TourSpotTicketDescription tourSpotTicketDescription = modelMapper.map(tourSpotTicketDescriptionDto, TourSpotTicketDescription.class);
+        TourSpotTicketDescription tourSpotTicketDescription =
+                modelMapper.map(tourSpotTicketDescriptionDto, TourSpotTicketDescription.class);
         tourSpotTicketDescription.setTourSpotTicket(tourSpotTicket);
 
         TourSpotTicketDescriptionInfoDto tourSpotTicketDescriptionInfoDto =
                 modelMapper.map(tourSpotTicketDescriptionDto, TourSpotTicketDescriptionInfoDto.class);
         tourSpotTicketDescriptionInfoDto.setSupportLanguageId(SupportLanguageEnum.Korean.getId());
-        TourSpotTicketDescriptionInfo tourSpotTicketDescriptionInfo = createInfo(tourSpotTicketDescription, tourSpotTicketDescriptionInfoDto);
+        TourSpotTicketDescriptionInfo tourSpotTicketDescriptionInfo =
+                createInfo(tourSpotTicketDescription, tourSpotTicketDescriptionInfoDto);
 
         tourSpotTicketDescription.getTourSpotTicketDescriptionInfoList().add(tourSpotTicketDescriptionInfo);
 
@@ -135,12 +141,13 @@ public class TourSpotTicketDescriptionServiceImpl implements TourSpotTicketDescr
 
     private TourSpotTicketDescription update(TourSpotTicketDescriptionDto tourSpotTicketDescriptionDto)
     throws TourSpotTicketDescriptionNotFoundException, TourSpotTicketDescriptionAlreadyExistsException,
-            TourSpotTicketDescriptionInfoNotFoundException {
+           TourSpotTicketDescriptionInfoNotFoundException {
 
         TourSpotTicketDescription tourSpotTicketDescription = findEntityById(tourSpotTicketDescriptionDto.getId());
 
         if (!tourSpotTicketDescription.getName().equals(tourSpotTicketDescriptionDto.getName())
-                && existsByTourSpotTicketIdAndName(tourSpotTicketDescription.getTourSpotTicketId(), tourSpotTicketDescriptionDto.getName()))
+            && existsByTourSpotTicketIdAndName(tourSpotTicketDescription.getTourSpotTicketId(),
+                                               tourSpotTicketDescriptionDto.getName()))
             throw new TourSpotTicketDescriptionAlreadyExistsException(tourSpotTicketDescriptionDto.getName());
 
         tourSpotTicketDescription.clone(tourSpotTicketDescriptionDto);
@@ -165,25 +172,31 @@ public class TourSpotTicketDescriptionServiceImpl implements TourSpotTicketDescr
     public TourSpotTicketDescriptionImage findImageByImageId(Integer tourSpotTicketDescriptionImageId)
     throws TourSpotTicketDescriptionImageNotFoundException {
         return tourSpotTicketDescriptionImageDao.findById(tourSpotTicketDescriptionImageId)
-                                          .orElseThrow(TourSpotTicketDescriptionImageNotFoundException::new);
+                                                .orElseThrow(TourSpotTicketDescriptionImageNotFoundException::new);
     }
 
     @Override
     @Transactional
     public Integer saveImage(TourSpotTicketDescriptionImageDto tourSpotTicketDescriptionImageDto)
     throws TourSpotTicketDescriptionNotFoundException, ImageDuplicateException, IOException, FileIsNotImageException {
+
         TourSpotTicketDescription tourSpotTicketDescription =
                 findEntityById(tourSpotTicketDescriptionImageDto.getTourSpotTicketDescriptionId());
-        String bucketKey = TOUR_SPOT_TICKET_DESCRIPTION_IMAGE_DIRECTORY + "/" + tourSpotTicketDescription.getName() + "/" +
+
+        String bucketKey = BucketDirectoryConstant.TOUR_SPOT_IMAGE + "/" +
+                           tourSpotTicketDescription.getTourSpotTicket().getTourSpot().getName() + "/ticket" +
+                           tourSpotTicketDescription.getTourSpotTicket().getName() + "/description/" +
                            tourSpotTicketDescriptionImageDto.getName();
 
         if (tourSpotTicketDescriptionImageDao.count(TourSpotTicketDescriptionSpec
-                                                      .findImageByIdAndImageBucketKey(tourSpotTicketDescription.getId(),
-                                                                                      bucketKey)) > 0)
+                                                            .findImageByIdAndImageBucketKey(tourSpotTicketDescription.getId(),
+                                                                                            bucketKey)) > 0)
             throw new ImageDuplicateException(tourSpotTicketDescriptionImageDto.getName());
 
-        TourSpotTicketDescriptionImage tourSpotTicketDescriptionImage = modelMapper.map(tourSpotTicketDescriptionImageDto,
-                                                                            TourSpotTicketDescriptionImage.class);
+        TourSpotTicketDescriptionImage tourSpotTicketDescriptionImage =
+                modelMapper.map(tourSpotTicketDescriptionImageDto,
+                                TourSpotTicketDescriptionImage.class);
+
         tourSpotTicketDescriptionImage.setTourSpotTicketDescription(tourSpotTicketDescription);
         tourSpotTicketDescriptionImage.setBucketKey(bucketKey);
         tourSpotTicketDescriptionImageDao.save(tourSpotTicketDescriptionImage);
@@ -200,13 +213,14 @@ public class TourSpotTicketDescriptionServiceImpl implements TourSpotTicketDescr
                 tourSpotTicketDescriptionImageDao.findAll(TourSpotTicketDescriptionSpec.findImageByIds(imageIdList));
         HashMap<Integer, TourSpotTicketDescriptionImage> tourSpotTicketDescriptionImageHashMap
                 = tourSpotTicketDescriptionImageList.stream()
-                                              .collect(Collectors.toMap(TourSpotTicketDescriptionImage::getId,
-                                                                        tourSpotTicketDescriptionImage -> tourSpotTicketDescriptionImage,
-                                                                        (oKey, nKey) -> oKey,
-                                                                        HashMap::new));
+                                                    .collect(Collectors.toMap(TourSpotTicketDescriptionImage::getId,
+                                                                              tourSpotTicketDescriptionImage -> tourSpotTicketDescriptionImage,
+                                                                              (oKey, nKey) -> oKey,
+                                                                              HashMap::new));
         int order = 0;
         for (Integer imageId : imageIdList) {
-            TourSpotTicketDescriptionImage tourSpotTicketDescriptionImage = tourSpotTicketDescriptionImageHashMap.get(imageId);
+            TourSpotTicketDescriptionImage tourSpotTicketDescriptionImage =
+                    tourSpotTicketDescriptionImageHashMap.get(imageId);
             if (tourSpotTicketDescriptionImage != null) {
                 tourSpotTicketDescriptionImage.setOrder(order);
                 order++;
@@ -219,7 +233,8 @@ public class TourSpotTicketDescriptionServiceImpl implements TourSpotTicketDescr
     @Transactional
     public void deleteImage(Integer tourSpotTicketDescriptionImageId)
     throws TourSpotTicketDescriptionImageNotFoundException {
-        TourSpotTicketDescriptionImage tourSpotTicketDescriptionImage = findImageByImageId(tourSpotTicketDescriptionImageId);
+        TourSpotTicketDescriptionImage tourSpotTicketDescriptionImage =
+                findImageByImageId(tourSpotTicketDescriptionImageId);
         bucketService.deleteImage(tourSpotTicketDescriptionImage.getBucketKey());
         tourSpotTicketDescriptionImageDao.delete(tourSpotTicketDescriptionImage);
     }
@@ -232,16 +247,17 @@ public class TourSpotTicketDescriptionServiceImpl implements TourSpotTicketDescr
     throws TourSpotTicketDescriptionInfoNotFoundException {
 
         return tourSpotTicketDescriptionInfoDao.findById(tourSpotTicketDescriptionInfoId)
-                                         .orElseThrow(TourSpotTicketDescriptionInfoNotFoundException::new);
+                                               .orElseThrow(TourSpotTicketDescriptionInfoNotFoundException::new);
     }
 
     @Override
     @Transactional
     @SuppressWarnings("Duplicates")
     public TourSpotTicketDescriptionInfoDto saveInfo(TourSpotTicketDescriptionInfoDto tourSpotTicketDescriptionInfoDto)
-    throws SupportLanguageNotFoundException, TourSpotTicketDescriptionInfoAlreadyExistsException, TourSpotTicketDescriptionNotFoundException,
-            TourSpotTicketDescriptionInfoNotEditableException, TourSpotTicketDescriptionInfoNotFoundException,
-            TourSpotTicketInfoNotFoundException {
+    throws SupportLanguageNotFoundException, TourSpotTicketDescriptionInfoAlreadyExistsException,
+           TourSpotTicketDescriptionNotFoundException,
+           TourSpotTicketDescriptionInfoNotEditableException, TourSpotTicketDescriptionInfoNotFoundException,
+           TourSpotTicketInfoNotFoundException {
 
         TourSpotTicketDescriptionInfo tourSpotTicketDescriptionInfo;
         if (tourSpotTicketDescriptionInfoDto.getId() == null)
@@ -257,7 +273,8 @@ public class TourSpotTicketDescriptionServiceImpl implements TourSpotTicketDescr
     @Transactional
     public void deleteInfo(Integer tourSpotTicketDescriptionInfoId)
     throws TourSpotTicketDescriptionInfoNotFoundException, TourSpotTicketDescriptionInfoNotDeletableException {
-        TourSpotTicketDescriptionInfo tourSpotTicketDescriptionInfo = findInfoEntityByInfoId(tourSpotTicketDescriptionInfoId);
+        TourSpotTicketDescriptionInfo tourSpotTicketDescriptionInfo =
+                findInfoEntityByInfoId(tourSpotTicketDescriptionInfoId);
         if (tourSpotTicketDescriptionInfo.getSupportLanguageId() == SupportLanguageEnum.Korean.getId())
             throw new TourSpotTicketDescriptionInfoNotDeletableException();
         tourSpotTicketDescriptionInfoDao.delete(tourSpotTicketDescriptionInfo);
@@ -266,7 +283,8 @@ public class TourSpotTicketDescriptionServiceImpl implements TourSpotTicketDescr
     private TourSpotTicketDescriptionInfo updateInfo(TourSpotTicketDescriptionInfoDto tourSpotTicketDescriptionInfoDto)
     throws TourSpotTicketDescriptionInfoNotFoundException, TourSpotTicketDescriptionInfoNotEditableException {
 
-        TourSpotTicketDescriptionInfo tourSpotTicketDescriptionInfo = findInfoEntityByInfoId(tourSpotTicketDescriptionInfoDto.getId());
+        TourSpotTicketDescriptionInfo tourSpotTicketDescriptionInfo =
+                findInfoEntityByInfoId(tourSpotTicketDescriptionInfoDto.getId());
 
         if (tourSpotTicketDescriptionInfo.getSupportLanguageId() == SupportLanguageEnum.Korean.getId())
             throw new TourSpotTicketDescriptionInfoNotEditableException();
@@ -278,26 +296,29 @@ public class TourSpotTicketDescriptionServiceImpl implements TourSpotTicketDescr
 
 
     private TourSpotTicketDescriptionInfo createInfo(TourSpotTicketDescription tourSpotTicketDescription,
-                                               TourSpotTicketDescriptionInfoDto tourSpotTicketDescriptionInfoDto)
+                                                     TourSpotTicketDescriptionInfoDto tourSpotTicketDescriptionInfoDto)
     throws SupportLanguageNotFoundException, TourSpotTicketDescriptionInfoAlreadyExistsException,
-            TourSpotTicketDescriptionNotFoundException, TourSpotTicketInfoNotFoundException {
+           TourSpotTicketDescriptionNotFoundException, TourSpotTicketInfoNotFoundException {
 
         if (tourSpotTicketDescription == null)
-            tourSpotTicketDescription = findEntityById(tourSpotTicketDescriptionInfoDto.getTourSpotTicketDescriptionId());
+            tourSpotTicketDescription =
+                    findEntityById(tourSpotTicketDescriptionInfoDto.getTourSpotTicketDescriptionId());
 
         Integer supportLanguageId = tourSpotTicketDescriptionInfoDto.getSupportLanguageId();
         SupportLanguage supportLanguage = supportLanguageEntityService.findEntityById(supportLanguageId);
 
         if (infoExistsByIdAndSupportLanguageId(tourSpotTicketDescription.getId(), supportLanguageId))
             throw new TourSpotTicketDescriptionInfoAlreadyExistsException(tourSpotTicketDescription.getName(),
-                                                                    supportLanguage.getName());
+                                                                          supportLanguage.getName());
 
-        TourSpotTicketInfo tourSpotTicketInfo = tourSpotTicketEntityService.findInfoEntityByIdAndSupportLanguageId(tourSpotTicketDescription.getTourSpotTicketId(),
-                                                                                                                   supportLanguageId);
+        TourSpotTicketInfo tourSpotTicketInfo = tourSpotTicketEntityService
+                .findInfoEntityByIdAndSupportLanguageId(tourSpotTicketDescription.getTourSpotTicketId(),
+                                                        supportLanguageId);
 
         TourSpotTicketDescriptionInfo tourSpotTicketDescriptionInfo = modelMapper
                 .map(tourSpotTicketDescriptionInfoDto, TourSpotTicketDescriptionInfo.class);
-        tourSpotTicketDescriptionInfo.setForeignEntities(tourSpotTicketInfo, tourSpotTicketDescription, supportLanguage);
+        tourSpotTicketDescriptionInfo
+                .setForeignEntities(tourSpotTicketInfo, tourSpotTicketDescription, supportLanguage);
         return tourSpotTicketDescriptionInfo;
 
     }
@@ -313,10 +334,10 @@ public class TourSpotTicketDescriptionServiceImpl implements TourSpotTicketDescr
 
         TourSpotTicketDescriptionInfo tourSpotTicketDescriptionInfoInKorean =
                 tourSpotTicketDescriptionInfoList.stream()
-                                           .filter(t -> t.getSupportLanguageId()
-                                                         .equals(SupportLanguageEnum.Korean.getId()))
-                                           .findFirst()
-                                           .orElseThrow(TourSpotTicketDescriptionInfoNotFoundException::new);
+                                                 .filter(t -> t.getSupportLanguageId()
+                                                               .equals(SupportLanguageEnum.Korean.getId()))
+                                                 .findFirst()
+                                                 .orElseThrow(TourSpotTicketDescriptionInfoNotFoundException::new);
         tourSpotTicketDescriptionInfoInKorean.clone(tourSpotTicketDescription);
 
     }
@@ -324,7 +345,7 @@ public class TourSpotTicketDescriptionServiceImpl implements TourSpotTicketDescr
     private boolean infoExistsByIdAndSupportLanguageId(Integer tourSpotTicketDescriptionId, Integer supportLanguageId) {
         long count = tourSpotTicketDescriptionInfoDao
                 .count(TourSpotTicketDescriptionSpec.findInfoByIdAndSupportLanguageId(tourSpotTicketDescriptionId,
-                                                                                supportLanguageId));
+                                                                                      supportLanguageId));
         return count > 0;
     }
 

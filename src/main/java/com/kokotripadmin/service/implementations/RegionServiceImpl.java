@@ -1,5 +1,6 @@
 package com.kokotripadmin.service.implementations;
 
+import com.kokotripadmin.constant.BucketDirectoryConstant;
 import com.kokotripadmin.constant.SupportLanguageEnum;
 import com.kokotripadmin.dao.interfaces.region.*;
 import com.kokotripadmin.dao.interfaces.tourspot.TourSpotDao;
@@ -52,22 +53,21 @@ public class RegionServiceImpl implements RegionService, RegionEntityService {
 
 
     private final ModelMapper modelMapper;
-    private final Convert convert;
+    private final Convert     convert;
 
-    private final RegionDataTablesDao regionDataTablesDao;
-    private final RegionDao regionDao;
-    private final RegionInfoDao regionInfoDao;
-    private final RegionThemeRelDao regionThemeRelDao;
+    private final RegionDataTablesDao  regionDataTablesDao;
+    private final RegionDao            regionDao;
+    private final RegionInfoDao        regionInfoDao;
+    private final RegionThemeRelDao    regionThemeRelDao;
     private final RegionThemeTagRelDao regionThemeTagRelDao;
-    private final TourSpotDao tourSpotDao;
-    private final RegionImageDao regionImageDao;
+    private final TourSpotDao          tourSpotDao;
+    private final RegionImageDao       regionImageDao;
 
 
     private final SupportLanguageEntityService supportLanguageEntityService;
-    private final CityEntityService cityEntityService;
-    private final BucketService bucketService;
+    private final CityEntityService            cityEntityService;
+    private final BucketService                bucketService;
 
-    private final String REGION_IMAGE_DIRECTORY = "region/image";
 
     @Autowired
     public RegionServiceImpl(RegionDao regionDao,
@@ -116,7 +116,8 @@ public class RegionServiceImpl implements RegionService, RegionEntityService {
     public RegionDto findByIdInDetail(Integer regionId) throws RegionNotFoundException {
 
         Region region = findEntityById(regionId);
-        List<RegionThemeRel> regionThemeRelList = regionThemeRelDao.findAll(RegionSpec.findThemeRelById(regionId, true));
+        List<RegionThemeRel> regionThemeRelList =
+                regionThemeRelDao.findAll(RegionSpec.findThemeRelById(regionId, true));
         return convert.regionToDtoInDetail(region, regionThemeRelList);
     }
 
@@ -124,8 +125,10 @@ public class RegionServiceImpl implements RegionService, RegionEntityService {
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, readOnly = true)
     public List<RegionDto> findAllByEnabledAndCityEnabled(boolean regionEnabled, boolean cityEnabled) {
 
-        List<Region> regionList = regionDao.findAll(RegionSpec.findAllByEnabledAndCityEnabled(regionEnabled, cityEnabled));
-        return modelMapper.map(regionList, new TypeToken<List<RegionDto>>() {}.getType());
+        List<Region> regionList =
+                regionDao.findAll(RegionSpec.findAllByEnabledAndCityEnabled(regionEnabled, cityEnabled));
+        return modelMapper.map(regionList, new TypeToken<List<RegionDto>>() {
+        }.getType());
     }
 
     @Override
@@ -147,7 +150,7 @@ public class RegionServiceImpl implements RegionService, RegionEntityService {
     @Transactional
     public Integer save(RegionDto regionDto)
     throws CityNotFoundException, RegionNameDuplicateException, CityInfoNotFoundException, RegionNotFoundException,
-            SupportLanguageNotFoundException, RegionInfoAlreadyExistsException {
+           SupportLanguageNotFoundException, RegionInfoAlreadyExistsException {
 
         City city = cityEntityService.findEntityById(regionDto.getCityId());
         Region region;
@@ -167,7 +170,7 @@ public class RegionServiceImpl implements RegionService, RegionEntityService {
 
     private Region create(City city, RegionDto regionDto)
     throws RegionNameDuplicateException, RegionNotFoundException, RegionInfoAlreadyExistsException,
-            CityInfoNotFoundException, SupportLanguageNotFoundException {
+           CityInfoNotFoundException, SupportLanguageNotFoundException {
 
         String regionName = regionDto.getName();
         if (existsByName(regionName))
@@ -197,7 +200,9 @@ public class RegionServiceImpl implements RegionService, RegionEntityService {
 
         if (region.getCity() != city) {
             for (RegionThemeTagRel regionThemeTagRel : region.getRegionThemeTagRelList()) {
-                cityEntityService.subtractThemeTagRel(region.getCity(), regionThemeTagRel.getTag(), regionThemeTagRel.getNumOfTag());
+                cityEntityService.subtractThemeTagRel(region.getCity(),
+                                                      regionThemeTagRel.getTag(),
+                                                      regionThemeTagRel.getNumOfTag());
                 cityEntityService.addThemeTagRel(city, regionThemeTagRel.getTag(), regionThemeTagRel.getNumOfTag());
             }
             updateCityOfTourSpotById(region.getId(), city);
@@ -229,7 +234,6 @@ public class RegionServiceImpl implements RegionService, RegionEntityService {
     }
 
 
-
 //  =================================== REGION IMAGE ====================================================  //
 
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, readOnly = true)
@@ -243,7 +247,7 @@ public class RegionServiceImpl implements RegionService, RegionEntityService {
     public Integer saveImage(RegionImageDto regionImageDto)
     throws RegionNotFoundException, ImageDuplicateException, IOException, FileIsNotImageException {
         Region region = findEntityById(regionImageDto.getRegionId());
-        String bucketKey = REGION_IMAGE_DIRECTORY + "/" + region.getName() + "/" + regionImageDto.getName();
+        String bucketKey = BucketDirectoryConstant.REGION_IMAGE + "/" + region.getName() + "/" + regionImageDto.getName();
 
         if (regionImageDao.count(RegionSpec.findImageByIdAndImageBucketKey(region.getId(), bucketKey)) > 0)
             throw new ImageDuplicateException(regionImageDto.getName());
@@ -261,7 +265,8 @@ public class RegionServiceImpl implements RegionService, RegionEntityService {
     @Transactional
     public void updateRepImage(Integer imageId) throws RegionImageNotFoundException {
         RegionImage newRepImage = findImageByImageId(imageId);
-        List<RegionImage> repImageList = regionImageDao.findAll(RegionSpec.findImageByIdAndRepImage(newRepImage.getRegionId(), true));
+        List<RegionImage> repImageList =
+                regionImageDao.findAll(RegionSpec.findImageByIdAndRepImage(newRepImage.getRegionId(), true));
         for (RegionImage repImage : repImageList) {
             if (newRepImage != repImage) repImage.setRepImage(false);
         }
@@ -274,7 +279,7 @@ public class RegionServiceImpl implements RegionService, RegionEntityService {
         List<RegionImage> regionImageList = regionImageDao.findAll(RegionSpec.findImageByIds(imageIdList));
         HashMap<Integer, RegionImage> regionImageHashMap = regionImageList.stream()
                                                                           .collect(Collectors.toMap(RegionImage::getId,
-                                                                                              regionImage -> regionImage,
+                                                                                                    regionImage -> regionImage,
                                                                                                     (oKey, nKey) -> oKey,
                                                                                                     HashMap::new));
         int order = 0;
@@ -299,8 +304,6 @@ public class RegionServiceImpl implements RegionService, RegionEntityService {
         bucketService.deleteImage(regionImage.getBucketKey());
         regionImageDao.delete(regionImage);
     }
-
-
 
 
 //  =================================== REGION INFO ====================================================  //
@@ -332,7 +335,7 @@ public class RegionServiceImpl implements RegionService, RegionEntityService {
 
     private RegionInfo createInfo(Region region, RegionInfoDto regionInfoDto)
     throws RegionNotFoundException, SupportLanguageNotFoundException, RegionInfoAlreadyExistsException,
-            CityInfoNotFoundException {
+           CityInfoNotFoundException {
 
         if (region == null) region = findEntityById(regionInfoDto.getRegionId());
 
@@ -343,7 +346,8 @@ public class RegionServiceImpl implements RegionService, RegionEntityService {
         if (infoExistsByIdAndSupportLanguageId(region.getId(), supportLanguageId))
             throw new RegionInfoAlreadyExistsException(region.getName(), supportLanguage.getName());
 
-        CityInfo cityInfo = cityEntityService.findInfoEntityByIdAndSupportLanguageId(region.getCityId(), supportLanguageId);
+        CityInfo cityInfo =
+                cityEntityService.findInfoEntityByIdAndSupportLanguageId(region.getCityId(), supportLanguageId);
 
         RegionInfo regionInfo = modelMapper.map(regionInfoDto, RegionInfo.class);
         regionInfo.setForeignEntities(cityInfo, region, supportLanguage);

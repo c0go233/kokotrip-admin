@@ -119,6 +119,7 @@
 
 <script>
     $(document).ready(function () {
+        setImageGallery();
         setListenerToTabList();
         setDeleteConfirmModal();
         $('button#delete-btn').on(eventType.click, onClickDetailDeleteBtn);

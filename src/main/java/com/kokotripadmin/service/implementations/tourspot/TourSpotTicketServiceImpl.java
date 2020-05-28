@@ -1,5 +1,6 @@
 package com.kokotripadmin.service.implementations.tourspot;
 
+import com.kokotripadmin.constant.BucketDirectoryConstant;
 import com.kokotripadmin.constant.SupportLanguageEnum;
 import com.kokotripadmin.dao.interfaces.tourspot.*;
 import com.kokotripadmin.dto.ticket.TicketPriceDto;
@@ -57,7 +58,6 @@ public class TourSpotTicketServiceImpl implements TourSpotTicketService, TourSpo
     private final ModelMapper modelMapper;
     private final Convert convert;
 
-    private final String TOUR_SPOT_TICKET_IMAGE_DIRECTORY = "tour-spot/ticket/image";
 
     public TourSpotTicketServiceImpl(TourSpotTicketDao tourSpotTicketDao,
                                      TourSpotTicketImageDao tourSpotTicketImageDao,
@@ -218,14 +218,18 @@ public class TourSpotTicketServiceImpl implements TourSpotTicketService, TourSpo
     @Transactional
     public Integer saveImage(TourSpotTicketImageDto tourSpotTicketImageDto)
     throws TourSpotTicketNotFoundException, ImageDuplicateException, IOException, FileIsNotImageException {
-        TourSpotTicket tourSpot = findEntityById(tourSpotTicketImageDto.getTourSpotTicketId());
-        String bucketKey = TOUR_SPOT_TICKET_IMAGE_DIRECTORY + "/" + tourSpot.getName() + "/" + tourSpotTicketImageDto.getName();
+        TourSpotTicket tourSpotTicket = findEntityById(tourSpotTicketImageDto.getTourSpotTicketId());
 
-        if (tourSpotTicketImageDao.count(TourSpotTicketSpec.findImageByIdAndImageBucketKey(tourSpot.getId(), bucketKey)) > 0)
+        String bucketKey = BucketDirectoryConstant.TOUR_SPOT_IMAGE + "/" +
+                           tourSpotTicket.getTourSpot().getName() + "/ticket/" +
+                           tourSpotTicket.getName() + "/" +
+                           tourSpotTicketImageDto.getName();
+
+        if (tourSpotTicketImageDao.count(TourSpotTicketSpec.findImageByIdAndImageBucketKey(tourSpotTicket.getId(), bucketKey)) > 0)
             throw new ImageDuplicateException(tourSpotTicketImageDto.getName());
 
         TourSpotTicketImage tourSpotTicketImage = modelMapper.map(tourSpotTicketImageDto, TourSpotTicketImage.class);
-        tourSpotTicketImage.setTourSpotTicket(tourSpot);
+        tourSpotTicketImage.setTourSpotTicket(tourSpotTicket);
         tourSpotTicketImage.setBucketKey(bucketKey);
         tourSpotTicketImageDao.save(tourSpotTicketImage);
 

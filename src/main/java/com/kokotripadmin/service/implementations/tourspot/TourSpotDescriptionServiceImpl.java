@@ -1,5 +1,6 @@
 package com.kokotripadmin.service.implementations.tourspot;
 
+import com.kokotripadmin.constant.BucketDirectoryConstant;
 import com.kokotripadmin.constant.SupportLanguageEnum;
 import com.kokotripadmin.dao.interfaces.tourspot.TourSpotDescriptionDao;
 import com.kokotripadmin.dao.interfaces.tourspot.TourSpotDescriptionImageDao;
@@ -45,7 +46,6 @@ public class TourSpotDescriptionServiceImpl implements TourSpotDescriptionServic
     private final SupportLanguageEntityService supportLanguageEntityService;
     private final BucketService                bucketService;
 
-    private final String TOUR_SPOT_DESCRIPTION_IMAGE_DIRECTORY = "tour-spot/description/image";
 
     public TourSpotDescriptionServiceImpl(ModelMapper modelMapper,
                                           Convert convert,
@@ -168,7 +168,10 @@ public class TourSpotDescriptionServiceImpl implements TourSpotDescriptionServic
     throws TourSpotDescriptionNotFoundException, ImageDuplicateException, IOException, FileIsNotImageException {
         TourSpotDescription tourSpotDescription =
                 findEntityById(tourSpotDescriptionImageDto.getTourSpotDescriptionId());
-        String bucketKey = TOUR_SPOT_DESCRIPTION_IMAGE_DIRECTORY + "/" + tourSpotDescription.getName() + "/" +
+
+        String bucketKey = BucketDirectoryConstant.TOUR_SPOT_IMAGE + "/" +
+                           tourSpotDescription.getTourSpot().getName() +
+                           "/description/" +
                            tourSpotDescriptionImageDto.getName();
 
         if (tourSpotDescriptionImageDao.count(TourSpotDescriptionSpec

@@ -137,7 +137,7 @@
 <script>
     $(document).ready(function () {
         setPhotoZoneAutoCompleteSelect();
-
+        setAutoCompleteSelect();
         // setTicketPriceBuilder();
         // $('form#tour-spot-ticket-form').on(eventType.click, setTicketPriceInputs);
     });

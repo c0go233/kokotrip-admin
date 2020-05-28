@@ -141,6 +141,7 @@
 
 <script>
     $(document).ready(function () {
+        setImageGallery();
         setDataTable('activity-description-datatable', false, 5, '${pageContext.request.contextPath}',
             '/activity/description', '/add?activityId=${activityVm.id}', true, true);
         setDataTable('activity-ticket-data-table', false, 5, '${pageContext.request.contextPath}',

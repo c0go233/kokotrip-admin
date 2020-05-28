@@ -127,6 +127,7 @@
 
 <script>
     $(document).ready(function () {
+        setImageGallery();
         setDataTable('activity-ticket-description-data-table', false, 5, '${pageContext.request.contextPath}',
             '/activity/ticket/description', '/add?activityTicketId=${activityTicketVm.id}', true, true);
         setListenerToTabList();

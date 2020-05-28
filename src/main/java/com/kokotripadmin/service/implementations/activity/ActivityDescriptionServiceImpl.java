@@ -1,5 +1,6 @@
 package com.kokotripadmin.service.implementations.activity;
 
+import com.kokotripadmin.constant.BucketDirectoryConstant;
 import com.kokotripadmin.constant.SupportLanguageEnum;
 import com.kokotripadmin.dao.interfaces.activity.ActivityDescriptionDao;
 import com.kokotripadmin.dao.interfaces.activity.ActivityDescriptionImageDao;
@@ -175,7 +176,12 @@ public class ActivityDescriptionServiceImpl implements ActivityDescriptionServic
     throws ActivityDescriptionNotFoundException, ImageDuplicateException, IOException, FileIsNotImageException {
         ActivityDescription activityDescription =
                 findEntityById(activityDescriptionImageDto.getActivityDescriptionId());
-        String bucketKey = ACTIVITY_DESCRIPTION_IMAGE_DIRECTORY + "/" + activityDescription.getName() + "/" +
+
+
+
+        String bucketKey = BucketDirectoryConstant.TOUR_SPOT_IMAGE + "/" +
+                           activityDescription.getActivity().getTourSpot().getName() + "/activity/" +
+                           activityDescription.getActivity().getName() + "/description/" +
                            activityDescriptionImageDto.getName();
 
         if (activityDescriptionImageDao.count(ActivityDescriptionSpec.findImageByIdAndImageBucketKey(activityDescription.getId(),

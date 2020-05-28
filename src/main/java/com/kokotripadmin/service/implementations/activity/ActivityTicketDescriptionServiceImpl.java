@@ -1,5 +1,6 @@
 package com.kokotripadmin.service.implementations.activity;
 
+import com.kokotripadmin.constant.BucketDirectoryConstant;
 import com.kokotripadmin.constant.SupportLanguageEnum;
 import com.kokotripadmin.dao.interfaces.activity.ActivityTicketDescriptionDao;
 import com.kokotripadmin.dao.interfaces.activity.ActivityTicketDescriptionImageDao;
@@ -44,7 +45,6 @@ public class ActivityTicketDescriptionServiceImpl implements ActivityTicketDescr
     private final SupportLanguageEntityService supportLanguageEntityService;
     private final BucketService bucketService;
 
-    private final String ACTIVITY_TICKET_DESCRIPTION_IMAGE_DIRECTORY = "activity/ticket/description/image";
 
     public ActivityTicketDescriptionServiceImpl(ModelMapper modelMapper, Convert convert,
                                                 ActivityTicketDescriptionDao activityTicketDescriptionDao,
@@ -172,8 +172,14 @@ public class ActivityTicketDescriptionServiceImpl implements ActivityTicketDescr
     throws ActivityTicketDescriptionNotFoundException, ImageDuplicateException, IOException, FileIsNotImageException {
         ActivityTicketDescription activityTicketDescription =
                 findEntityById(activityTicketDescriptionImageDto.getActivityTicketDescriptionId());
-        String bucketKey = ACTIVITY_TICKET_DESCRIPTION_IMAGE_DIRECTORY + "/" + activityTicketDescription.getName() + "/" +
+
+
+        String bucketKey = BucketDirectoryConstant.TOUR_SPOT_IMAGE + "/" +
+                           activityTicketDescription.getActivityTicket().getActivity().getTourSpot().getName() + "/activity/" +
+                           activityTicketDescription.getActivityTicket().getActivity().getName() + "/ticket/" +
+                           activityTicketDescription.getActivityTicket().getName() + "/description/" +
                            activityTicketDescriptionImageDto.getName();
+
 
         if (activityTicketDescriptionImageDao.count(ActivityTicketDescriptionSpec
                                                             .findImageByIdAndImageBucketKey(activityTicketDescription.getId(),

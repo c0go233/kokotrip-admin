@@ -169,6 +169,7 @@
 
 <script>
     $(document).ready(function () {
+        setImageGallery();
         setDataTable('tour-spot-description-data-table', false, 5, '${pageContext.request.contextPath}',
                      '/tour-spot/description', '/add?tourSpotId=${tourSpotVm.id}', true, true);
         setDataTable('tour-spot-ticket-data-table', false, 5, '${pageContext.request.contextPath}',

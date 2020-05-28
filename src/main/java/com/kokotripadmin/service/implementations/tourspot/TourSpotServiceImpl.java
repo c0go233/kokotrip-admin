@@ -1,5 +1,6 @@
 package com.kokotripadmin.service.implementations.tourspot;
 
+import com.kokotripadmin.constant.BucketDirectoryConstant;
 import com.kokotripadmin.constant.SupportLanguageEnum;
 import com.kokotripadmin.dao.interfaces.tourspot.TourSpotDao;
 import com.kokotripadmin.dao.interfaces.tourspot.TourSpotImageDao;
@@ -69,8 +70,6 @@ public class TourSpotServiceImpl implements TourSpotService, TourSpotEntityServi
     private final BucketService bucketService;
 
     private final Convert convert;
-
-    private final String TOUR_SPOT_IMAGE_DIRECTORY = "tour-spot/image";
 
     @Autowired
     public TourSpotServiceImpl(TourSpotDao tourSpotDao,
@@ -291,7 +290,7 @@ public class TourSpotServiceImpl implements TourSpotService, TourSpotEntityServi
     public Integer saveImage(TourSpotImageDto tourSpotImageDto)
     throws TourSpotNotFoundException, ImageDuplicateException, IOException, FileIsNotImageException {
         TourSpot tourSpot = findEntityById(tourSpotImageDto.getTourSpotId());
-        String bucketKey = TOUR_SPOT_IMAGE_DIRECTORY + "/" + tourSpot.getName() + "/" + tourSpotImageDto.getName();
+        String bucketKey = BucketDirectoryConstant.TOUR_SPOT_IMAGE + "/" + tourSpot.getName() + "/" + tourSpotImageDto.getName();
 
         if (tourSpotImageDao.count(TourSpotSpec.findImageByIdAndImageBucketKey(tourSpot.getId(), bucketKey)) > 0)
             throw new ImageDuplicateException(tourSpotImageDto.getName());

@@ -936,79 +936,83 @@ function setTicketPriceInputs () {
 
 //============================ AUTO COMPLETE ==============================================//
 
-let tourSpotAutoCompleteUnselectBtn
-let activityAutoCompleteUnselectBtn
+let tourSpotAutoCompleteUnselectBtn;
+let activityAutoCompleteUnselectBtn;
 
 function setPhotoZoneAutoCompleteSelect () {
     
-    tourSpotAutoCompleteUnselectBtn = $('button#tour-spot-auto-complete-unselect-btn')
-    activityAutoCompleteUnselectBtn = $('button#activity-auto-complete-unselect-btn')
+    tourSpotAutoCompleteUnselectBtn = $('button#tour-spot-auto-complete-unselect-btn');
+    activityAutoCompleteUnselectBtn = $('button#activity-auto-complete-unselect-btn');
     
     $('div.activity-auto-complete-option-wrapper').on(eventType.click, 'button.dropdown__option', function () {
-        console.log('photozone auto option activity wrapper')
-        tourSpotAutoCompleteUnselectBtn.trigger(eventType.click)
-    })
+        console.log('photozone auto option activity wrapper');
+        tourSpotAutoCompleteUnselectBtn.trigger(eventType.click);
+    });
     
     $('div.tour-spot-auto-complete-option-wrapper').on(eventType.click, 'button.dropdown__option', function () {
-        activityAutoCompleteUnselectBtn.trigger(eventType.click)
-    })
+        activityAutoCompleteUnselectBtn.trigger(eventType.click);
+    });
 }
 
 function setAutoCompleteSelect () {
-    
+
+
+
     $('div.auto-complete-wrapper').on(eventType.click, 'button.auto-complete__unselect-btn', function () {
         
-        let autoCompleteWrapper = $(this).parents('div.auto-complete-wrapper')
-        let autoCompleteInputSelect = autoCompleteWrapper.find('input.auto-complete-select')
-        let autoCompleteSelectWrapper = autoCompleteInputSelect.parent()
-        let autoCompleteInput = autoCompleteWrapper.find('input.auto-complete-input')
-        let autoCompleteOptionBtn = autoCompleteWrapper.find('div.auto-complete__option-wrapper').find('button.dropdown__option:first-child')
-        let form = autoCompleteWrapper.parents('form')
+        let autoCompleteWrapper = $(this).parents('div.auto-complete-wrapper');
+        let autoCompleteInputSelect = autoCompleteWrapper.find('input.auto-complete-select');
+        let autoCompleteSelectWrapper = autoCompleteInputSelect.parent();
+        let autoCompleteInput = autoCompleteWrapper.find('input.auto-complete-input');
+        let autoCompleteOptionBtn = autoCompleteWrapper.find('div.auto-complete__option-wrapper').find('button.dropdown__option:first-child');
+        let form = autoCompleteWrapper.parents('form');
         
-        autoCompleteInputSelect.prop(htmlAttr.disabled, false)
-        autoCompleteInputSelect.val(null)
-        autoCompleteSelectWrapper.removeClass('auto-complete_selected')
-        autoCompleteInput.val(null)
+        autoCompleteInputSelect.prop(htmlAttr.disabled, false);
+        autoCompleteInputSelect.val(null);
+        autoCompleteSelectWrapper.removeClass('auto-complete_selected');
+        autoCompleteInput.val(null);
         
         $.each(autoCompleteOptionBtn.data(), function (key, value) {
-            if (key === 'name') return true
-            else if (key === 'id') return true
-            else form.find('input[name="' + key + '"]').val(null)
+            if (key === 'name') return true;
+            else if (key === 'id') return true;
+            else form.find('input[name="' + key + '"]').val(null);
         })
         
-    })
+    });
     
     $('div.auto-complete__option-wrapper').on(eventType.click, 'button.dropdown__option', function () {
         
-        let autoCompleteWrapper = $(this).parents('div.auto-complete-wrapper')
-        let autoCompleteInputSelect = autoCompleteWrapper.find('input.auto-complete-select')
-        let autoCompleteSelectWrapper = autoCompleteInputSelect.parent()
-        let autoCompleteInput = autoCompleteWrapper.find('input.auto-complete-input')
-        let form = $(this).parents('form')
+        let autoCompleteWrapper = $(this).parents('div.auto-complete-wrapper');
+        let autoCompleteInputSelect = autoCompleteWrapper.find('input.auto-complete-select');
+        let autoCompleteSelectWrapper = autoCompleteInputSelect.parent();
+        let autoCompleteInput = autoCompleteWrapper.find('input.auto-complete-input');
+        let form = $(this).parents('form');
         
         $.each($(this).data(), function (key, value) {
             if (key === 'name') {
-                autoCompleteInputSelect.val(value)
+                autoCompleteInputSelect.val(value);
                 return true
             } else if (key === 'id') {
-                autoCompleteInput.val(value)
+                autoCompleteInput.val(value);
                 return true
             } else {
                 form.find('input[name="' + key + '"]').val(value)
             }
-        })
+        });
         
-        autoCompleteInputSelect.prop(htmlAttr.disabled, true)
+        autoCompleteInputSelect.prop(htmlAttr.disabled, true);
         
         if (!autoCompleteSelectWrapper.hasClass('auto-complete_selected'))
             autoCompleteSelectWrapper.addClass('auto-complete_selected')
-    })
-    
+    });
+
+
     $('input.auto-complete-select').on('input', function () {
         
-        let autoCompleteWrapper = $(this).parents('div.auto-complete-wrapper')
-        let autoCompleteOptionWrapper = autoCompleteWrapper.find('div.auto-complete__option-wrapper')
-        
+        let autoCompleteWrapper = $(this).parents('div.auto-complete-wrapper');
+        let autoCompleteOptionWrapper = autoCompleteWrapper.find('div.auto-complete__option-wrapper');
+
+
         $.ajax({
             'url': $(this).attr('data-url') + '?search=' + $(this).val(),
             'type': 'GET',

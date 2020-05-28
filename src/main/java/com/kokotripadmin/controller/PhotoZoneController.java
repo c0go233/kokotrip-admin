@@ -1,14 +1,20 @@
 package com.kokotripadmin.controller;
 
 
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.SdkClientException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kokotripadmin.constant.AppConstant;
 import com.kokotripadmin.dto.photozone.PhotoZoneDto;
+import com.kokotripadmin.dto.photozone.PhotoZoneImageDto;
 import com.kokotripadmin.dto.photozone.PhotoZoneInfoDto;
 import com.kokotripadmin.entity.photozone.PhotoZone;
 import com.kokotripadmin.exception.activity.ActivityInfoNotFoundException;
 import com.kokotripadmin.exception.activity.ActivityNotFoundException;
+import com.kokotripadmin.exception.image.FileIsNotImageException;
+import com.kokotripadmin.exception.image.ImageDuplicateException;
+import com.kokotripadmin.exception.image.RepImageNotDeletableException;
 import com.kokotripadmin.exception.photozone.*;
 import com.kokotripadmin.exception.support_language.SupportLanguageNotFoundException;
 import com.kokotripadmin.exception.tag.TagInfoNotFoundException;
@@ -25,14 +31,18 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
+import java.io.IOException;
+import java.util.List;
 
 @Controller
 @RequestMapping("/photo-zone")
@@ -92,7 +102,8 @@ public class PhotoZoneController extends BaseController {
     }
 
     @GetMapping("/detail/{id}")
-    public String detailPhotoZone(@PathVariable("id") Integer photoZoneId, Model model) throws PhotoZoneNotFoundException {
+    public String detailPhotoZone(@PathVariable("id") Integer photoZoneId, Model model)
+    throws PhotoZoneNotFoundException {
         PhotoZoneDto photoZoneDto = photoZoneService.findByIdInDetail(photoZoneId);
         PhotoZoneVm photoZoneVm = modelMapper.map(photoZoneDto, PhotoZoneVm.class);
         model.addAttribute(PHOTO_ZONE_VM, photoZoneVm);
@@ -103,7 +114,8 @@ public class PhotoZoneController extends BaseController {
     @PostMapping(value = "/delete", produces = "application/json; charset=utf8")
     public ResponseEntity<String> deletePhotoZone(@RequestParam("id") Integer photoZoneId) {
         try {
-            String returnUrl = "redirect:" + super.getBaseUrl() + "/tour-spot/detail/" + photoZoneService.delete(photoZoneId);
+            String returnUrl =
+                    "redirect:" + super.getBaseUrl() + "/tour-spot/detail/" + photoZoneService.delete(photoZoneId);
             return ResponseEntity.status(HttpStatus.OK).body(convert.resultToJson(returnUrl));
         } catch (DataIntegrityViolationException exception) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -137,6 +149,67 @@ public class PhotoZoneController extends BaseController {
             return "redirect:/photo-zone/add";
         }
     }
+
+//  ==================================== IMAGE ==========================================  //
+
+    @PostMapping(value = "/image/save",
+                 consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+                 produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<String> savePhotoZoneImage(@RequestParam("image") MultipartFile multipartFile,
+                                                     @RequestParam("fileName") String fileName,
+                                                     @RequestParam("photoZoneId") Integer photoZoneId,
+                                                     @RequestParam("order") Integer order,
+                                                     @RequestParam("repImage") boolean repImage) {
+        try {
+            PhotoZoneImageDto photoZoneImageDto = new PhotoZoneImageDto(fileName, multipartFile.getContentType(), order,
+                                                                        repImage, photoZoneId, multipartFile);
+            Integer photoZoneImageId = photoZoneService.saveImage(photoZoneImageDto);
+            return ResponseEntity.status(HttpStatus.OK).body(convert.resultToJson(photoZoneImageId.toString()));
+        } catch (AmazonServiceException exception) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(convert.exceptionToJson(exception.getMessage()));
+        } catch (PhotoZoneNotFoundException | FileIsNotImageException | ImageDuplicateException | IOException |
+                SdkClientException exception) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(convert.exceptionToJson(exception.getMessage()));
+        }
+    }
+
+    @PostMapping(value = "/image/rep-image/update", produces = "application/json; charset=utf8")
+    @ResponseBody
+    public ResponseEntity<String> updateRepImage(@RequestParam("imageId") Integer imageId) {
+        try {
+            photoZoneService.updateRepImage(imageId);
+            return ResponseEntity.status(HttpStatus.OK).body(convert.resultToJson(""));
+        } catch (PhotoZoneImageNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(convert.exceptionToJson(e.getMessage()));
+        }
+    }
+
+    @PostMapping(value = "/image/delete", produces = "application/json; charset=utf8")
+    @ResponseBody
+    public ResponseEntity<String> deletePhotoZoneImage(@RequestParam("id") Integer imageId) {
+
+        try {
+            photoZoneService.deleteImage(imageId);
+            return ResponseEntity.status(HttpStatus.OK).body(convert.resultToJson(imageId.toString()));
+        } catch (AmazonServiceException | PhotoZoneImageNotFoundException | RepImageNotDeletableException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(convert.exceptionToJson(e.getMessage()));
+        } catch (SdkClientException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(convert.exceptionToJson(e.getMessage()));
+        }
+    }
+
+
+    @PostMapping(value = "/image/order/save", produces = "application/json; charset=utf8")
+    @ResponseBody
+    public ResponseEntity<String> savePhotoZoneImageOrder(@RequestBody List<Integer> imageIdList) {
+        photoZoneService.updateImageOrder(imageIdList);
+        return ResponseEntity.status(HttpStatus.OK).body(convert.resultToJson(""));
+    }
+
+
+//  ==================================== INFO ==========================================  //
+
 
     @PostMapping(value = "/info/save", produces = "application/json; charset=utf8")
     @ResponseBody

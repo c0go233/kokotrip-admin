@@ -53,9 +53,6 @@ public class CityController extends BaseController {
     private CityService cityService;
 
     @Autowired
-    private BucketService bucketService;
-
-    @Autowired
     private ModelMapper modelMapper;
 
     @Autowired

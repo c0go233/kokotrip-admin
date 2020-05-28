@@ -48,7 +48,6 @@ public class ToDo {
 
 
 //    TODO: draft for form like cityform, tourspotform, when ask add then create draft // create draft table
-
-
 //    TODO: to add: bucketService.deleteImages(city.getCityImageList()); in delete
+//    TODO: controller methods for ajax call should return all the exception because you can't direct users to error page
 }

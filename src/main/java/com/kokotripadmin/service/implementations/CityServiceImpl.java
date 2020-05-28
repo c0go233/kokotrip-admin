@@ -1,5 +1,6 @@
 package com.kokotripadmin.service.implementations;
 
+import com.kokotripadmin.constant.BucketDirectoryConstant;
 import com.kokotripadmin.constant.SupportLanguageEnum;
 import com.kokotripadmin.dao.interfaces.city.*;
 import com.kokotripadmin.datatablesdao.CityDataTablesDao;
@@ -58,8 +59,6 @@ public class CityServiceImpl implements CityService, CityEntityService {
     private final SupportLanguageEntityService supportLanguageEntityService;
     private final StateEntityService           stateEntityService;
     private final BucketService bucketService;
-
-    private final String CITY_IMAGE_DIRECTORY = "city/image";
 
     @Autowired
     public CityServiceImpl(Convert convert,
@@ -203,7 +202,7 @@ public class CityServiceImpl implements CityService, CityEntityService {
     public Integer saveImage(CityImageDto cityImageDto)
     throws CityNotFoundException, ImageDuplicateException, IOException, FileIsNotImageException {
         City city = findEntityById(cityImageDto.getCityId());
-        String bucketKey = CITY_IMAGE_DIRECTORY + "/" + city.getName() + "/" + cityImageDto.getName();
+        String bucketKey = BucketDirectoryConstant.CITY_IMAGE + "/" + city.getName() + "/" + cityImageDto.getName();
 
         if (cityImageDao.count(CitySpec.findImageByIdAndImageBucketKey(city.getId(), bucketKey)) > 0)
             throw new ImageDuplicateException(cityImageDto.getName());

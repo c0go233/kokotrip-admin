@@ -1,5 +1,6 @@
 package com.kokotripadmin.service.implementations.activity;
 
+import com.kokotripadmin.constant.BucketDirectoryConstant;
 import com.kokotripadmin.constant.SupportLanguageEnum;
 import com.kokotripadmin.dao.interfaces.activity.ActivityDao;
 import com.kokotripadmin.dao.interfaces.activity.ActivityImageDao;
@@ -65,8 +66,6 @@ public class ActivityServiceImpl implements ActivityService, ActivityEntityServi
     private final CityEntityService            cityEntityService;
     private final RegionEntityService          regionEntityService;
     private final BucketService bucketService;
-
-    private final String ACTIVITY_IMAGE_DIRECTORY = "activity/image";
 
     public ActivityServiceImpl(ModelMapper modelMapper,
                                Convert convert,
@@ -271,7 +270,11 @@ public class ActivityServiceImpl implements ActivityService, ActivityEntityServi
     public Integer saveImage(ActivityImageDto activityImageDto)
     throws ActivityNotFoundException, ImageDuplicateException, IOException, FileIsNotImageException {
         Activity activity = findEntityById(activityImageDto.getActivityId());
-        String bucketKey = ACTIVITY_IMAGE_DIRECTORY + "/" + activity.getName() + "/" + activityImageDto.getName();
+
+        String bucketKey = BucketDirectoryConstant.TOUR_SPOT_IMAGE + "/" +
+                           activity.getTourSpot().getName() + "/activity/" +
+                           activity.getName() + "/" +
+                           activityImageDto.getName();
 
         if (activityImageDao.count(ActivitySpec.findImageByIdAndImageBucketKey(activity.getId(), bucketKey)) > 0)
             throw new ImageDuplicateException(activityImageDto.getName());

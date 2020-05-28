@@ -125,6 +125,7 @@
 
 <script>
     $(document).ready(function () {
+        setImageGallery();
         setDataTable('tour-spot-ticket-description-data-table', false, 5, '${pageContext.request.contextPath}',
             '/tour-spot/ticket/description', '/add?tourSpotTicketId=${tourSpotTicketVm.id}', true, true);
         setListenerToTabList();

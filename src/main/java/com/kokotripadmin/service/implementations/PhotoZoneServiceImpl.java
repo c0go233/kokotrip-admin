@@ -1,19 +1,26 @@
 package com.kokotripadmin.service.implementations;
 
+import com.kokotripadmin.constant.BucketDirectoryConstant;
 import com.kokotripadmin.constant.SupportLanguageEnum;
 import com.kokotripadmin.dao.interfaces.photozone.PhotoZoneDao;
+import com.kokotripadmin.dao.interfaces.photozone.PhotoZoneImageDao;
 import com.kokotripadmin.dao.interfaces.photozone.PhotoZoneInfoDao;
 import com.kokotripadmin.dto.photozone.PhotoZoneDto;
+import com.kokotripadmin.dto.photozone.PhotoZoneImageDto;
 import com.kokotripadmin.dto.photozone.PhotoZoneInfoDto;
 import com.kokotripadmin.entity.activity.Activity;
 import com.kokotripadmin.entity.activity.ActivityInfo;
 import com.kokotripadmin.entity.common.SupportLanguage;
 import com.kokotripadmin.entity.photozone.PhotoZone;
+import com.kokotripadmin.entity.photozone.PhotoZoneImage;
 import com.kokotripadmin.entity.photozone.PhotoZoneInfo;
 import com.kokotripadmin.entity.tourspot.TourSpot;
 import com.kokotripadmin.entity.tourspot.TourSpotInfo;
 import com.kokotripadmin.exception.activity.ActivityInfoNotFoundException;
 import com.kokotripadmin.exception.activity.ActivityNotFoundException;
+import com.kokotripadmin.exception.image.FileIsNotImageException;
+import com.kokotripadmin.exception.image.ImageDuplicateException;
+import com.kokotripadmin.exception.image.RepImageNotDeletableException;
 import com.kokotripadmin.exception.photozone.*;
 import com.kokotripadmin.exception.support_language.SupportLanguageNotFoundException;
 import com.kokotripadmin.exception.tag.TagInfoNotFoundException;
@@ -21,6 +28,7 @@ import com.kokotripadmin.exception.tour_spot.*;
 import com.kokotripadmin.service.entityinterfaces.ActivityEntityService;
 import com.kokotripadmin.service.entityinterfaces.SupportLanguageEntityService;
 import com.kokotripadmin.service.entityinterfaces.TourSpotEntityService;
+import com.kokotripadmin.service.interfaces.BucketService;
 import com.kokotripadmin.service.interfaces.PhotoZoneService;
 import com.kokotripadmin.spec.PhotoZoneSpec;
 import com.kokotripadmin.util.Convert;
@@ -31,6 +39,8 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -43,25 +53,31 @@ public class PhotoZoneServiceImpl implements PhotoZoneService {
 
     private final PhotoZoneDao photoZoneDao;
     private final PhotoZoneInfoDao photoZoneInfoDao;
+    private final PhotoZoneImageDao photoZoneImageDao;
 
     private final TourSpotEntityService tourSpotEntityService;
     private final ActivityEntityService activityEntityService;
     private final SupportLanguageEntityService supportLanguageEntityService;
+    private final BucketService bucketService;
 
     @Autowired
     public PhotoZoneServiceImpl(ModelMapper modelMapper, Convert convert,
                                 PhotoZoneDao photoZoneDao,
                                 PhotoZoneInfoDao photoZoneInfoDao,
+                                PhotoZoneImageDao photoZoneImageDao,
                                 TourSpotEntityService tourSpotEntityService,
                                 ActivityEntityService activityEntityService,
-                                SupportLanguageEntityService supportLanguageEntityService) {
+                                SupportLanguageEntityService supportLanguageEntityService,
+                                BucketService bucketService) {
         this.modelMapper = modelMapper;
         this.convert = convert;
         this.photoZoneDao = photoZoneDao;
         this.photoZoneInfoDao = photoZoneInfoDao;
+        this.photoZoneImageDao = photoZoneImageDao;
         this.tourSpotEntityService = tourSpotEntityService;
         this.activityEntityService = activityEntityService;
         this.supportLanguageEntityService = supportLanguageEntityService;
+        this.bucketService = bucketService;
     }
 
     @Override
@@ -193,6 +209,82 @@ public class PhotoZoneServiceImpl implements PhotoZoneService {
         photoZoneDao.delete(photoZone);
         return tourSpotId;
     }
+
+
+//  =============================================== IMAGE ================================================  //
+
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, readOnly = true)
+    public PhotoZoneImage findImageByImageId(Integer photoZoneImageId) throws PhotoZoneImageNotFoundException {
+        return photoZoneImageDao.findById(photoZoneImageId).orElseThrow(PhotoZoneImageNotFoundException::new);
+    }
+
+    @Override
+    @Transactional
+    public Integer saveImage(PhotoZoneImageDto photoZoneImageDto)
+    throws PhotoZoneNotFoundException, ImageDuplicateException, IOException, FileIsNotImageException {
+        PhotoZone photoZone = findEntityById(photoZoneImageDto.getPhotoZoneId());
+
+        String bucketKey = BucketDirectoryConstant.TOUR_SPOT_IMAGE + "/" +
+                           photoZone.getTourSpot().getName() + "/photo-zone/" +
+                           photoZone.getName() + "/" +
+                           photoZoneImageDto.getName();
+
+        if (photoZoneImageDao.count(PhotoZoneSpec.findImageByIdAndImageBucketKey(photoZone.getId(), bucketKey)) > 0)
+            throw new ImageDuplicateException(photoZoneImageDto.getName());
+
+        PhotoZoneImage photoZoneImage = modelMapper.map(photoZoneImageDto, PhotoZoneImage.class);
+        photoZoneImage.setPhotoZone(photoZone);
+        photoZoneImage.setBucketKey(bucketKey);
+        photoZoneImageDao.save(photoZoneImage);
+        bucketService.uploadImage(bucketKey, photoZoneImageDto.getName(), photoZoneImageDto.getMultipartFile());
+        return photoZoneImage.getId();
+    }
+
+    @Override
+    @Transactional
+    public void updateRepImage(Integer imageId) throws PhotoZoneImageNotFoundException {
+        PhotoZoneImage newRepImage = findImageByImageId(imageId);
+        List<PhotoZoneImage> repImageList = photoZoneImageDao.findAll(PhotoZoneSpec.findImageByIdAndRepImage(newRepImage.getPhotoZoneId(), true));
+        for (PhotoZoneImage repImage : repImageList) {
+            if (newRepImage != repImage) repImage.setRepImage(false);
+        }
+        newRepImage.setRepImage(true);
+    }
+
+    @Override
+    @Transactional
+    public void updateImageOrder(List<Integer> imageIdList) {
+        List<PhotoZoneImage> photoZoneImageList = photoZoneImageDao.findAll(PhotoZoneSpec.findImageByIds(imageIdList));
+        HashMap<Integer, PhotoZoneImage> photoZoneImageHashMap = photoZoneImageList.stream()
+                                                                                   .collect(Collectors.toMap(PhotoZoneImage::getId,
+                                                                                              photoZoneImage -> photoZoneImage,
+                                                                                              (oKey, nKey) -> oKey,
+                                                                                              HashMap::new));
+        int order = 0;
+        for (Integer imageId : imageIdList) {
+            PhotoZoneImage photoZoneImage = photoZoneImageHashMap.get(imageId);
+            if (photoZoneImage != null) {
+                photoZoneImage.setOrder(order);
+                order++;
+            }
+        }
+        photoZoneImageDao.saveAll(photoZoneImageList);
+    }
+
+
+    @Override
+    @Transactional
+    public void deleteImage(Integer photoZoneImageId)
+    throws PhotoZoneImageNotFoundException, RepImageNotDeletableException {
+        PhotoZoneImage photoZoneImage = findImageByImageId(photoZoneImageId);
+        if (photoZoneImage.isRepImage())
+            throw new RepImageNotDeletableException();
+        bucketService.deleteImage(photoZoneImage.getBucketKey());
+        photoZoneImageDao.delete(photoZoneImage);
+    }
+
+
+
 
 //  =============================================== INFO =================================================  //
 

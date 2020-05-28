@@ -1,5 +1,6 @@
 package com.kokotripadmin.service.implementations.activity;
 
+import com.kokotripadmin.constant.BucketDirectoryConstant;
 import com.kokotripadmin.constant.SupportLanguageEnum;
 import com.kokotripadmin.dao.interfaces.activity.ActivityTicketDao;
 import com.kokotripadmin.dao.interfaces.activity.ActivityTicketImageDao;
@@ -213,7 +214,13 @@ public class ActivityTicketServiceImpl implements ActivityTicketService, Activit
     public Integer saveImage(ActivityTicketImageDto activityTicketImageDto)
     throws ActivityTicketNotFoundException, ImageDuplicateException, IOException, FileIsNotImageException {
         ActivityTicket activityTicket = findEntityById(activityTicketImageDto.getActivityTicketId());
-        String bucketKey = ACTIVITY_TICKET_IMAGE_DIRECTORY + "/" + activityTicket.getName() + "/" + activityTicketImageDto.getName();
+
+
+        String bucketKey = BucketDirectoryConstant.TOUR_SPOT_IMAGE + "/" +
+                           activityTicket.getActivity().getTourSpot().getName() + "/activity/" +
+                           activityTicket.getActivity().getName() + "/ticket/" +
+                           activityTicketImageDto.getName();
+
 
         if (activityTicketImageDao.count(ActivityTicketSpec.findImageByIdAndImageBucketKey(activityTicket.getId(), bucketKey)) > 0)
             throw new ImageDuplicateException(activityTicketImageDto.getName());
