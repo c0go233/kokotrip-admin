@@ -70,7 +70,6 @@ public class PhotoZoneInfo extends BaseDescribableInfoEntity {
         this.latitude = photoZone.getLatitude();
         this.longitude = photoZone.getLongitude();
         this.repImagePath = photoZone.getRepImagePath();
-        this.repImageFileType = photoZone.getRepImageFileType();
     }
 
     public void clone(PhotoZone photoZone) {

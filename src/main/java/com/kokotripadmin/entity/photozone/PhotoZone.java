@@ -40,9 +40,6 @@ public class PhotoZone extends BaseEntity {
     @Column(name = "rep_image_path")
     private String repImagePath;
 
-    @Column(name = "rep_image_file_type")
-    private String repImageFileType;
-
     @Column(name = "parent_tour_spot_id", insertable = false, updatable = false)
     private Integer parentTourSpotId;
 
@@ -95,7 +92,6 @@ public class PhotoZone extends BaseEntity {
         this.latitude = photoZoneDto.getLatitude();
         this.longitude = photoZoneDto.getLongitude();
         this.repImagePath = photoZoneDto.getRepImagePath();
-        this.repImageFileType = photoZoneDto.getRepImageFileType();
     }
 
     public void denormalize(TourSpot tourSpot, Activity activity) {

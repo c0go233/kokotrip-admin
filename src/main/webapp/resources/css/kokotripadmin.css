@@ -1910,7 +1910,46 @@ ul.image-gallery__image-list > li.processing > .image-gallery__image-wrapper > d
 
 
 
+/* ============================================================ PROCESSING ANIMATION ======================================================*/
 
+.top-nav__btn-wrapper {
+    position: relative;
+}
+
+.top-nav__btn  {
+    height: 50px;
+    width: 50px;
+}
+
+.top-nav__btn > img {
+    height: 32px;
+    width: 32px;
+}
+
+.top-nav__drop-down-menu-wrapper {
+    position: absolute;
+    background-color: white;
+    top: 50px;
+    right: 0;
+    z-index: 10;
+}
+
+.top-nav__drop-down-menu-btn {
+    padding: 10px 20px;
+    text-align: right;
+}
+
+.top-nav__btn:hover, .top-nav__btn.active {
+    background-color: #323130;
+}
+
+.tool-bar__btn-label {
+    margin-left: 5px;
+}
+
+.toolbar > a > span {
+    margin-top: 2px;
+}
 
 
 /* ============================================================ PROCESSING ANIMATION ======================================================*/

@@ -60,11 +60,12 @@ $(document).ready(function () {
 //============================COMMON============================================================//
 
 function setListenerToElements () {
-    $('input[type=checkbox]').on(eventType.change, onChangeCheckbox)
-    resetCheckbox()
-    setListenersToDropdown()
-    setListenerToSideNavDropdown()
-    setListenerToModalCloseBtn()
+    $('input[type=checkbox]').on(eventType.change, onChangeCheckbox);
+    resetCheckbox();
+    setListenersToDropdown();
+    setListenerToSideNavDropdown();
+    setListenerToModalCloseBtn();
+    setTopNavBtn();
     
 }
 
@@ -107,6 +108,24 @@ function setListenerToSideNavDropdown () {
             $(this).parent('div.side-nav__dropdown').toggleClass('dropdown-open')
         })
     }
+}
+
+
+let eUserProfileBtn;
+let eUserProfileMenuWrapper;
+
+function setTopNavBtn() {
+    eUserProfileBtn = $('button#user-profile-btn');
+    eUserProfileMenuWrapper = $('div#user-profile-menu-wrapper');
+    
+    $('button.top-nav__btn').on(eventType.click, function () {
+        let targetId = $(this).attr('data-target-id');
+        let target = $('div#' + targetId);
+        if (target.length)
+            target.toggleClass('hide');
+        
+        $(this).toggleClass('active');
+    });
 }
 
 // ================================================ K-DROPDOWN ===================================================
@@ -332,9 +351,10 @@ function setActivityDataTable (baseUrl, prefixUrl) {
 }
 
 function appendAddLinkToDataTableToolbar (dataTable, addUrl) {
-    let addTag = '<a class="link-primary tool-bar__add-link" href="' + addUrl + '">' +
-        '<div class="cross-primary"></div>' +
-        '<span> 추가하기</span>' +
+        let addTag = '<a class="link-primary tool-bar__add-link img-hover-btn" href="' + addUrl + '">' +
+        '<img class="icon-medium" src="' + $('meta[name=contextPath]').attr('content') + '/resources/image/plus-primary.png' + '"/>' +
+        '<img class="icon-medium" src="' + $('meta[name=contextPath]').attr('content') + '/resources/image/plus-primary-darker.png  ' + '"/>' +
+        '<span class="tool-bar__btn-label"> 추가하기</span>' +
         '</a>'
     dataTable.siblings('div.toolbar').html(addTag)
 }
@@ -447,7 +467,11 @@ function setInfoTable (includeDescription) {
 }
 
 function appendAddBtnToToolbar () {
-    let addTag = '<button id="info-add-btn" class="link-primary k-btn tool-bar__add-link"><div class="cross-primary"></div><span>추가하기</span></button>';
+    let addTag = '<button id="info-add-btn" class="link-primary k-btn tool-bar__add-link img-hover-btn">' +
+        '<img class="icon-medium" src="' + $('meta[name=contextPath]').attr('content') + '/resources/image/plus-primary.png' + '"/>' +
+        '<img class="icon-medium" src="' + $('meta[name=contextPath]').attr('content') + '/resources/image/plus-primary-darker.png  ' + '"/>' +
+        '<span class="tool-bar__btn-label"> 추가하기</span>' +
+        '</button>';
     $('table#info-data-table').siblings('div.toolbar').html(addTag);
 }
 
@@ -1428,3 +1452,7 @@ let dataURLToBlob = function (dataURL) {
     console.log(blob);
     return blob;
 }
+
+
+//============================ TOP ==============================================//
+

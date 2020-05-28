@@ -46,6 +46,7 @@
         <div class="section__tab-list">
             <ul class="tab-list">
                 <button type="button" class="tab_selected tab-list__tab" data-target-id="tab-basic-info">기본정보</button>
+                <button type="button" class="tab_selected tab-list__tab" data-target-id="tab-image">이미지</button>
                 <button type="button" class="tab-list__tab" data-target-id="tab-info-list">번역리스트</button>
             </ul>
         </div>
@@ -70,6 +71,16 @@
             </div>
         </div>
 
+
+        <div id="tab-image" class="tab-content">
+            <div class="layout__half">
+                <t:imageGallery prefixUrl="/tour-spot/ticket/description/image"
+                                imageList="${tourSpotTicketDescriptionVm.baseImageVmList}"
+                                ownerIdName="tourSpotTicketDescriptionVm"
+                                includeRep="false"
+                                ownerId="${tourSpotTicketDescriptionVm.id}"/>
+            </div>
+        </div>
 
         <div id="tab-info-list" class="tab-content">
 

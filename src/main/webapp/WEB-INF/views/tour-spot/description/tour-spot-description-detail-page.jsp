@@ -44,6 +44,7 @@
         <div class="section__tab-list">
             <ul class="tab-list">
                 <button type="button" class="tab_selected tab-list__tab" data-target-id="tab-basic-info">기본정보</button>
+                <button type="button" class="tab_selected tab-list__tab" data-target-id="tab-image">이미지</button>
                 <button type="button" class="tab-list__tab" data-target-id="tab-info-list">번역리스트</button>
             </ul>
         </div>
@@ -65,6 +66,16 @@
                 <t:contentFooter id="${tourSpotDescriptionVm.id}" name="${tourSpotDescriptionVm.name}"
                                  urlPrefix="/tour-spot/description" type="여행지설명" />
 
+            </div>
+        </div>
+
+        <div id="tab-image" class="tab-content">
+            <div class="layout__half">
+                <t:imageGallery prefixUrl="/tour-spot/description/image"
+                                imageList="${tourSpotDescriptionVm.baseImageVmList}"
+                                ownerIdName="tourSpotDescriptionId"
+                                includeRep="false"
+                                ownerId="${tourSpotDescriptionVm.id}"/>
             </div>
         </div>
 

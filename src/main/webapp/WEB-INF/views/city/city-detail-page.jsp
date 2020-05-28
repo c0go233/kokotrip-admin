@@ -75,6 +75,7 @@
                 <t:imageGallery prefixUrl="/city/image"
                                 imageList="${cityVm.baseImageVmList}"
                                 ownerIdName="cityId"
+                                includeRep="true"
                                 ownerId="${cityVm.id}"/>
             </div>
         </div>

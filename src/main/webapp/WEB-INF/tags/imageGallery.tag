@@ -4,7 +4,9 @@
 <%@ attribute required="true" name="prefixUrl" type="java.lang.String" %>
 <%@ attribute required="true" name="ownerIdName" type="java.lang.String" %>
 <%@ attribute required="true" name="ownerId" type="java.lang.String" %>
+<%@ attribute required="true" name="includeRep" type="java.lang.String" %>
 <%@ attribute name="imageList" type="java.util.List" %>
+
 
 
 <div class="section__content border-box">
@@ -16,11 +18,14 @@
             <span>추가하기</span>
         </button>
         <div class="image-gallery__tool-bar__right-side">
-            <button id="image-gallery-representative-image-btn" type="button"
-                    class="image-gallery__representative-btn link-primary k-btn tool-bar__add-link ">
-                <div></div>
-                <span>대표이미지</span>
-            </button>
+            <c:if test="${includeRep}">
+                <button id="image-gallery-representative-image-btn" type="button"
+                        class="image-gallery__representative-btn link-primary k-btn tool-bar__add-link ">
+                    <div></div>
+                    <span>대표이미지</span>
+                </button>
+            </c:if>
+
             <%--<button id="image-gallery-delete-btn"--%>
                     <%--type="button"--%>
                     <%--class="link-primary k-btn tool-bar__add-link img-hover-btn"--%>

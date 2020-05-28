@@ -32,7 +32,7 @@ public interface TourSpotDescriptionService {
 
 
 
-    void deleteImage(Integer imageId) throws TourSpotDescriptionImageNotFoundException, RepImageNotDeletableException;
+    void deleteImage(Integer imageId) throws TourSpotDescriptionImageNotFoundException;
     Integer saveImage(TourSpotDescriptionImageDto tourSpotDescriptionImageDto)
     throws TourSpotDescriptionNotFoundException, ImageDuplicateException, IOException, FileIsNotImageException;
     void updateImageOrder(List<Integer> imageIdList);

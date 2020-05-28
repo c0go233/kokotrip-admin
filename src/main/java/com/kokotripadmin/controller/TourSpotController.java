@@ -1,19 +1,27 @@
 package com.kokotripadmin.controller;
 
 
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.SdkClientException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kokotripadmin.constant.AppConstant;
 import com.kokotripadmin.constant.DayOfWeekEnum;
 import com.kokotripadmin.constant.TradingHourTypeEnum;
+import com.kokotripadmin.dto.city.CityImageDto;
 import com.kokotripadmin.dto.common.LocatableAutoCompleteDto;
 import com.kokotripadmin.dto.region.RegionDto;
 import com.kokotripadmin.dto.tourspot.TourSpotDescriptionImageDto;
 import com.kokotripadmin.dto.tourspot.TourSpotDto;
+import com.kokotripadmin.dto.tourspot.TourSpotImageDto;
 import com.kokotripadmin.dto.tourspot.TourSpotInfoDto;
 import com.kokotripadmin.entity.tourspot.TourSpotDescription;
+import com.kokotripadmin.exception.city.CityImageNotFoundException;
 import com.kokotripadmin.exception.city.CityNotFoundException;
 import com.kokotripadmin.exception.day_of_week.DayOfWeekNotFoundException;
+import com.kokotripadmin.exception.image.FileIsNotImageException;
+import com.kokotripadmin.exception.image.ImageDuplicateException;
+import com.kokotripadmin.exception.image.RepImageNotDeletableException;
 import com.kokotripadmin.exception.region.RegionMismatchException;
 import com.kokotripadmin.exception.region.RegionNotFoundException;
 import com.kokotripadmin.exception.support_language.SupportLanguageNotFoundException;
@@ -34,14 +42,17 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
 import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.List;
 
 @Controller
@@ -174,6 +185,66 @@ public class TourSpotController extends BaseController {
         model.addAttribute(AppConstant.TRADING_HOUR_TYPE_LINKED_HASH_MAP, TradingHourTypeEnum.convertToLinkedHashMap());
         model.addAttribute(AppConstant.DAY_OF_WEEK_LINKED_HASH_MAP, DayOfWeekEnum.convertToLinkedHashMap());
     }
+
+
+//  ==================================== TOUR SPOT IMAGE ==========================================  //
+
+    @PostMapping(value = "/image/save",
+                 consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+                 produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<String> saveTourSpotImage(@RequestParam("image") MultipartFile multipartFile,
+                                                @RequestParam("fileName") String fileName,
+                                                @RequestParam("tourSpotId") Integer tourSpotId,
+                                                @RequestParam("order") Integer order,
+                                                @RequestParam("repImage") boolean repImage) {
+        try {
+            TourSpotImageDto tourSpotImageDto = new TourSpotImageDto(fileName, multipartFile.getContentType(), order,
+                                                                     repImage, tourSpotId, multipartFile);
+            Integer tourSpotImageId = tourSpotService.saveImage(tourSpotImageDto);
+            return ResponseEntity.status(HttpStatus.OK).body(convert.resultToJson(tourSpotImageId.toString()));
+        } catch (AmazonServiceException exception) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(convert.exceptionToJson(exception.getMessage()));
+        } catch (TourSpotNotFoundException | FileIsNotImageException | ImageDuplicateException | IOException |
+                SdkClientException exception) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(convert.exceptionToJson(exception.getMessage()));
+        }
+    }
+
+    @PostMapping(value = "/image/rep-image/update", produces = "application/json; charset=utf8")
+    @ResponseBody
+    public ResponseEntity<String> updateRepImage(@RequestParam("imageId") Integer imageId) {
+        try {
+            tourSpotService.updateRepImage(imageId);
+            return ResponseEntity.status(HttpStatus.OK).body(convert.resultToJson(""));
+        } catch (TourSpotImageNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(convert.exceptionToJson(e.getMessage()));
+        }
+    }
+
+    @PostMapping(value = "/image/delete", produces = "application/json; charset=utf8")
+    @ResponseBody
+    public ResponseEntity<String> deleteTourSpotImage(@RequestParam("id") Integer imageId) {
+
+        try {
+            tourSpotService.deleteImage(imageId);
+            return ResponseEntity.status(HttpStatus.OK).body(convert.resultToJson(imageId.toString()));
+        } catch (AmazonServiceException | TourSpotImageNotFoundException | RepImageNotDeletableException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(convert.exceptionToJson(e.getMessage()));
+        } catch (SdkClientException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(convert.exceptionToJson(e.getMessage()));
+        }
+    }
+
+
+    @PostMapping(value = "/image/order/save", produces = "application/json; charset=utf8")
+    @ResponseBody
+    public ResponseEntity<String> saveTourSpotImageOrder(@RequestBody List<Integer> imageIdList) {
+        tourSpotService.updateImageOrder(imageIdList);
+        return ResponseEntity.status(HttpStatus.OK).body(convert.resultToJson(""));
+    }
+
+
 
 
 //    =====================================TOUR_SPOT_INFO===================================================== //

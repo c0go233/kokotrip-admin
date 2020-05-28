@@ -1,14 +1,23 @@
 package com.kokotripadmin.controller;
 
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.SdkClientException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kokotripadmin.constant.AppConstant;
 import com.kokotripadmin.dto.activity.ActivityDto;
 import com.kokotripadmin.dto.activity.ActivityTicketDto;
+import com.kokotripadmin.dto.activity.ActivityTicketImageDto;
 import com.kokotripadmin.dto.activity.ActivityTicketInfoDto;
+import com.kokotripadmin.dto.city.CityImageDto;
 import com.kokotripadmin.exception.activity.ActivityInfoNotFoundException;
 import com.kokotripadmin.exception.activity.ActivityNotFoundException;
 import com.kokotripadmin.exception.activity.ticket.*;
+import com.kokotripadmin.exception.city.CityImageNotFoundException;
+import com.kokotripadmin.exception.city.CityNotFoundException;
+import com.kokotripadmin.exception.image.FileIsNotImageException;
+import com.kokotripadmin.exception.image.ImageDuplicateException;
+import com.kokotripadmin.exception.image.RepImageNotDeletableException;
 import com.kokotripadmin.exception.support_language.SupportLanguageNotFoundException;
 import com.kokotripadmin.exception.ticket.TicketTypeNotFoundException;
 import com.kokotripadmin.service.interfaces.SupportLanguageService;
@@ -22,14 +31,18 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
+import java.io.IOException;
+import java.util.List;
 
 
 @Controller
@@ -99,7 +112,8 @@ public class ActivityTicketController extends BaseController {
     @PostMapping(value = "/delete", produces = "application/json; charset=utf8")
     public ResponseEntity<String> deleteActivityTicket(@RequestParam("id") Integer activityTicketId) {
         try {
-            String returnUrl = "redirect:" + super.getBaseUrl() + "/activity/detail/" + activityTicketService.delete(activityTicketId);
+            String returnUrl = "redirect:" + super.getBaseUrl() + "/activity/detail/" + activityTicketService
+                    .delete(activityTicketId);
             return ResponseEntity.status(HttpStatus.OK).body(convert.resultToJson(returnUrl));
         } catch (DataIntegrityViolationException exception) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -133,20 +147,81 @@ public class ActivityTicketController extends BaseController {
         }
     }
 
+//  ==================================== IMAGE ==========================================  //
+
+    @PostMapping(value = "/image/save",
+                 consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+                 produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<String> saveActivityTicketImage(@RequestParam("image") MultipartFile multipartFile,
+                                                          @RequestParam("fileName") String fileName,
+                                                          @RequestParam("activityTicketId") Integer activityTicketId,
+                                                          @RequestParam("order") Integer order,
+                                                          @RequestParam("repImage") boolean repImage) {
+        try {
+            ActivityTicketImageDto activityTicketImageDto = new ActivityTicketImageDto(fileName,
+                                                                                       multipartFile.getContentType(),
+                                                                                       order,
+                                                                                       repImage, activityTicketId,
+                                                                                       multipartFile);
+            Integer activityTicketImageId = activityTicketService.saveImage(activityTicketImageDto);
+            return ResponseEntity.status(HttpStatus.OK).body(convert.resultToJson(activityTicketImageId.toString()));
+        } catch (AmazonServiceException exception) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(convert.exceptionToJson(exception.getMessage()));
+        } catch (ActivityTicketNotFoundException | FileIsNotImageException | ImageDuplicateException | IOException |
+                SdkClientException exception) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(convert.exceptionToJson(exception.getMessage()));
+        }
+    }
+
+    @PostMapping(value = "/image/rep-image/update", produces = "application/json; charset=utf8")
+    @ResponseBody
+    public ResponseEntity<String> updateRepImage(@RequestParam("imageId") Integer imageId) {
+        try {
+            activityTicketService.updateRepImage(imageId);
+            return ResponseEntity.status(HttpStatus.OK).body(convert.resultToJson(""));
+        } catch (ActivityTicketImageNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(convert.exceptionToJson(e.getMessage()));
+        }
+    }
+
+    @PostMapping(value = "/image/delete", produces = "application/json; charset=utf8")
+    @ResponseBody
+    public ResponseEntity<String> deleteActivityTicketImage(@RequestParam("id") Integer imageId) {
+
+        try {
+            activityTicketService.deleteImage(imageId);
+            return ResponseEntity.status(HttpStatus.OK).body(convert.resultToJson(imageId.toString()));
+        } catch (AmazonServiceException | ActivityTicketImageNotFoundException | RepImageNotDeletableException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(convert.exceptionToJson(e.getMessage()));
+        } catch (SdkClientException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(convert.exceptionToJson(e.getMessage()));
+        }
+    }
+
+
+    @PostMapping(value = "/image/order/save", produces = "application/json; charset=utf8")
+    @ResponseBody
+    public ResponseEntity<String> saveActivityTicketImageOrder(@RequestBody List<Integer> imageIdList) {
+        activityTicketService.updateImageOrder(imageIdList);
+        return ResponseEntity.status(HttpStatus.OK).body(convert.resultToJson(""));
+    }
 
 
 //  ================================================= INFO ======================================================== //
 
     @PostMapping(value = "/info/save", produces = "application/json; charset=utf8")
     @ResponseBody
-    public ResponseEntity<String> saveActivityTicketInfo(@ModelAttribute @Valid ActivityTicketInfoVm activityTicketInfoVm,
-                                                         BindingResult bindingResult) throws JsonProcessingException {
+    public ResponseEntity<String> saveActivityTicketInfo(
+            @ModelAttribute @Valid ActivityTicketInfoVm activityTicketInfoVm,
+            BindingResult bindingResult) throws JsonProcessingException {
 
         if (bindingResult.hasErrors())
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(convert.fieldErrorsToJson(bindingResult));
 
         try {
-            ActivityTicketInfoDto activityTicketInfoDto = modelMapper.map(activityTicketInfoVm, ActivityTicketInfoDto.class);
+            ActivityTicketInfoDto activityTicketInfoDto = modelMapper
+                    .map(activityTicketInfoVm, ActivityTicketInfoDto.class);
             activityTicketInfoDto = activityTicketService.saveInfo(activityTicketInfoDto);
             return ResponseEntity.status(HttpStatus.OK).body(objectMapper.writeValueAsString(activityTicketInfoDto));
         } catch (SupportLanguageNotFoundException | ActivityTicketNotFoundException | ActivityTicketInfoNotFoundException |

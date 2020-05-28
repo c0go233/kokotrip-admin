@@ -1179,6 +1179,7 @@ create table `tour_spot_description_image`
 );
 
 
+
 create table `tour_spot_ticket_image`
 (
     `id`                  binary(16)    not null,
