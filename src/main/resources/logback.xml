@@ -3,7 +3,7 @@
 <configuration scan="true">
 
 
-    <property name="path_to_log" value="kokotrip/log" />
+    <property name="path_to_log" value="kokotripadmin/log" />
 
     <appender name="rolling-appender" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <!--if you specify <file> tag here your first file would have the date conversation as %d{yyyy-MM-dd in file name -->
@@ -35,7 +35,7 @@
     </root>
 
     <logger name="com.kokotripadmin" level="debug" additivity="false">
-        <!--<appender-ref ref="console-appender"/>-->
+<!--        <appender-ref ref="console-appender"/>-->
         <appender-ref ref="rolling-appender" />
     </logger>
 

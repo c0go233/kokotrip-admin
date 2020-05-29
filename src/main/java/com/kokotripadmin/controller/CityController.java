@@ -5,6 +5,7 @@ import com.amazonaws.AmazonServiceException;
 import com.amazonaws.SdkClientException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kokotripadmin.config.PersistenceConfig;
 import com.kokotripadmin.constant.AppConstant;
 import com.kokotripadmin.dto.city.CityDto;
 import com.kokotripadmin.dto.city.CityImageDto;
@@ -23,6 +24,8 @@ import com.kokotripadmin.util.Convert;
 import com.kokotripadmin.viewmodel.city.CityInfoVm;
 import com.kokotripadmin.viewmodel.city.CityVm;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
@@ -66,6 +69,9 @@ public class CityController extends BaseController {
 
     private final String CITY_VM = "cityVm";
 
+    private static final Logger logger = LoggerFactory.getLogger(PersistenceConfig.class);
+
+
     @GetMapping("/list")
     public String showStateList() {
         return "city/city-list";
@@ -74,6 +80,8 @@ public class CityController extends BaseController {
     @GetMapping(value = "/list/paginated", produces = "application/json; charset=utf8")
     @ResponseBody
     public DataTablesOutput<CityDto> showCityListPaginated(@Valid DataTablesInput input) {
+
+        logger.info("");
         return cityService.findAllByPagination(input);
     }
 

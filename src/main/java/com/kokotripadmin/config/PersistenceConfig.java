@@ -61,6 +61,7 @@ public class PersistenceConfig {
 
         logger.info("Access Database with jdbc.url=" + jdbcProperty.getUrl() + " | jdbc.user=" + jdbcProperty.getUser());
 
+
         dataSource.setJdbcUrl(jdbcProperty.getUrl());
         dataSource.setUser(jdbcProperty.getUser());
         dataSource.setPassword(jdbcProperty.getPassword());
