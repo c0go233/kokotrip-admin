@@ -13,7 +13,7 @@
 
     <properties>
         <springframework.version>5.2.3.RELEASE</springframework.version>
-        <springsecurity.version>5.2.3.RELEASE</springsecurity.version>
+        <springsecurity.version>5.2.10.RELEASE</springsecurity.version>
         <hibernate.version>5.4.2.Final</hibernate.version>
         <mysql.connector.version>8.0.15</mysql.connector.version>
         <c3p0.version>0.9.5.4</c3p0.version>
